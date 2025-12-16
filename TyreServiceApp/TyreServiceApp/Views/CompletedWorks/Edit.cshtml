@@ -1,0 +1,88 @@
+@model TyreServiceApp.Models.CompletedWork
+
+@{
+    ViewData["Title"] = "Редактировать выполненную работу";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Редактировать выполненную работу</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="WorkId" />
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="OrderNumber" class="form-label fw-semibold">
+                                <i class="bi bi-receipt text-dark"></i> Номер заказа
+                            </label>
+                            <select asp-for="OrderNumber" class="form-select" asp-items="ViewBag.OrderNumber">
+                                <option value="">-- Выберите заказ --</option>
+                            </select>
+                            <span asp-validation-for="OrderNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="ServiceCode" class="form-label fw-semibold">
+                                <i class="bi bi-gear text-dark"></i> Услуга
+                            </label>
+                            <select asp-for="ServiceCode" class="form-select" asp-items="ViewBag.ServiceCode">
+                                <option value="">-- Выберите услугу --</option>
+                            </select>
+                            <span asp-validation-for="ServiceCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="MasterId" class="form-label fw-semibold">
+                                <i class="bi bi-person-badge text-dark"></i> Мастер
+                            </label>
+                            <select asp-for="MasterId" class="form-select" asp-items="ViewBag.MasterId">
+                                <option value="">-- Выберите мастера --</option>
+                            </select>
+                            <span asp-validation-for="MasterId" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="WheelCount" class="form-label fw-semibold">
+                                <i class="bi bi-circle text-dark"></i> Количество колес
+                            </label>
+                            <input asp-for="WheelCount" class="form-control" type="number" placeholder="1-4" />
+                            <span asp-validation-for="WheelCount" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="CompletionTimeMin" class="form-label fw-semibold">
+                                <i class="bi bi-clock text-dark"></i> Время выполнения (мин)
+                            </label>
+                            <input asp-for="CompletionTimeMin" class="form-control" type="number" placeholder="Минуты" />
+                            <span asp-validation-for="CompletionTimeMin" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="WorkTotal" class="form-label fw-semibold">
+                                <i class="bi bi-currency-exchange text-dark"></i> Итоговая стоимость
+                            </label>
+                            <input asp-for="WorkTotal" class="form-control" type="number" step="0.01" placeholder="0.00" />
+                            <span asp-validation-for="WorkTotal" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-dark">
+                            <i class="bi bi-save"></i> Сохранить изменения
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Вернуться к списку
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,62 @@
+@model TyreServiceApp.Models.Master
+
+@{
+    ViewData["Title"] = "Удалить мастера";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Удаление мастера</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Вы уверены, что хотите удалить этого мастера? Это действие нельзя отменить.
+                </div>
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-person text-dark"></i> ФИО:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.FullName)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-briefcase text-dark"></i> Должность:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.Position)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-star text-dark"></i> Разряд:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-info">@Html.DisplayFor(model => model.Rank) разряд</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-currency-exchange text-dark"></i> Почасовая ставка:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.HourlyRate) ₽/ч</strong>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <form asp-action="Delete" class="d-flex gap-2">
+                    <input type="hidden" asp-for="MasterId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

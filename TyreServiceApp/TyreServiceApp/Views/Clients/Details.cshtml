@@ -1,0 +1,41 @@
+@model TyreServiceApp.Models.Client
+@{
+    ViewData["Title"] = "Подробности о клиенте";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Подробности о клиенте</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-person text-dark"></i> ФИО:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.FullName</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-telephone text-dark"></i> Телефон:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.Phone</strong>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.ClientId" class="btn btn-dark">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Вернуться к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

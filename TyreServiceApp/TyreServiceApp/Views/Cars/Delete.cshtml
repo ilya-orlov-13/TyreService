@@ -1,0 +1,69 @@
+@model TyreServiceApp.Models.Car
+
+@{
+    ViewData["Title"] = "Удалить автомобиль";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Удаление автомобиля</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Вы уверены, что хотите удалить этот автомобиль? Это действие нельзя отменить.
+                </div>
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tag text-dark"></i> Марка:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.Brand)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tag text-dark"></i> Модель:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.Model)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-calendar text-dark"></i> Год выпуска:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.ManufactureYear)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-123 text-dark"></i> Госномер:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-secondary">@Html.DisplayFor(model => model.LicensePlate)</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-upc text-dark"></i> VIN номер:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <code>@Html.DisplayFor(model => model.Vin)</code>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <form asp-action="Delete" class="d-flex gap-2">
+                    <input type="hidden" asp-for="CarId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

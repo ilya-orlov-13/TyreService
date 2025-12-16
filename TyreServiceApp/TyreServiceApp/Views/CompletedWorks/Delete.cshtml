@@ -1,0 +1,76 @@
+@model TyreServiceApp.Models.CompletedWork
+
+@{
+    ViewData["Title"] = "Удалить выполненную работу";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Удаление выполненной работы</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Вы уверены, что хотите удалить эту выполненную работу? Это действие нельзя отменить.
+                </div>
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-receipt text-dark"></i> Номер заказа:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.OrderNumber)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-gear text-dark"></i> Услуга:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@(Model.Service?.ServiceName ?? "Не указана")</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-person-badge text-dark"></i> Мастер:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@(Model.Master?.FullName ?? "Не указан")</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-circle text-dark"></i> Количество колес:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-secondary">@Html.DisplayFor(model => model.WheelCount)</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-clock text-dark"></i> Время выполнения (мин):
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.CompletionTimeMin)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-currency-exchange text-dark"></i> Итоговая стоимость:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.WorkTotal) ₽</strong>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <form asp-action="Delete" class="d-flex gap-2">
+                    <input type="hidden" asp-for="WorkId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

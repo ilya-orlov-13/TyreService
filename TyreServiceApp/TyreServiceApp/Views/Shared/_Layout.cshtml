@@ -1,0 +1,549 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TyreServiceApp</title>
+    
+     <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TyreServiceApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/custom-buttons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
+    <style>
+        /* Сброс стандартных стилей ссылок */
+        .customNavBoxHolder a {
+            text-decoration: none !important;
+            color: inherit;
+        }
+        
+        .customNavBoxHolder a:hover {
+            text-decoration: none !important;
+            color: inherit;
+        }
+
+        /* Улучшенные стили для навигации */
+        .customNavBoxHolder {
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .customNavBox {
+            width: fit-content;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 16px;
+            background-color: rgba(0, 0, 0, 0.16);
+            border-radius: 6px !important;
+            color: rgba(255, 255, 255, 0.85);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            height: 40px;
+            align-items: center;
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 1px 0px inset, 
+                        rgba(255, 255, 255, 0.17) 0px 1px 1px 0px;
+            outline: none;
+            justify-content: center;
+            min-width: 65px;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+
+        .customNavBox:hover {
+            background-color: #2c2c2c;
+            color: white;
+            box-shadow: rgba(0, 0, 0, 0.23) 0px -4px 1px 0px inset, 
+                        rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, 
+                        rgba(0, 0, 0, 0.17) 0px 2px 4px 1px;
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .customNavBox .inner {
+            font-size: 14px;
+            font-weight: 600;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: translateY(0px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .customNavBox:hover .inner {
+            transform: translateY(-2px);
+        }
+
+        /* Активное состояние*/
+        .nav-item.active .customNavBox {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            box-shadow: rgba(0, 0, 0, 0.25) 0px -4px 1px 0px inset, 
+                        rgba(255, 255, 255, 0.2) 0px -1px 1px 0px, 
+                        rgba(0, 0, 0, 0.2) 0px 2px 4px 1px;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-item.active .customNavBox .inner {
+            transform: translateY(-2px);
+            color: #000000 !important;
+        }
+
+        .nav-item.active .customNavBox:hover {
+            background-color: #f8f9fa !important;
+            box-shadow: rgba(0, 0, 0, 0.28) 0px -4px 1px 0px inset, 
+                        rgba(255, 255, 255, 0.2) 0px -1px 1px 0px, 
+                        rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
+        }
+
+        /* Цвет иконок в активном состоянии */
+        .nav-item.active .customNavBox i {
+            color: #000000 !important;
+        }
+
+        /* Контейнер для всей навигации справа */
+        .full-nav-container {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+
+        /* Убрали отдельный контейнер для правой части */
+        .nav-right-container {
+            display: none;
+        }
+
+        /* ЛОГОТИП - простой текст без кнопки */
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: white !important;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin-right: 30px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #f8f9fa !important;
+            transform: none !important;
+            background: none !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        .navbar-brand i {
+            color: #ffffff;
+            margin-right: 8px;
+        }
+
+        /* Стили для текущего раздела */
+        .current-section {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            margin-right: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .current-section i {
+            font-size: 1.1em;
+        }
+
+        /* Адаптация для мобильных устройств */
+        @@media (max-width: 992px) {
+            .navbar-collapse {
+                background: #1a1a1a;
+                padding: 15px;
+                border-radius: 8px;
+                margin-top: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+            
+            .customNavBoxHolder {
+                flex-direction: column;
+                width: 100%;
+                gap: 8px;
+            }
+            
+            .customNavBox {
+                width: 100%;
+                border-radius: 6px !important;
+                justify-content: flex-start;
+                padding: 12px 20px;
+                height: auto;
+                min-height: 48px;
+                font-size: 15px;
+            }
+            
+            .customNavBox .inner {
+                font-size: 15px;
+                gap: 12px;
+            }
+            
+            .current-section {
+                margin: 10px 0;
+                justify-content: center;
+                text-align: center;
+                font-size: 1.1rem;
+            }
+            
+            .navbar-brand {
+                margin-right: 0;
+                margin-bottom: 10px;
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Анимация для активного элемента */
+        @@keyframes pulse-white {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        .nav-item.active .customNavBox {
+            animation: pulse-white 2s infinite;
+        }
+
+        /* Текущий заголовок страницы (только для десктопа) */
+        .page-title-desktop {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .page-title-desktop i {
+            color: #ffffff;
+        }
+
+        /* Убираем стандартные подчеркивания у всех ссылок в навигации */
+        .navbar-nav .nav-link,
+        .full-nav-container a,
+        .navbar-brand {
+            text-decoration: none !important;
+        }
+
+        /* Убираем подчеркивание при наведении */
+        .navbar-nav .nav-link:hover,
+        .full-nav-container a:hover,
+        .navbar-brand:hover {
+            text-decoration: none !important;
+        }
+
+        /* Убираем синие стандартные стили ссылок Bootstrap */
+        a:focus, a:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Цвет текста для неактивных кнопок при наведении */
+        .customNavBox:hover .inner {
+            color: white !important;
+        }
+
+        .customNavBox:hover i {
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+            <div class="container-fluid">
+                <!-- Название -->
+                <div class="brand-container d-flex align-items-center" style="margin-right: 30px;">
+                    <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                        <!-- лого -->
+                        <img src="~/images/logo.png" alt="Логотип TyreService" class="brand-logo me-2" 
+                            style="height: 40px; width: auto; object-fit: contain;" />
+                        <span class="brand-text fw-bold">TyreService</span>
+                    </a>
+                </div>
+                
+                @* <!-- Текущий раздел (только для мобильных) -->
+                <div class="d-block d-lg-none current-section">
+                    @{
+                        var controller = ViewContext.RouteData.Values["Controller"]?.ToString();
+                        var action = ViewContext.RouteData.Values["Action"]?.ToString();
+                        var title = ViewData["Title"]?.ToString() ?? "Панель управления";
+                        
+                        var iconMap = new Dictionary<string, string>
+                        {
+                            { "Home", "house-door" },
+                            { "Clients", "people" },
+                            { "Cars", "car-front" },
+                            { "Orders", "receipt" },
+                            { "Services", "gear" },
+                            { "Masters", "person-badge" },
+                            { "Tires", "circle" },
+                            { "CompletedWorks", "check-circle" }
+                        };
+                        
+                        var icon = iconMap.ContainsKey(controller ?? "") ? iconMap[controller] : "tools";
+                    }
+                    <i class="bi bi-@icon"></i>
+                    <span>@title</span>
+                </div> *@
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                @* <!-- Текущий заголовок страницы (только для десктопа) -->
+                <div class="page-title-desktop d-none d-lg-flex">
+                    <i class="bi bi-@icon"></i>
+                    <span>@title</span>
+                </div> *@
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="full-nav-container">
+                        <div class="customNavBoxHolder">
+                            <!-- Главная -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
+                                <a asp-area="" asp-controller="Home" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-house-door"></i> 
+                                            <span>Главная</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Клиенты -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clients" ? "active" : "")">
+                                <a asp-area="" asp-controller="Clients" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-people"></i> 
+                                            <span>Клиенты</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Автомобили -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cars" ? "active" : "")">
+                                <a asp-area="" asp-controller="Cars" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-car-front"></i> 
+                                            <span>Автомобили</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Заказы -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Orders" ? "active" : "")">
+                                <a asp-area="" asp-controller="Orders" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-receipt"></i> 
+                                            <span>Заказы</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Услуги -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Services" ? "active" : "")">
+                                <a asp-area="" asp-controller="Services" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-gear"></i> 
+                                            <span>Услуги</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Мастера -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Masters" ? "active" : "")">
+                                <a asp-area="" asp-controller="Masters" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-person-badge"></i> 
+                                            <span>Мастера</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Шины -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Tires" ? "active" : "")">
+                                <a asp-area="" asp-controller="Tires" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-circle"></i> 
+                                            <span>Шины</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- Работы -->
+                            <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CompletedWorks" ? "active" : "")">
+                                <a asp-area="" asp-controller="CompletedWorks" asp-action="Index">
+                                    <div class="customNavBox">
+                                        <div class="inner">
+                                            <i class="bi bi-check-circle"></i> 
+                                            <span>Работы</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid px-4 py-3">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-light border-top mt-auto py-3">
+        <div class="container-fluid text-center text-muted">
+            <small>&copy; 2025 - TyreServiceApp - Система управления шиномонтажем</small>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // JavaScript для улучшения навигации
+        document.addEventListener('DOMContentLoaded', function() {
+            // Находим все элементы навигации
+            const navItems = document.querySelectorAll('.customNavBoxHolder .nav-item');
+            
+            // Добавляем обработчик клика
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Если клик был не по ссылке внутри, а по самому элементу
+                    if (!e.target.closest('a')) {
+                        const link = this.querySelector('a');
+                        if (link) {
+                            link.click();
+                            return;
+                        }
+                    }
+                });
+                
+                // Добавляем эффект нажатия
+                const customBox = item.querySelector('.customNavBox');
+                if (customBox) {
+                    customBox.addEventListener('mousedown', function() {
+                        this.style.transform = 'translateY(1px)';
+                        this.style.boxShadow = 'rgba(0, 0, 0, 0.15) 0px 1px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px 0px 1px 0px';
+                    });
+                    
+                    customBox.addEventListener('mouseup', function() {
+                        this.style.transform = '';
+                        this.style.boxShadow = '';
+                    });
+                    
+                    customBox.addEventListener('mouseleave', function() {
+                        this.style.transform = '';
+                        this.style.boxShadow = '';
+                    });
+                }
+            });
+            
+            // Сохраняем активный элемент в localStorage
+            const currentController = '@ViewContext.RouteData.Values["Controller"]?.ToString()';
+            if (currentController) {
+                localStorage.setItem('lastActiveNav', currentController);
+            }
+            
+            // Подсвечиваем активный элемент при загрузке
+            const lastActive = localStorage.getItem('lastActiveNav');
+            if (lastActive) {
+                navItems.forEach(item => {
+                    const link = item.querySelector('a');
+                    if (link) {
+                        const href = link.getAttribute('href');
+                        if (href && href.includes(`/${lastActive}/`)) {
+                            item.classList.add('active');
+                        }
+                    }
+                });
+            }
+            
+            // Анимация при наведении на иконки
+            const navIcons = document.querySelectorAll('.customNavBox .inner i');
+            navIcons.forEach(icon => {
+                icon.addEventListener('mouseenter', function() {
+                    if (!this.closest('.nav-item.active')) {
+                        this.style.transform = 'scale(1.2)';
+                        this.style.transition = 'transform 0.2s ease';
+                    }
+                });
+                
+                icon.addEventListener('mouseleave', function() {
+                    if (!this.closest('.nav-item.active')) {
+                        this.style.transform = 'scale(1)';
+                    }
+                });
+            });
+            
+            // Эффект для активного элемента
+            const activeItem = document.querySelector('.nav-item.active .customNavBox');
+            if (activeItem) {
+                setTimeout(() => {
+                    activeItem.style.animationPlayState = 'running';
+                }, 500);
+            }
+        });
+        
+        // Плавная прокрутка для якорных ссылок
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

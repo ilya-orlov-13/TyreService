@@ -1,0 +1,107 @@
+@model TyreServiceApp.Models.Tire
+@{
+    ViewData["Title"] = "Подробности о шине";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Подробности о шине</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tag text-dark"></i> Тип шины:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.TireType</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-snow text-dark"></i> Сезонность:
+                    </dt>
+                    <dd class="col-sm-8">
+                        @{
+                            var seasonalityBadge = Model.Seasonality switch
+                            {
+                                "Летняя" => "bg-warning",
+                                "Зимняя" => "bg-info",
+                                "Всесезонная" => "bg-success",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @seasonalityBadge">@Model.Seasonality</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-building text-dark"></i> Производитель:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.Manufacturer</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tag text-dark"></i> Модель шины:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.TireModel</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-rulers text-dark"></i> Размер:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-secondary">@Model.Size</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-arrow-up text-dark"></i> Индекс нагрузки:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.LoadIndex</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-speedometer text-dark"></i> Износ (%):
+                    </dt>
+                    <dd class="col-sm-8">
+                        @{
+                            var wearBadge = Model.WearPercentage switch
+                            {
+                                >= 80 => "bg-danger",
+                                >= 50 => "bg-warning",
+                                _ => "bg-success"
+                            };
+                        }
+                        <span class="badge @wearBadge">@Model.WearPercentage%</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-droplet text-dark"></i> Давление:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.Pressure бар</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-car-front text-dark"></i> Автомобиль:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@(Model.Car != null ? $"{Model.Car.Brand} {Model.Car.Model} ({Model.Car.LicensePlate})" : "Не указан")</strong>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.TireId" class="btn btn-dark">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Вернуться к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

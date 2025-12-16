@@ -1,0 +1,48 @@
+@model TyreServiceApp.Models.Service
+@{
+    ViewData["Title"] = "Подробности об услуге";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Подробности об услуге</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-hash text-dark"></i> Код услуги:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.ServiceCode</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tools text-dark"></i> Название услуги:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.ServiceName</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-currency-exchange text-dark"></i> Стоимость:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.ServiceCost ₽</strong>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.ServiceCode" class="btn btn-dark">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Вернуться к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

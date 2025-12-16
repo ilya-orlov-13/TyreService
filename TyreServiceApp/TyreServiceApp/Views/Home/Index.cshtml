@@ -1,0 +1,877 @@
+﻿@{
+    ViewData["Title"] = "Главная";
+}
+
+<style>
+    /* Стили для таблицы */
+    .uiverse-table {
+        width: 100%;
+        background: rgb(44, 44, 44);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .uiverse-table__title {
+        color: white;
+        font-weight: bold;
+        padding: 8px 12px;
+        border-bottom: 1px solid rgb(167, 159, 159);
+        font-size: 0.95rem;
+        background: rgb(44, 44, 44);
+    }
+
+    .uiverse-table__data {
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        border-right: 1px solid rgb(203, 203, 203);
+        border-left: 1px solid rgb(203, 203, 203);
+        border-bottom: 1px solid rgb(203, 203, 203);
+        background: white;
+    }
+
+    .uiverse-table__right {
+        width: 70%;
+        border-right: 1px solid rgb(203, 203, 203);
+    }
+
+    .uiverse-table__left {
+        width: 30%;
+        text-align: end;
+    }
+
+    .uiverse-table__item {
+        padding: 8px 0;
+        background-color: white;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .uiverse-table__right .uiverse-table__item {
+        padding-left: 0.8em;
+    }
+
+    .uiverse-table__left .uiverse-table__item {
+        padding-right: 0.8em;
+        justify-content: flex-end;
+    }
+
+    .uiverse-table__item:nth-child(even) {
+        background: rgb(234, 235, 234);
+    }
+
+    .uiverse-table__header .uiverse-table__item {
+        background: rgb(60, 60, 60);
+        color: white;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    /* Стили для ссылок в таблице */
+    .table-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .table-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Стили для бейджей в таблице */
+    .table-badge {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .badge-paid {
+        background: #198754;
+        color: white;
+    }
+
+    .badge-unpaid {
+        background: #ffc107;
+        color: rgb(231, 231, 231);
+    }
+
+    .badge-master {
+        background: #6c757d;
+        color: white;
+    }
+
+    .badge-no-master {
+        background: #ffc107;
+        color: white;
+    }
+
+    /* Стили для таблицы с тремя колонками */
+.uiverse-table__header {
+    display: flex;
+    border-bottom: 1px solid rgb(203, 203, 203);
+    background: rgb(60, 60, 60);
+    color: white;
+}
+
+.uiverse-table__col-60 {
+    width: 60%;
+    border-right: 1px solid rgb(203, 203, 203);
+}
+
+.uiverse-table__col-20 {
+    width: 20%;
+    border-right: 1px solid rgb(203, 203, 203);
+    text-align: center;
+}
+
+.uiverse-table__col-20:last-child {
+    border-right: none;
+}
+
+.uiverse-table__row {
+    display: flex;
+    border-bottom: 1px solid rgb(203, 203, 203);
+    background: white;
+}
+
+.uiverse-table__row:nth-child(even) {
+    background: rgb(234, 235, 234);
+}
+
+.uiverse-table__cell {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+}
+
+/* Для заголовка таблицы */
+.uiverse-table__header .uiverse-table__cell {
+    font-weight: bold;
+    font-size: 0.9rem;
+    justify-content: center;
+}
+
+/* Для ячеек с информацией о заказе */
+.order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-number {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #212529;
+}
+
+.order-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.car-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.car-photo-small {
+    width: 40px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.car-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.car-model {
+    font-weight: 500;
+}
+
+.car-license {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.client-info {
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+/* Стили для столбца мастера */
+.master-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* Стили для столбца статуса */
+.status-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+    /* Стили для диаграммы с плагином стрелки */
+    .chart-container-sm {
+        position: relative;
+        height: 120px;
+        width: 100%;
+    }
+
+    .chart-tooltip-arrow {
+        position: absolute;
+        background: #333;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        pointer-events: none;
+        z-index: 1000;
+        transform: translate(-50%, -100%);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .chart-tooltip-arrow:after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #333;
+    }
+
+</style>
+
+<div class="row g-4 mb-4">
+    <!-- Карточка клиентов -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Clients" asp-action="Index" class="animated-card card-clients text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-people-fill card-icon" style="color: #212529;"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">@ViewBag.ClientsCount</h3>
+                    <p class="text-muted mb-0">Клиентов</p>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
+                </small>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Карточка автомобилей -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Cars" asp-action="Index" class="animated-card card-cars text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-car-front-fill card-icon" style="color: #212529;"></i>
+                    </div>
+                    <h3 class="fw-bold text-success">@ViewBag.CarsCount</h3>
+                    <p class="text-muted mb-0">Автомобилей</p>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
+                </small>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Карточка заказов -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Orders" asp-action="Index" class="animated-card card-orders text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-receipt-cutoff card-icon" style="color: #212529;"></i>
+                    </div>
+                    <h3 class="fw-bold text-info">@ViewBag.OrdersCount</h3>
+                    <p class="text-muted mb-0">Всего заказов</p>
+                    <small class="text-muted">
+                        <i class="bi bi-activity"></i> Активных: @ViewBag.ActiveOrdersCount
+                    </small>
+                    <br />
+                    <small class="text-muted">
+                        <i class="bi bi-calendar"></i> Сегодня: @ViewBag.TodayOrdersCount
+                    </small>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
+                </small>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Карточка услуг -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Services" asp-action="Index" class="animated-card card-services text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-gear-fill card-icon" style="color: #212529;"></i>
+                    </div>
+                    <h3 class="fw-bold text-warning">@ViewBag.ServicesCount</h3>
+                    <p class="text-muted mb-0">Услуг</p>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
+                </small>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Карточка мастеров -->
+    <div class="col-md-4">
+        <a asp-controller="Masters" asp-action="Index" class="animated-card card-masters text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-person-badge card-icon" style="color: #6c757d;"></i>
+                    </div>
+                    <h2 class="fw-bold">@ViewBag.MastersCount</h2>
+                    <p class="text-muted">Работающих мастеров</p>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Управление мастерами
+                </small>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Карточка шин -->
+    <div class="col-md-4">
+        <a asp-controller="Tires" asp-action="Index" class="animated-card card-tires text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-circle card-icon" style="color: #6c757d;"></i>
+                    </div>
+                    <h2 class="fw-bold">@ViewBag.TiresCount</h2>
+                    <p class="text-muted">Зарегистрированных шин</p>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Управление шинами
+                </small>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Карточка работ -->
+    <div class="col-md-4">
+        <a asp-controller="CompletedWorks" asp-action="Index" class="animated-card card-works text-decoration-none">
+            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle card-icon"></i>
+                    </div>
+                    <h2 class="fw-bold">@ViewBag.CompletedWorksCount</h2>
+                    <p class="text-muted">Выполненных работ</p>
+                </div>
+                <small class="text-muted mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Управление работами
+                </small>
+            </div>
+        </a>
+    </div>
+</div>
+
+
+<!-- Последние заказы -->
+@if (ViewBag.RecentOrders != null && ViewBag.RecentOrders.Count > 0)
+{
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="animated-card card-recent">
+                <div class="animated-card-inner">
+                    <h3 class="card-title mb-3">
+                        <i class="bi bi-clock-history me-2"></i> Последние заказы
+                    </h3>
+                    
+                    <div class="uiverse-table">
+                        
+                        <!-- Заголовок таблицы -->
+                        <div class="uiverse-table__header">
+                            <div class="uiverse-table__col-60">
+                                <div class="uiverse-table__cell">Информация о заказе</div>
+                            </div>
+                            <div class="uiverse-table__col-20">
+                                <div class="uiverse-table__cell">Мастер</div>
+                            </div>
+                            <div class="uiverse-table__col-20">
+                                <div class="uiverse-table__cell">Статус оплаты</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Строки с данными -->
+                        @foreach (var order in ViewBag.RecentOrders)
+                        {
+                            <div class="uiverse-table__row">
+                                <!-- Колонка 1: Информация о заказе -->
+                                <div class="uiverse-table__col-60">
+                                    <div class="uiverse-table__cell">
+                                        <div class="order-info">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <a asp-controller="Orders" 
+                                                   asp-action="Details" 
+                                                   asp-route-id="@order.OrderNumber"
+                                                   class="order-number text-decoration-none">
+                                                    <i class="bi bi-hash me-1"></i>#@order.OrderNumber
+                                                </a>
+                                                <span class="order-date">
+                                                    <i class="bi bi-calendar me-1"></i>
+                                                    @order.OrderDate.ToString("dd.MM.yyyy HH:mm")
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="car-info">
+                                                @if (!string.IsNullOrEmpty(order.Car?.PhotoPath))
+                                                {
+                                                    <img src="@order.Car.PhotoPath" 
+                                                         class="car-photo-small" 
+                                                         alt="@order.Car?.Brand @order.Car?.Model"
+                                                         title="@order.Car?.Brand @order.Car?.Model (@order.Car?.LicensePlate)" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-muted d-flex align-items-center justify-content-center" 
+                                                         style="width: 40px; height: 30px;">
+                                                        <i class="bi bi-car-front"></i>
+                                                    </div>
+                                                }
+                                                
+                                                <div class="car-details">
+                                                    <span class="car-model">
+                                                        @if (order.Car != null)
+                                                        {
+                                                            <span>@order.Car.Brand @order.Car.Model</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">Авто не найдено</span>
+                                                        }
+                                                    </span>
+                                                    <span class="car-license">
+                                                        @if (order.Car != null)
+                                                        {
+                                                            <span>@order.Car.LicensePlate</span>
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            @if (order.Car?.Client != null)
+                                            {
+                                                <div class="client-info mt-1">
+                                                    <i class="bi bi-person me-1"></i>
+                                                    @order.Car.Client.FullName
+                                                    @if (!string.IsNullOrEmpty(order.Car.Client.Phone))
+                                                    {
+                                                        <span class="ms-2">
+                                                            <i class="bi bi-telephone me-1"></i>
+                                                            @order.Car.Client.Phone
+                                                        </span>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Колонка 2: Мастер -->
+                                <div class="uiverse-table__col-20">
+                                    <div class="uiverse-table__cell">
+                                        <div class="master-cell">
+                                            @if (order.Master != null)
+                                            {
+                                                <a asp-controller="Masters" 
+                                                   asp-action="Details" 
+                                                   asp-route-id="@order.Master.MasterId"
+                                                   class="text-decoration-none text-center">
+                                                    <div class="d-flex flex-column">
+                                                        <span class="badge bg-dark mb-1 px-3 py-1">
+                                                            <i class="bi bi-person-badge me-1"></i>
+                                                            @order.Master.FullName
+                                                        </span>
+                                                        <small class="text-muted">
+                                                            @order.Master.Position
+                                                            <br />
+                                                            @order.Master.Rank разряд
+                                                        </small>
+                                                    </div>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark px-3 py-1">
+                                                    <i class="bi bi-person-x me-1"></i>
+                                                    Не назначен
+                                                </span>
+                                                <small class="text-muted mt-1">
+                                                    Назначьте мастера
+                                                </small>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Колонка 3: Статус оплаты -->
+                                <div class="uiverse-table__col-20">
+                                    <div class="uiverse-table__cell">
+                                        <div class="status-cell">
+                                            @if (order.PaymentDate != null)
+                                            {
+                                                var paymentDate = order.PaymentDate as DateTime?;
+                                                <span class="badge bg-success px-3 py-2 mb-1">
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    Оплачено
+                                                </span>
+                                                <small class="text-success">
+                                                    @paymentDate?.ToString("dd.MM.yyyy")
+                                                    <br />
+                                                    @paymentDate?.ToString("HH:mm")
+                                                </small>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark px-3 py-2 mb-1">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    Не оплачено
+                                                </span>
+                                                <small class="text-muted">
+                                                    Ожидает оплаты
+                                                </small>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Кнопка для просмотра всех заказов -->
+                    <div class="text-center mt-3">
+                        <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-dark btn-sm">
+                            <i class="bi bi-list-ul me-1"></i> Показать все заказы
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Объединенный блок: Статистика заказов + Быстрые действия -->
+<div class="row mt-3">
+    <!-- Левая часть: Статистика заказов -->
+    <div class="col-lg-8 mb-3">
+        <div class="animated-card card-stats h-100">
+            <div class="animated-card-inner h-100 p-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0 text-uppercase small">
+                        <i class="bi bi-pie-chart me-1"></i> Статистика заказов
+                    </h6>
+                    <span class="badge bg-dark">Всего: @(ViewBag.OrdersCount ?? 0)</span>
+                </div>
+                
+                <div class="row g-1 align-items-center">
+                    <!-- Диаграмма -->
+                    <div class="col-md-7">
+                        <div class="chart-container-sm">
+                            <canvas id="ordersChart" height="110"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Легенда -->
+                    <div class="col-md-5">
+                        <!-- Активные -->
+                        <div class="d-flex align-items-center mb-1">
+                            <div class="color-box me-1" style="width: 12px; height: 12px; background-color: #6c757d;"></div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between small">
+                                    <span class="fw-medium">Активные</span>
+                                    <span class="text-muted">@(ViewBag.ActiveOrdersCount ?? 0)</span>
+                                </div>
+                                <div class="progress" style="height: 3px;">
+                                    <div class="progress-bar bg-secondary" style="width: @((ViewBag.ActiveOrdersCount * 100.0 / ViewBag.OrdersCount) ?? 0)%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Завершенные -->
+                        <div class="d-flex align-items-center mb-1">
+                            <div class="color-box me-1" style="width: 12px; height: 12px; background-color: #198754;"></div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between small">
+                                    <span class="fw-medium">Завершенные</span>
+                                    <span class="text-muted">@(ViewBag.CompletedOrdersCount ?? 0)</span>
+                                </div>
+                                <div class="progress" style="height: 3px;">
+                                    <div class="progress-bar bg-success" style="width: @((ViewBag.CompletedOrdersCount * 100.0 / ViewBag.OrdersCount) ?? 0)%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Неоплаченные -->
+                        <div class="d-flex align-items-center mb-1">
+                            <div class="color-box me-1" style="width: 12px; height: 12px; background-color: #ffc107;"></div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between small">
+                                    <span class="fw-medium">Неоплаченные</span>
+                                    <span class="text-muted">@(ViewBag.UnpaidOrdersCount ?? 0)</span>
+                                </div>
+                                <div class="progress" style="height: 3px;">
+                                    <div class="progress-bar bg-warning" style="width: @((ViewBag.UnpaidOrdersCount * 100.0 / ViewBag.OrdersCount) ?? 0)%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Дополнительные метрики -->
+                        <div class="row mt-2 g-1">
+                            <div class="col-6">
+                                <div class="text-center border rounded py-1 bg-dark">
+                                    <div class="small text-white">Сегодня</div>
+                                    <div class="fw-bold text-white">@(ViewBag.TodayOrdersCount ?? 0)</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center border rounded py-1 bg-dark">
+                                    <div class="small text-white">За месяц</div>
+                                    <div class="fw-bold text-white">@(ViewBag.MonthOrdersCount ?? 0)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая часть: Быстрые действия -->
+    <div class="col-lg-4 mb-3">
+        <div class="animated-card card-quick h-100">
+            <div class="animated-card-inner h-100 p-2">
+                <h6 class="fw-bold mb-2 text-uppercase small">
+                    <i class="bi bi-lightning-charge me-1"></i> Быстрые действия
+                </h6>
+                <div class="row g-1">
+                    <div class="col-6 mb-1">
+                        <a asp-controller="Orders" asp-action="Create" class="quick-action-btn text-decoration-none">
+                            <div class="quick-action-btn-inner text-center py-2 px-1">
+                                <i class="bi bi-plus-circle fs-5 text-success"></i>
+                                <div class="small fw-medium mt-1">Новый заказ</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <a asp-controller="Clients" asp-action="Create" class="quick-action-btn text-decoration-none">
+                            <div class="quick-action-btn-inner text-center py-2 px-1">
+                                <i class="bi bi-person-plus fs-5 text-success"></i>
+                                <div class="small fw-medium mt-1">Новый клиент</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <a asp-controller="Cars" asp-action="Create" class="quick-action-btn text-decoration-none">
+                            <div class="quick-action-btn-inner text-center py-2 px-1">
+                                <i class="bi bi-car-front fs-5 text-info"></i>
+                                <div class="small fw-medium mt-1">Новое авто</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <a asp-controller="CompletedWorks" asp-action="Create" class="quick-action-btn text-decoration-none">
+                            <div class="quick-action-btn-inner text-center py-2 px-1">
+                                <i class="bi bi-check-square fs-5 text-warning"></i>
+                                <div class="small fw-medium mt-1">Новая работа</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Кастомный плагин для отображения стрелки с бейджем
+        const ArrowTooltipPlugin = {
+            id: 'arrowTooltip',
+            afterDraw: (chart) => {
+                const { ctx, chartArea: { left, top, right, bottom } } = chart;
+                
+                // Проверяем, есть ли активный элемент
+                if (chart.tooltip._active && chart.tooltip._active.length) {
+                    const activeElement = chart.tooltip._active[0];
+                    const { element } = activeElement;
+                    const { x, y } = element;
+                    
+                    // Получаем значение сегмента
+                    const dataset = chart.data.datasets[0];
+                    const value = dataset.data[activeElement.index];
+                    const label = chart.data.labels[activeElement.index];
+                    const color = dataset.backgroundColor[activeElement.index];
+                    
+                    // Координаты для стрелки и бейджа
+                    const angle = Math.atan2(y - (chart.chartArea.bottom + chart.chartArea.top) / 2, 
+                                            x - (chart.chartArea.left + chart.chartArea.right) / 2);
+                    
+                    const distance = Math.min(chart.chartArea.width, chart.chartArea.height) * 0.4;
+                    const arrowX = x + Math.cos(angle) * distance;
+                    const arrowY = y + Math.sin(angle) * distance;
+                    
+                    // Рисуем стрелку
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(arrowX, arrowY);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = color;
+                    ctx.stroke();
+                    
+                    // Добавляем стрелку на кончик
+                    ctx.beginPath();
+                    ctx.moveTo(arrowX, arrowY);
+                    ctx.lineTo(arrowX - 8 * Math.cos(angle - Math.PI/6), 
+                              arrowY - 8 * Math.sin(angle - Math.PI/6));
+                    ctx.lineTo(arrowX - 8 * Math.cos(angle + Math.PI/6), 
+                              arrowY - 8 * Math.sin(angle + Math.PI/6));
+                    ctx.closePath();
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    
+                    // Рисуем бейдж
+                    const badgeWidth = 60;
+                    const badgeHeight = 40;
+                    const badgeX = arrowX + (Math.cos(angle) > 0 ? 10 : -badgeWidth - 10);
+                    const badgeY = arrowY - badgeHeight / 2;
+                    
+                    // Скругленный прямоугольник для бейджа
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 8);
+                    ctx.fill();
+                    
+                    // Текст в бейдже
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(value, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+                    
+                    ctx.restore();
+                }
+            }
+        };
+
+        // Регистрируем плагин
+        Chart.register(ArrowTooltipPlugin);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('ordersChart');
+            
+            if (ctx) {
+                // Данные для диаграммы
+                const activeCount = @(ViewBag.ActiveOrdersCount ?? 0);
+                const completedCount = @(ViewBag.CompletedOrdersCount ?? 0);
+                const unpaidCount = @(ViewBag.UnpaidOrdersCount ?? 0);
+                
+                var ordersChart = new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Активные', 'Завершенные', 'Неоплаченные'],
+                        datasets: [{
+                            data: [activeCount, completedCount, unpaidCount],
+                            backgroundColor: [
+                                '#6c757d', // Bootstrap secondary
+                                '#198754', // Bootstrap success
+                                '#ffc107'  // Bootstrap warning
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverBorderWidth: 3,
+                            hoverBorderColor: '#333333',
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false, // Отключаем стандартные тултипы
+                                external: function(context) {
+                                    // Кастомный тултип
+                                    const tooltipEl = document.getElementById('chartjs-tooltip');
+                                    
+                                    if (!tooltipEl) {
+                                        const newTooltip = document.createElement('div');
+                                        newTooltip.id = 'chartjs-tooltip';
+                                        newTooltip.className = 'chart-tooltip-arrow';
+                                        document.body.appendChild(newTooltip);
+                                    }
+                                    
+                                    const tooltip = document.getElementById('chartjs-tooltip');
+                                    
+                                    if (context.tooltip.opacity === 0) {
+                                        tooltip.style.opacity = 0;
+                                        return;
+                                    }
+                                    
+                                    const dataIndex = context.tooltip.dataPoints[0].dataIndex;
+                                    const value = context.tooltip.dataPoints[0].raw;
+                                    const label = context.chart.data.labels[dataIndex];
+                                    
+                                    tooltip.innerHTML = `<div><strong>${label}:</strong> ${value}</div>`;
+                                    
+                                    const position = context.chart.canvas.getBoundingClientRect();
+                                    tooltip.style.opacity = 1;
+                                    tooltip.style.left = position.left + context.tooltip.caretX + 'px';
+                                    tooltip.style.top = position.top + context.tooltip.caretY - 40 + 'px';
+                                }
+                            }
+                        },
+                        cutout: '70%',
+                        spacing: 5,
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true,
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        },
+                        interaction: {
+                            mode: 'point',
+                            intersect: true
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

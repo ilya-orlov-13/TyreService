@@ -1,0 +1,69 @@
+@model TyreServiceApp.Models.Order
+
+@{
+    ViewData["Title"] = "Удалить заказ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Удаление заказа</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Вы уверены, что хотите удалить этот заказ? Это действие нельзя отменить.
+                </div>
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-hash text-dark"></i> Номер заказа:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.OrderNumber)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-calendar text-dark"></i> Дата заказа:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-car-front text-dark"></i> Автомобиль:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@(Model.Car != null ? $"{Model.Car.Brand} {Model.Car.Model} ({Model.Car.LicensePlate})" : "Не указан")</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-credit-card text-dark"></i> Дата оплаты:
+                    </dt>
+                    <dd class="col-sm-8">
+                        @if (Model.PaymentDate.HasValue)
+                        {
+                            <strong class="text-success">@Model.PaymentDate.Value.ToString("dd.MM.yyyy HH:mm")</strong>
+                        }
+                        else
+                        {
+                            <strong class="text-warning">Не оплачено</strong>
+                        }
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <form asp-action="Delete" class="d-flex gap-2">
+                    <input type="hidden" asp-for="OrderNumber" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

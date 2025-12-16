@@ -1,0 +1,237 @@
+@model TyreServiceApp.Models.Order
+
+@{
+    ViewData["Title"] = "Создать заказ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-receipt"></i> Создать новый заказ</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create">
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="OrderDate" class="form-label fw-semibold">
+                                <i class="bi bi-calendar text-dark"></i> Дата заказа
+                            </label>
+                            <input asp-for="OrderDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="OrderDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PaymentDate" class="form-label fw-semibold">
+                                <i class="bi bi-credit-card text-dark"></i> Дата оплаты
+                            </label>
+                            <input asp-for="PaymentDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="PaymentDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Выбор автомобиля -->
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="CarId" class="form-label fw-semibold">
+                                    <i class="bi bi-car-front text-dark"></i> Автомобиль
+                                </label>
+                                <select asp-for="CarId" 
+                                        class="form-select car-select"
+                                        asp-items="ViewBag.CarId"
+                                        id="carSelect">
+                                    <option value="">-- Выберите автомобиль --</option>
+                                </select>
+                                <span asp-validation-for="CarId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Выбор мастера -->
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="MasterId" class="form-label fw-semibold">
+                                    <i class="bi bi-person-badge text-dark"></i> Ответственный мастер
+                                </label>
+                                <select asp-for="MasterId" class="form-select" asp-items="ViewBag.MasterId">
+                                    <option value="">-- Выберите мастера (не обязательно) --</option>
+                                </select>
+                                <span asp-validation-for="MasterId" class="text-danger small"></span>
+                                <div class="form-text">Если оставить пустым, мастер будет назначен позже</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Предпросмотр фото автомобиля -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="carPhotoPreview" class="card mt-3" style="max-width: 100%; display: none;">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Выбранный автомобиль</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-4 text-center">
+                                            <img id="previewImage" src="" 
+                                                 class="img-fluid rounded" 
+                                                 style="max-height: 200px; object-fit: cover;"
+                                                 alt="Фото автомобиля" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <h5 id="carInfo" class="card-title"></h5>
+                                            <p id="carDetails" class="card-text"></p>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-person me-1"></i>
+                                                        <span id="carClient"></span>
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-upc me-1"></i>
+                                                        <span id="carVin"></span>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Создать
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Вернуться к списку
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Данные автомобилей с фото
+        var carsData = @Html.Raw(Json.Serialize(ViewBag.CarsData));
+        
+        // Обработчик изменения выбора автомобиля
+        document.getElementById('CarId').addEventListener('change', function() {
+            var carId = parseInt(this.value);
+            var previewDiv = document.getElementById('carPhotoPreview');
+            var previewImage = document.getElementById('previewImage');
+            var carInfo = document.getElementById('carInfo');
+            var carDetails = document.getElementById('carDetails');
+            var carClient = document.getElementById('carClient');
+            var carVin = document.getElementById('carVin');
+            
+            if (carId) {
+                // Находим данные выбранного автомобиля
+                var selectedCar = carsData.find(function(car) {
+                    return car.carId === carId;
+                });
+                
+                if (selectedCar) {
+                    // Отображаем фото, если есть
+                    if (selectedCar.photoPath && selectedCar.photoPath.length > 0) {
+                        previewImage.src = selectedCar.photoPath;
+                        previewImage.style.display = 'block';
+                    } else {
+                        previewImage.style.display = 'none';
+                    }
+                    
+                    // Отображаем информацию
+                    carInfo.textContent = selectedCar.brand + ' ' + selectedCar.model;
+                    carDetails.textContent = 'Госномер: ' + selectedCar.licensePlate;
+                    carClient.textContent = selectedCar.clientName;
+                    carVin.textContent = selectedCar.vin;
+                    
+                    // Показываем блок предпросмотра
+                    previewDiv.style.display = 'block';
+                } else {
+                    previewDiv.style.display = 'none';
+                }
+            } else {
+                previewDiv.style.display = 'none';
+            }
+        });
+    </script>
+    
+    <!-- Подключение select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        // Инициализация select2 для выбора автомобиля
+        $(document).ready(function() {
+            $('.car-select').select2({
+                placeholder: "Выберите автомобиль",
+                allowClear: true,
+                templateResult: formatCarOption,
+                templateSelection: formatCarSelection
+            }).on('change', function() {
+                // Триггерим нативное событие change
+                var event = new Event('change');
+                this.dispatchEvent(event);
+            });
+        });
+        
+        function formatCarOption(car) {
+            if (!car.id) return car.text;
+            
+            var carId = parseInt(car.id);
+            var carData = carsData.find(function(c) {
+                return c.carId === carId;
+            });
+            
+            if (!carData) return car.text;
+            
+            var $option = $(
+                '<div class="d-flex align-items-center">' +
+                    '<div class="me-3" style="width: 40px;">' +
+                        (carData.photoPath && carData.photoPath.length > 0 ? 
+                            `<img src="${carData.photoPath}" class="rounded" style="width: 40px; height: 30px; object-fit: cover;">` :
+                            `<div class="text-center text-muted"><i class="bi bi-car-front"></i></div>`) +
+                    '</div>' +
+                    '<div>' +
+                        `<strong>${carData.brand} ${carData.model}</strong><br>` +
+                        `<small class="text-muted">${carData.licensePlate} | ${carData.clientName}</small>` +
+                    '</div>' +
+                '</div>'
+            );
+            
+            return $option;
+        }
+        
+        function formatCarSelection(car) {
+            if (!car.id) return car.text;
+            
+            var carId = parseInt(car.id);
+            var carData = carsData.find(function(c) {
+                return c.carId === carId;
+            });
+            
+            if (!carData) return car.text;
+            
+            return `${carData.brand} ${carData.model} (${carData.licensePlate})`;
+        }
+    </script>
+    
+    <style>
+        /* Стили для select2 */
+        .select2-container--default .select2-results__option {
+            padding: 8px;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0d6efd;
+        }
+    </style>
+}

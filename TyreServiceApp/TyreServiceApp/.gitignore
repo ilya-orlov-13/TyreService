@@ -1,0 +1,42 @@
+# Директории сборки
+bin/
+obj/
+.vs/
+.vscode/
+TestResults/
+
+# Базы данных и файлы данных
+*.mdf
+*.ldf
+*.sdf
+__pycache__/
+*.sqlite3
+
+# Файлы окружения
+appsettings.json
+appsettings.*.json
+secrets.json
+.env
+*.env.local
+
+# Файлы загрузок
+wwwroot/uploads/
+
+# NuGet пакеты
+packages/
+
+# Временные файлы
+*.tmp
+*.temp
+*.log
+logs/
+
+# Rider
+*.sln.iml
+*.csproj.*.user
+
+# Репозиторий
+.git/
+
+# Docker
+.docker/

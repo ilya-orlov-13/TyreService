@@ -1,0 +1,159 @@
+/* custom-buttons.css */
+
+/* Базовый стиль элегантной кнопки */
+.boton-elegante {
+    padding: 15px 30px;
+    border: 2px solid #2c2c2c;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.4s ease;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    text-align: center;
+    min-height: 60px;
+}
+
+.boton-elegante::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    transform: scale(0);
+    transition: transform 0.5s ease;
+}
+
+.boton-elegante:hover::after {
+    transform: scale(4);
+}
+
+.boton-elegante:hover {
+    border-color: #666666;
+    background: #292929;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Размеры кнопок */
+.boton-sm {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    min-height: 40px;
+}
+
+.boton-md {
+    padding: 12px 25px;
+    font-size: 1rem;
+    min-height: 50px;
+}
+
+.boton-lg {
+    padding: 18px 35px;
+    font-size: 1.3rem;
+    min-height: 70px;
+}
+
+/* Цветовые варианты */
+.boton-dark {
+    border-color: #2c2c2c;
+    background-color: #1a1a1a;
+}
+
+.boton-dark:hover {
+    border-color: #666666;
+    background-color: #292929;
+}
+
+.boton-success {
+    border-color: #28a745;
+    background-color: #1a472a;
+}
+
+.boton-success:hover {
+    border-color: #2ecc71;
+    background-color: #14532d;
+}
+
+.boton-primary {
+    border-color: #0d6efd;
+    background-color: #1e3a8a;
+}
+
+.boton-primary:hover {
+    border-color: #3b82f6;
+    background-color: #1e40af;
+}
+
+.boton-warning {
+    border-color: #ffc107;
+    background-color: #854d0e;
+}
+
+.boton-warning:hover {
+    border-color: #fbbf24;
+    background-color: #a16207;
+}
+
+.boton-danger {
+    border-color: #dc3545;
+    background-color: #7f1d1d;
+}
+
+.boton-danger:hover {
+    border-color: #ef4444;
+    background-color: #991b1b;
+}
+
+.boton-info {
+    border-color: #0dcaf0;
+    background-color: #164e63;
+}
+
+.boton-info:hover {
+    border-color: #22d3ee;
+    background-color: #155e75;
+}
+
+/* Вариант с иконкой слева */
+.boton-icon-left {
+    flex-direction: row;
+}
+
+/* Вариант с иконкой справа */
+.boton-icon-right {
+    flex-direction: row-reverse;
+}
+
+/* Полная ширина */
+.boton-full {
+    width: 100%;
+}
+
+/* Отключенная кнопка */
+.boton-elegante:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.boton-elegante:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+

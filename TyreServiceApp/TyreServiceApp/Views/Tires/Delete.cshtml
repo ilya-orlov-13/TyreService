@@ -1,0 +1,69 @@
+@model TyreServiceApp.Models.Tire
+
+@{
+    ViewData["Title"] = "Удалить шину";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Удаление шины</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Вы уверены, что хотите удалить эту шину? Это действие нельзя отменить.
+                </div>
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tag text-dark"></i> Тип шины:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.TireType)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-snow text-dark"></i> Сезонность:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-secondary">@Html.DisplayFor(model => model.Seasonality)</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-building text-dark"></i> Производитель:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.Manufacturer)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-tag text-dark"></i> Модель шины:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Html.DisplayFor(model => model.TireModel)</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-rulers text-dark"></i> Размер:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-secondary">@Html.DisplayFor(model => model.Size)</span>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <form asp-action="Delete" class="d-flex gap-2">
+                    <input type="hidden" asp-for="TireId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,727 @@
+
+    /* Основные стили для анимированных карточек */
+    .animated-card {
+        /* Variables */
+        --card_radius: 0.75em;
+        --card_color: #e8e8e8;
+        --card_outline_color: #000000;
+        --card_scale: 1.02;
+        
+        position: relative;
+        border-radius: var(--card_radius);
+        background: var(--card_outline_color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 100%;
+        text-decoration: none !important;
+        display: block;
+        border: none;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    .animated-card-inner {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid var(--card_outline_color);
+        border-radius: var(--card_radius);
+        padding: 1.5rem;
+        background: var(--card_color);
+        color: var(--card_outline_color);
+        transform: translateY(-0.2em);
+        transition: transform 0.1s ease;
+        height: 100%;
+        width: 100%;
+    }
+
+    .animated-card:hover .animated-card-inner {
+        transform: translateY(-0.33em);
+    }
+
+    .animated-card:active .animated-card-inner {
+        transform: translateY(0);
+    }
+
+    /* Специфичные цвета для карточек */
+    .card-clients { --card_outline_color: #212529; --card_color: #f8f9fa; }
+    .card-cars { --card_outline_color: #212529; --card_color: #f8f9fa; }
+    .card-orders { --card_outline_color: #212529; --card_color: #f8f9fa; }
+    .card-services { --card_outline_color: #212529; --card_color: #f8f9fa; }
+    .card-masters { --card_outline_color: #6c757d; --card_color: #e2e3e5; }
+    .card-tires { --card_outline_color: #6c757d; --card_color: #e2e3e5; }
+    .card-works { --card_outline_color: #6c757d; --card_color: #e2e3e5; }
+    
+    /* Новые цвета для блоков */
+    .card-stats { --card_outline_color: #232323; --card_color: #fefefe; }
+    .card-recent { --card_outline_color: #232323; --card_color: #fefefe; }
+    .card-quick { --card_outline_color: #232323; --card_color: #fefefe; }
+
+    /* Для иконок внутри карточек */
+    .card-icon {
+        font-size: 3rem;
+        transition: transform 0.3s ease;
+    }
+
+    .animated-card:hover .card-icon {
+        transform: scale(1.1);
+    }
+
+    /* Стили для заголовков внутри карточек */
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        color: var(--card_outline_color);
+    }
+
+    /* Стили для анимированных кнопок */
+    .animated-button {
+        /* Variables */
+        --button_radius: 0.75em;
+        --button_color: #e8e8e8;
+        --button_outline_color: #198754;
+        font-size: 17px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        border-radius: var(--button_radius);
+        background: var(--button_outline_color);
+        text-decoration: none;
+        display: block;
+        padding: 0;
+    }
+
+    .animated-button-top {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid var(--button_outline_color);
+        border-radius: var(--button_radius);
+        padding: 0.75em 1.5em;
+        background: var(--button_color);
+        color: var(--button_outline_color);
+        transform: translateY(-0.2em);
+        transition: transform 0.1s ease;
+        text-align: center;
+        width: 100%;
+    }
+
+    .animated-button:hover .animated-button-top {
+        transform: translateY(-0.33em);
+    }
+
+    .animated-button:active .animated-button-top {
+        transform: translateY(0);
+    }
+    
+    /* Цвета для разных кнопок */
+    .animated-button:nth-child(1) { --button_outline_color: #198754; --button_color: #d1e7dd; }
+    .animated-button:nth-child(2) { --button_outline_color: #0d6efd; --button_color: #cfe2ff; }
+    .animated-button:nth-child(3) { --button_outline_color: #6f42c1; --button_color: #e2d9f3; }
+    .animated-button:nth-child(4) { --button_outline_color: #fd7e14; --button_color: #ffe5d0; }
+
+    /* Стили для кнопок быстрых действий внутри карточки */
+    .action-button {
+        display: block;
+        text-decoration: none;
+        border-radius: 0.5em;
+        overflow: hidden;
+        transition: transform 0.2s ease;
+    }
+    
+    .action-button:hover {
+        transform: translateY(-3px);
+    }
+    
+    .action-button-inner {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5em;
+        transition: all 0.2s ease;
+    }
+    
+    .action-button:hover .action-button-inner {
+        background: #f8f9fa;
+        border-color: #2a2a2a;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .action-icon {
+        font-size: 2.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .action-button:hover .action-icon {
+        transform: scale(1.1);
+    }
+    
+    /* Цвета для иконок */
+    .text-purple { color: #6f42c1; }
+    .text-success { color: #198754; }
+    .text-primary { color: #0d6efd; }
+    .text-warning { color: #fd7e14; }
+    
+    .color-box {
+        border-radius: 4px;
+    }
+    
+    #ordersChart {
+        max-height: 150px;
+    }
+
+    .animated-card {
+        height: 100%;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 150px;
+        width: 100%;
+    }
+
+    .legend-container {
+        padding: 5px 0;
+    }
+    
+    .action-icon {
+        font-size: 2.5rem;
+    }
+    
+    .action-button-inner h5 {
+        font-size: 1.1rem;
+    }
+
+    .action-button-inner {
+        transition: all 0.3s ease;
+    }
+
+    .action-button:hover .action-button-inner {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Компактная версия статистики */
+    .card-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .animated-card-inner.p-3 {
+        padding: 1rem !important;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 180px;
+        width: 100%;
+    }
+
+    .color-box {
+        min-width: 16px;
+        min-height: 16px;
+        border-radius: 3px;
+        flex-shrink: 0;
+    }
+
+    .progress {
+        background-color: #e9ecef;
+        margin-top: 2px;
+    }
+
+    .legend-container .progress-bar {
+        border-radius: 2px;
+    }
+
+    /* Компактные стили для блока статистики */
+    .chart-container-sm {
+        position: relative;
+        height: 120px;
+        width: 100%;
+    }
+
+    /* Стили для кнопок быстрых действий - КОМПАКТНЫЕ */
+    .quick-action-btn {
+        display: block;
+        border-radius: 0.4rem;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        margin-bottom: 0.25rem;
+        color: #1d1d1d;
+    }
+
+    .quick-action-btn-inner {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.4rem;
+        padding: 0.5rem !important;
+        transition: all 0.2s ease;
+    }
+
+    .quick-action-btn:hover .quick-action-btn-inner {
+        background: #fff;
+        border-color: #292929;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Компактные прогресс-бары */
+    .progress {
+        background-color: transparent;
+        border-radius: 1px;
+        height: 3px !important;
+    }
+
+    .progress-bar {
+        border-radius: 1px;
+    }
+
+    /* Уменьшенные цветовые блоки */
+    .color-box {
+        border-radius: 2px;
+        width: 12px !important;
+        height: 12px !important;
+        min-width: 12px !important;
+        min-height: 12px !important;
+    }
+
+    /* Компактные метрики */
+    .text-center.border.rounded {
+        border-color: #dee2e6 !important;
+        background: #f8f9fa;
+        padding: 0.25rem !important;
+    }
+
+    /* Компактный заголовок статистики */
+    .text-uppercase.small {
+        letter-spacing: 0.5px;
+        color: #495057;
+        font-size: 0.8rem;
+    }
+
+    /* Уменьшаем паддинги карточек */
+    .animated-card-inner.p-2 {
+        padding: 0.75rem !important;
+    }
+
+    /* Компактные отступы в строках */
+    .row.g-1 > [class*="col-"] {
+        padding-right: 0.25rem;
+        padding-left: 0.25rem;
+    }
+
+    /* Уменьшаем размер текста в статистике */
+    .quick-action-btn-inner .small {
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .quick-action-btn-inner .fs-5 {
+        font-size: 1.25rem !important;
+    }
+
+    /* Стили для заголовков в быстрых действиях */
+    .quick-action-btn-inner .fw-medium {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+    }
+
+    /* Компактные стили для таблицы последних заказов */
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .table {
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+
+    .table thead {
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    /* Уменьшаем отступы в карточке с последними заказами */
+    .card-recent .animated-card-inner {
+        padding: 1rem !important;
+    }
+
+    /* Стили для бейджей */
+    .badge {
+        font-size: 0.75em;
+        padding: 0.25em 0.5em;
+    }
+
+    /* Компактные иконки в таблице */
+    .table i {
+        font-size: 0.9em;
+    }
+
+    /* Стили для мобильных устройств */
+    @media (max-width: 768px) {
+        .animated-card-inner {
+            padding: 1rem !important;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+        }
+        
+        .chart-container-sm {
+            height: 100px;
+        }
+        
+        .quick-action-btn-inner {
+            padding: 0.35rem !important;
+        }
+        
+        .quick-action-btn-inner .fs-5 {
+            font-size: 1rem !important;
+        }
+        
+        .quick-action-btn-inner .fw-medium {
+            font-size: 0.7rem;
+        }
+    }
+
+    /* Еще более компактный вариант для очень маленьких экранов */
+    @media (max-width: 576px) {
+        .animated-card-inner {
+            padding: 0.75rem !important;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+        }
+        
+        .text-uppercase.small {
+            font-size: 0.7rem;
+        }
+        
+        .quick-action-btn-inner .fs-5 {
+            font-size: 0.875rem !important;
+        }
+        
+        .quick-action-btn-inner .fw-medium {
+            font-size: 0.65rem;
+        }
+    }
+
+    /* Стили для тултипов на фото автомобилей */
+    .car-photo-thumbnail {
+        transition: all 0.3s ease;
+    }
+    
+    .car-photo-thumbnail:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Стили для ссылок в таблицах */
+    .table a {
+        color: #0d6efd;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .table a:hover {
+        color: #0a58ca;
+        text-decoration: underline;
+    }
+
+    /* Стили для тултипов Bootstrap */
+    .tooltip {
+        font-size: 0.875rem;
+    }
+
+    /* Анимация загрузки для диаграммы */
+    .chart-container-sm {
+        position: relative;
+    }
+    
+    .chart-container-sm:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 4px;
+        opacity: 0;
+    }
+    
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Стили для состояния "нет данных" */
+    .no-data-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 120px;
+        color: #6c757d;
+        font-style: italic;
+        text-align: center;
+        padding: 1rem;
+        border: 1px dashed #dee2e6;
+        border-radius: 4px;
+    }
+
+    /* Стили для активной карточки */
+    .animated-card:focus {
+        outline: 2px solid #0d6efd;
+        outline-offset: 2px;
+    }
+
+    /* Стили для доступности */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+
+    /* Стили для печати */
+    @media print {
+        .animated-card {
+            break-inside: avoid;
+        }
+        
+        .animated-card-inner {
+            border: 1px solid #000;
+            box-shadow: none;
+        }
+        
+        .quick-action-btn,
+        .action-button {
+            display: none;
+        }
+    }
+
+    /* Стили для high-contrast режима */
+    @media (prefers-contrast: high) {
+        .animated-card-inner {
+            border: 3px solid var(--card_outline_color);
+        }
+        
+        .progress-bar {
+            border: 1px solid #000;
+        }
+    }
+
+    /* Стили для уменьшения движения (prefers-reduced-motion) */
+    @media (prefers-reduced-motion: reduce) {
+        .animated-card,
+        .animated-card-inner,
+        .animated-button,
+        .animated-button-top,
+        .card-icon,
+        .action-icon,
+        .quick-action-btn,
+        .quick-action-btn-inner,
+        .car-photo-thumbnail {
+            transition: none !important;
+            transform: none !important;
+        }
+        
+        .animated-card:hover .animated-card-inner,
+        .animated-button:hover .animated-button-top {
+            transform: none !important;
+        }
+    }
+
+    /* Стиль таблиц как в Uiverse.io */
+.custom-table-card {
+    width: 100%;
+    background: rgb(44, 44, 44);
+    font-family: "Courier New", Courier, monospace;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgb(44, 44, 44);
+}
+
+.custom-table-title {
+    color: white;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-bottom: 1px solid rgb(167, 159, 159);
+    font-size: 1rem;
+    background: rgb(44, 44, 44);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-table-title i {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.custom-table-container {
+    display: flex;
+    justify-content: space-between;
+    border-right: 1px solid rgb(203, 203, 203);
+    border-left: 1px solid rgb(203, 203, 203);
+    border-bottom: 1px solid rgb(203, 203, 203);
+    min-height: 200px;
+}
+
+.custom-table-header {
+    width: 30%;
+    border-right: 1px solid rgb(203, 203, 203);
+    background: rgb(60, 60, 60);
+}
+
+.custom-table-data {
+    width: 70%;
+    text-align: right;
+    background: white;
+}
+
+.custom-table-row {
+    display: flex;
+    border-bottom: 1px solid rgb(203, 203, 203);
+}
+
+.custom-table-row:last-child {
+    border-bottom: none;
+}
+
+.custom-table-header .custom-table-cell {
+    padding: 10px 15px;
+    color: #e0e0e0;
+    font-weight: 600;
+    background: rgb(60, 60, 60);
+    border-right: 1px solid rgb(80, 80, 80);
+}
+
+.custom-table-data .custom-table-cell {
+    padding: 10px 15px;
+    color: rgb(44, 44, 44);
+    background: white;
+}
+
+.custom-table-row:nth-child(even) .custom-table-header .custom-table-cell {
+    background: rgb(70, 70, 70);
+}
+
+.custom-table-row:nth-child(even) .custom-table-data .custom-table-cell {
+    background: rgb(248, 249, 250);
+}
+
+.custom-table-cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 0.85rem;
+    min-height: 44px;
+}
+
+.custom-table-data .custom-table-cell {
+    justify-content: flex-end;
+}
+
+/* Для таблицы с действиями */
+.custom-table-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.custom-table-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.custom-table-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-table-action-btn.view {
+    background: #0dcaf0;
+}
+
+.custom-table-action-btn.edit {
+    background: #0d6efd;
+}
+
+.custom-table-action-btn.delete {
+    background: #dc3545;
+}
+
+/* Стиль для статусов */
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-paid {
+    background: #198754;
+    color: white;
+}
+
+.status-unpaid {
+    background: #ffc107;
+    color: #212529;
+}
+
+.status-pending {
+    background: #6c757d;
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .custom-table-container {
+        flex-direction: column;
+    }
+    
+    .custom-table-header,
+    .custom-table-data {
+        width: 100%;
+    }
+    
+    .custom-table-header {
+        border-right: none;
+        border-bottom: 1px solid rgb(203, 203, 203);
+    }
+    
+    .custom-table-data {
+        text-align: left;
+    }
+    
+    .custom-table-data .custom-table-cell {
+        justify-content: flex-start;
+    }
+}

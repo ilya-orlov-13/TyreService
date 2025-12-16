@@ -1,0 +1,55 @@
+@model TyreServiceApp.Models.Master
+@{
+    ViewData["Title"] = "Подробности о мастере";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Подробности о мастере</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-person text-dark"></i> ФИО:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.FullName</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-briefcase text-dark"></i> Должность:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.Position</strong>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-star text-dark"></i> Разряд:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-info">@Model.Rank разряд</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">
+                        <i class="bi bi-currency-exchange text-dark"></i> Почасовая ставка:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.HourlyRate ₽/ч</strong>
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.MasterId" class="btn btn-dark">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Вернуться к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

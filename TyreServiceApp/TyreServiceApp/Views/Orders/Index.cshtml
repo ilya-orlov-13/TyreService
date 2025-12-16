@@ -1,0 +1,139 @@
+@* Index.cshtml *@
+@model IEnumerable<TyreServiceApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Заказы";
+}
+
+<div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-receipt"></i> Список заказов</h4>
+        <a asp-action="Create" class="btn btn-light btn-sm">
+            <i class="bi bi-plus-circle"></i> Создать заказ
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped table-bordered mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 60px;">Фото</th>
+                        <th>@Html.DisplayNameFor(model => model.OrderNumber)</th>
+                        <th>Ответственный мастер</th>
+                        <th>@Html.DisplayNameFor(model => model.OrderDate)</th>
+                        <th>@Html.DisplayNameFor(model => model.CarId)</th>
+                        <th>@Html.DisplayNameFor(model => model.PaymentDate)</th>
+                        <th class="text-center" style="width: 180px;">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="align-middle text-center">
+                                @if (!string.IsNullOrEmpty(item.Car?.PhotoPath))
+                                {
+                                    <img src="@item.Car.PhotoPath" 
+                                         class="car-photo-thumbnail rounded" 
+                                         alt="@item.Car?.Brand @item.Car?.Model"
+                                         style="width: 50px; height: 35px; object-fit: cover;"
+                                         data-bs-toggle="tooltip" 
+                                         data-bs-title="@item.Car?.Brand @item.Car?.Model (@item.Car?.LicensePlate)" />
+                                }
+                                else
+                                {
+                                    <div class="text-muted" style="width: 50px; height: 35px; line-height: 35px;">
+                                        <i class="bi bi-car-front"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td class="align-middle">
+                                <i class="bi bi-hash text-dark me-2"></i>
+                                <strong>@Html.DisplayFor(modelItem => item.OrderNumber)</strong>
+                            </td>
+                            <td class="align-middle">
+                                @if (item.Master != null)
+                                {
+                                    <div class="d-flex flex-column">
+                                        <a asp-controller="Masters" 
+                                        asp-action="Details" 
+                                        asp-route-id="@item.Master.MasterId"
+                                        class="text-decoration-none fw-medium">
+                                            <i class="bi bi-person-badge me-1"></i>
+                                            @item.Master.FullName
+                                        </a>
+                                        <small class="text-muted">
+                                            @item.Master.Position, @item.Master.Rank разряд
+                                            <br />
+                                            Ставка: @item.Master.HourlyRate.ToString("C2")/час
+                                        </small>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-person-x me-1"></i>
+                                        Мастер не назначен
+                                    </span>
+                                }
+                            </td>
+                            <td class="align-middle">
+                                <i class="bi bi-calendar text-secondary me-2"></i>
+                                @item.OrderDate.ToString("dd.MM.yyyy")
+                            </td>
+                            <td class="align-middle">
+                                <span class="badge bg-secondary">@Html.DisplayFor(modelItem => item.CarId)</span>
+                            </td>
+                            <td class="align-middle">
+                                @if (item.PaymentDate.HasValue)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Оплачено @item.PaymentDate.Value.ToString("dd.MM.yyyy")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-clock me-1"></i>
+                                        Ожидает оплаты
+                                    </span>
+                                }
+                            </td>
+                            <td class="align-middle">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.OrderNumber" 
+                                       class="btn btn-outline-info" 
+                                       title="Просмотр">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.OrderNumber" 
+                                       class="btn btn-outline-primary" 
+                                       title="Редактировать">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.OrderNumber" 
+                                       class="btn btn-outline-danger" 
+                                       title="Удалить">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // Инициализация тултипов для фото
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+}
