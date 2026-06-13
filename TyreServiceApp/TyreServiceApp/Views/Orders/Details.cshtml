@@ -191,7 +191,7 @@
                             <div class="avatar-circle">@Model.Master.FullName?[0]</div>
                             <div>
                                 <div class="fw-bold">@Model.Master.FullName</div>
-                                <div class="text-muted small">@Model.Master.Position • @Model.Master.Rank разряд</div>
+                                <div class="text-muted small">@Model.Master.Position?.Name • @Model.Master.Rank разряд</div>
                                 <div class="text-muted small">Ставка: @Model.Master.HourlyRate.ToString("N0") ₽/ч</div>
                             </div>
                         </div>
@@ -212,7 +212,11 @@
                     <i class="bi bi-tools me-2"></i> Заказ
                 </h6>
 
-                @if (Model.CompletedWorks != null && Model.CompletedWorks.Any())
+                @{
+                    var doneWorks = Model.CompletedWorks?.Where(cw => cw.CompletionTimeMin > 0).ToList();
+                    var pendingWorks = Model.CompletedWorks?.Where(cw => cw.CompletionTimeMin == 0).ToList();
+                }
+                @if (doneWorks != null && doneWorks.Any())
                 {
                     <div class="uiverse-table">
                         <div class="uiverse-table__header">
@@ -222,7 +226,7 @@
                             <div class="uiverse-table__cell col-time">Время</div>
                         </div>
 
-                        @foreach (var work in Model.CompletedWorks)
+                        @foreach (var work in doneWorks)
                         {
                             <div class="uiverse-table__row">
                                 <div class="uiverse-table__cell col-service">
@@ -240,8 +244,8 @@
                         <div class="uiverse-table__footer">
                             <div class="uiverse-table__cell col-service">ИТОГО:</div>
                             <div class="uiverse-table__cell col-wheels"></div>
-                            <div class="uiverse-table__cell col-total text-primary">@Model.CompletedWorks.Sum(w => w.WorkTotal).ToString("N2") ₽</div>
-                            <div class="uiverse-table__cell col-time">@Model.CompletedWorks.Sum(w => w.CompletionTimeMin) мин.</div>
+                            <div class="uiverse-table__cell col-total text-primary">@doneWorks.Sum(w => w.WorkTotal).ToString("N2") ₽</div>
+                            <div class="uiverse-table__cell col-time">@doneWorks.Sum(w => w.CompletionTimeMin) мин.</div>
                         </div>
                     </div>
                 }
@@ -250,6 +254,40 @@
                     <div class="text-center py-4 border rounded bg-light">
                         <i class="bi bi-journal-x text-muted fs-2"></i>
                         <p class="text-muted mt-2">Работы по данному заказу еще не зафиксированы.</p>
+                    </div>
+                }
+
+                @if (pendingWorks != null && pendingWorks.Any())
+                {
+                    <div class="mt-3">
+                        <h6 class="info-section-title" style="color:#f59e0b;">
+                            <i class="bi bi-hourglass-split me-2"></i> Ожидают выполнения
+                        </h6>
+                        <div class="uiverse-table">
+                            <div class="uiverse-table__header">
+                                <div class="uiverse-table__cell col-service">Услуга</div>
+                                <div class="uiverse-table__cell col-wheels">Колеса</div>
+                                <div class="uiverse-table__cell col-total">Стоимость</div>
+                                <div class="uiverse-table__cell col-time">Статус</div>
+                            </div>
+
+                            @foreach (var work in pendingWorks)
+                            {
+                                <div class="uiverse-table__row" style="opacity:0.7;">
+                                    <div class="uiverse-table__cell col-service">
+                                        <div>
+                                            <div class="fw-bold">@(work.Service?.ServiceName ?? "Услуга")</div>
+                                            <small class="text-muted">Код: @work.ServiceCode</small>
+                                        </div>
+                                    </div>
+                                    <div class="uiverse-table__cell col-wheels">@work.WheelCount шт.</div>
+                                    <div class="uiverse-table__cell col-total">@work.WorkTotal.ToString("N2") ₽</div>
+                                    <div class="uiverse-table__cell col-time">
+                                        <span class="badge bg-warning text-dark">Ожидает</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 }
             </div>

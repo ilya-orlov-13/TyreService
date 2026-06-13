@@ -213,7 +213,7 @@
                 </h3>
             </div>
             
-            <form asp-action="Edit" method="post" enctype="multipart/form-data" class="form">
+            <form asp-area="" asp-controller="Cars" asp-action="Edit" method="post" enctype="multipart/form-data" class="form">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
                 <input type="hidden" asp-for="CarId" />
                 <input type="hidden" id="removedPhotosInput" name="removedPhotos" value="" />
@@ -301,21 +301,7 @@
 
                     <!-- Секция основной информации -->
                     <div class="main-info-section">
-                        <div class="form-group">
-                            <label asp-for="Brand">
-                                <i class="bi bi-tag text-dark"></i> Марка
-                            </label>
-                            <input asp-for="Brand" placeholder="Например: Toyota" />
-                            <span asp-validation-for="Brand" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label asp-for="Model">
-                                <i class="bi bi-tag text-dark"></i> Модель
-                            </label>
-                            <input asp-for="Model" placeholder="Например: Camry" />
-                            <span asp-validation-for="Model" class="text-danger"></span>
-                        </div>
+                        <partial name="_CarBrandsPartial" />
                     </div>
                 </div>
 
@@ -341,8 +327,11 @@
                         <label asp-for="LicensePlate">
                             <i class="bi bi-123 text-dark"></i> Госномер
                         </label>
-                        <input asp-for="LicensePlate" placeholder="А123БВ777" />
+                        <input asp-for="LicensePlate" placeholder="А123БВ777"
+                               pattern="[АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}"
+                               title="Формат: буква + 3 цифры + 2 буквы + код региона, например А123БВ777" />
                         <span asp-validation-for="LicensePlate" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">Формат: А123БВ777 (буквы А, В, Е, К, М, Н, О, Р, С, Т, У, Х, регион 2-3 цифры)</small>
                     </div>
                 </div>
 
@@ -359,7 +348,7 @@
                     <button type="submit" class="btn btn-dark px-4">
                         <i class="bi bi-check-lg"></i> Сохранить изменения
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-x-lg"></i> Отмена
                     </a>
                 </div>
@@ -374,7 +363,6 @@
     <style>
         /* Стили для загрузки фото */
         .photo-upload-container {
-            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -415,6 +403,7 @@
         .file-upload-label {
             cursor: pointer;
             background-color: #fff;
+            width: 100%;
             padding: 30px 70px;
             border-radius: 12px;
             border: 2px dashed #ccc;
@@ -815,6 +804,28 @@
             }
 
             displayFiles();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const plateInput = document.getElementById('LicensePlate');
+            if (plateInput) {
+                const rusLetters = 'АВЕКМНОРСТУХ';
+                const engToRus = { 'A':'А','B':'В','E':'Е','K':'К','M':'М','H':'Н','O':'О','P':'Р','C':'С','T':'Т','Y':'У','X':'Х' };
+                plateInput.addEventListener('input', function () {
+                    let s = this.value.toUpperCase().split('').map(function (ch) { return engToRus[ch] || ch; }).join('');
+                    var result = '';
+                    for (var i = 0; i < s.length; i++) {
+                        var ch = s[i];
+                        if (result.length === 0 && rusLetters.indexOf(ch) !== -1) result += ch;
+                        else if (result.length >= 1 && result.length <= 3 && ch >= '0' && ch <= '9') result += ch;
+                        else if ((result.length === 4 || result.length === 5) && rusLetters.indexOf(ch) !== -1) result += ch;
+                        else if (result.length >= 6 && result.length < 9 && ch >= '0' && ch <= '9') result += ch;
+                        if (result.length >= 9) break;
+                    }
+                    this.value = result;
+                });
+            }
         });
     </script>
 }
