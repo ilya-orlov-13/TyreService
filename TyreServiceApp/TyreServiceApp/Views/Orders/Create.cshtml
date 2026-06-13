@@ -4,42 +4,8 @@
     ViewData["Title"] = "Создать заказ";
 }
 
+<partial name="_FormStyles" />
 <style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
-    }
-
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
-        display: block;
-        margin-top: 0rem;
-        cursor: default;
-        transition: max-width 0.3s ease;
-    }
-
-    @@media (min-width: 992px) {
-        .main-3d-wrapper {
-            max-width: 700px; /* Для формы ширина меньше, чем для таблиц */
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    .main-3d-inner {
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 30px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
     .car-selector-container {
         margin-bottom: 20px;
         max-width: 320px;
@@ -541,7 +507,7 @@
 </style>
 
 <div class="container-fluid pt-2 pb-4">
-    <div class="main-3d-wrapper">
+    <div class="main-3d-wrapper" style="--mw: 700px">
         <div class="main-3d-inner">
             
             <!-- Заголовок -->
@@ -551,7 +517,7 @@
                 </h3>
             </div>
 
-            <form asp-action="Create">
+            <form asp-area="" asp-controller="Orders" asp-action="Create" method="post">
                 <div asp-validation-summary="ModelOnly" class="alert-danger" role="alert"></div>
                 
                 <!-- Скрытое поле для CarId -->
@@ -677,12 +643,104 @@
                     <div class="form-text-helper">Если оставить пустым, мастер будет назначен позже</div>
                 </div>
                 
+                <!-- Услуги -->
+                <div class="modern-form-group">
+                    <label class="modern-form-label"><i class="bi bi-tools me-1"></i> Услуги</label>
+                    <div class="d-flex gap-2 mb-2">
+                        <select id="serviceSelect" class="modern-form-select" style="flex:2;">
+                            <option value="">-- Выберите услугу --</option>
+                            @foreach (var s in (List<TyreServiceApp.Models.Service>)ViewBag.Services)
+                            {
+                                <option value="@s.ServiceCode">@s.ServiceName (@s.ServiceCost.ToString("C2"))</option>
+                            }
+                        </select>
+                        <input type="number" id="wheelCount" class="modern-form-input" style="flex:0 0 80px;" min="0" max="4" value="4" placeholder="Колёса" />
+                        <button type="button" class="btn btn-dark" id="addServiceBtn" style="flex:0 0 auto;">+</button>
+                    </div>
+                    <table class="table table-sm mb-0" id="servicesTable">
+                        <thead><tr><th>Услуга</th><th>Колёс</th><th></th></tr></thead>
+                        <tbody id="servicesList"></tbody>
+                    </table>
+                </div>
+
+                <!-- Коэффициенты сложности -->
+                <div class="modern-form-group">
+                    <label class="modern-form-label"><i class="bi bi-sliders me-1"></i> Коэффициенты сложности</label>
+                    <div id="complexityCheckboxes" class="d-flex flex-wrap gap-3">
+                        @foreach (var cc in (List<TyreServiceApp.Models.ComplexityCoefficient>)ViewBag.ComplexityCoefficients)
+                        {
+                            <label class="d-flex align-items-center gap-1" style="font-size:13px;cursor:pointer;">
+                                <input type="checkbox" class="complexity-cb" value="@cc.ComplexityCoefficientId" />
+                                @cc.Name (×@cc.Factor)
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <!-- Расходники -->
+                <div class="modern-form-group">
+                    <label class="modern-form-label"><i class="bi bi-box-seam me-1"></i> Расходники</label>
+                    <div class="d-flex gap-2 mb-2">
+                        <select id="consumableSelect" class="modern-form-select" style="flex:2;">
+                            <option value="">-- Выберите расходник --</option>
+                            @foreach (var c in (List<TyreServiceApp.Models.Consumable>)ViewBag.Consumables)
+                            {
+                                <option value="@c.ConsumableId" data-sell="@c.SellPrice">@c.Name (@c.SellPrice.ToString("C2"))</option>
+                            }
+                        </select>
+                        <input type="number" id="consumableQty" class="modern-form-input" style="flex:0 0 80px;" min="1" value="1" />
+                        <button type="button" class="btn btn-dark" id="addConsumableBtn" style="flex:0 0 auto;">+</button>
+                    </div>
+                    <table class="table table-sm mb-0" id="consumablesTable">
+                        <thead><tr><th>Расходник</th><th>Кол-во</th><th></th></tr></thead>
+                        <tbody id="consumablesList"></tbody>
+                    </table>
+                </div>
+
+                <!-- Скидка -->
+                <div class="modern-form-group">
+                    <label class="modern-form-label"><i class="bi bi-percent me-1"></i> Скидка</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="number" id="discountPercent" class="modern-form-input" style="flex:0 0 80px;" min="0" max="100" value="0" placeholder="%" />
+                        <select id="discountType" class="modern-form-select" style="flex:1;">
+                            <option value="soft">Мягкая (за счёт владельца)</option>
+                            <option value="hard">Жёсткая (мастера)</option>
+                        </select>
+                        <span style="font-size:13px;color:#64748b;">Мастеров на посту: <input type="number" id="masterCount" class="modern-form-input" style="width:60px;display:inline-block;" min="1" value="1" /></span>
+                    </div>
+                </div>
+
+                <!-- Результат -->
+                <div class="modern-form-group" id="resultSection" style="display:none;">
+                    <label class="modern-form-label"><i class="bi bi-calculator me-1"></i> Предварительный расчёт</label>
+                    <div class="card border-0 bg-light p-3">
+                        <table class="table table-sm mb-0">
+                            <thead><tr><th>Услуга</th><th>База</th><th>Коэфф.</th><th>Клиент</th><th>Мастер</th></tr></thead>
+                            <tbody id="resultItems"></tbody>
+                        </table>
+                        <hr />
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Клиент: <span id="resultClientTotal">0</span> ₽</span>
+                            <span>ФОТ: <span id="resultMasterShare">0</span> ₽</span>
+                            <span>На мастера: <span id="resultPerMaster">0</span> ₽</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Скрытые поля для передачи данных -->
+                <input type="hidden" name="serviceItems" id="serviceItemsHidden" />
+                <input type="hidden" name="complexityIds" id="complexityIdsHidden" />
+                <input type="hidden" name="consumableItems" id="consumableItemsHidden" />
+
                 <!-- Кнопки действий -->
                 <div class="d-flex gap-2 mt-4 pt-2">
-                    <button type="submit" class="btn btn-dark px-4">
-                        <i class="bi bi-check-lg"></i> Сохранить изменения
+                    <button type="button" class="btn btn-outline-dark px-4" id="calculateBtn">
+                        <i class="bi bi-calculator"></i> Рассчитать
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <button type="submit" class="btn btn-dark px-4">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                    <a asp-area="" asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary px-4">
                         <i class="bi bi-x-lg"></i> Отмена
                     </a>
                 </div>
@@ -923,8 +981,9 @@
                 const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                 input.value = `${formattedDate} ${formattedTime}`;
 
-                const isoDate = selectedDate.toISOString().slice(0, 16);
-                input.setAttribute('data-value', isoDate);
+                const pad = (n) => String(n).padStart(2, '0');
+                const localIso = `${selectedDate.getFullYear()}-${pad(selectedDate.getMonth()+1)}-${pad(selectedDate.getDate())}T${pad(selectedDate.getHours())}:${pad(selectedDate.getMinutes())}`;
+                input.setAttribute('data-value', localIso);
 
                 renderCalendar();
                 calendar.classList.remove('active');
@@ -970,6 +1029,157 @@
             if (paymentDateInput.getAttribute('data-value')) {
                 paymentDateInput.value = paymentDateInput.getAttribute('data-value');
             }
+
+            // Сериализовать данные перед отправкой
+            serializeCalculationData();
         });
+
+        // ---- Расчёт ---- //
+        var addedServices = [];
+        var addedConsumables = [];
+
+        var costDisplay = document.createElement('span');
+        costDisplay.id = 'costPreview';
+        costDisplay.className = 'ms-2 text-muted small fw-medium';
+        document.getElementById('wheelCount').after(costDisplay);
+
+        function calculateTotal() {
+            var select = document.getElementById('serviceSelect');
+            var wheelInput = document.getElementById('wheelCount');
+            var serviceCode = parseInt(select.value);
+            if (!serviceCode) { costDisplay.textContent = ''; return; }
+            var wheelCount = parseInt(wheelInput.value) || 1;
+            fetch('/api/orders/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    carClassId: getSelectedCarClassId(),
+                    items: [{ serviceCode: serviceCode, wheelCount: wheelCount }]
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var cost = data.clientTotal || 0;
+                costDisplay.textContent = '= ' + cost.toFixed(2) + ' ₽';
+            })
+            .catch(function() { costDisplay.textContent = '—'; });
+        }
+
+        document.getElementById('serviceSelect').addEventListener('change', calculateTotal);
+        document.getElementById('wheelCount').addEventListener('input', calculateTotal);
+        document.getElementById('addServiceBtn').addEventListener('click', function() {
+            var select = document.getElementById('serviceSelect');
+            var wheelInput = document.getElementById('wheelCount');
+            var serviceCode = parseInt(select.value);
+            if (!serviceCode) return;
+            var serviceName = select.options[select.selectedIndex].text;
+            var wheelCount = parseInt(wheelInput.value) || 1;
+            addedServices.push({ serviceCode: serviceCode, serviceName: serviceName, wheelCount: wheelCount });
+            renderServices();
+            select.value = '';
+            wheelInput.value = 4;
+        });
+
+        function renderServices() {
+            var tbody = document.getElementById('servicesList');
+            tbody.innerHTML = '';
+            addedServices.forEach(function(s, i) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + s.serviceName + '</td><td>' + s.wheelCount + '</td>' +
+                    '<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="addedServices.splice(' + i + ',1);renderServices();">✕</button></td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('addConsumableBtn').addEventListener('click', function() {
+            var select = document.getElementById('consumableSelect');
+            var qtyInput = document.getElementById('consumableQty');
+            var consumableId = parseInt(select.value);
+            if (!consumableId) return;
+            var consumableName = select.options[select.selectedIndex].text;
+            var quantity = parseInt(qtyInput.value) || 1;
+            addedConsumables.push({ consumableId: consumableId, consumableName: consumableName, quantity: quantity });
+            renderConsumables();
+            select.value = '';
+            qtyInput.value = 1;
+        });
+
+        function renderConsumables() {
+            var tbody = document.getElementById('consumablesList');
+            tbody.innerHTML = '';
+            addedConsumables.forEach(function(c, i) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + c.consumableName + '</td><td>' + c.quantity + '</td>' +
+                    '<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="addedConsumables.splice(' + i + ',1);renderConsumables();">✕</button></td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getSelectedCarClassId() {
+            if (!selectedCarId) return null;
+            var car = carsData.find(function(c) { return c.carId === selectedCarId; });
+            return car ? car.carClassId : null;
+        }
+
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            if (addedServices.length === 0) { alert('Добавьте хотя бы одну услугу'); return; }
+
+            var carClassId = getSelectedCarClassId();
+            var complexityIds = Array.from(document.querySelectorAll('.complexity-cb:checked')).map(function(cb) { return parseInt(cb.value); });
+            var consumables = addedConsumables.map(function(c) { return { consumableId: c.consumableId, quantity: c.quantity }; });
+            var discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+            var discountType = document.getElementById('discountType').value;
+            var masterCount = parseInt(document.getElementById('masterCount').value) || 1;
+
+            fetch('/api/orders/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    carClassId: carClassId,
+                    items: addedServices.map(function(s) { return { serviceCode: s.serviceCode, wheelCount: s.wheelCount }; }),
+                    complexityCoefficientIds: complexityIds,
+                    consumables: consumables,
+                    discountPercent: discountPercent,
+                    discountType: discountType,
+                    masterCount: masterCount
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var section = document.getElementById('resultSection');
+                section.style.display = 'block';
+
+                var tbody = document.getElementById('resultItems');
+                tbody.innerHTML = '';
+                data.items.forEach(function(item) {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td>Услуга #' + item.serviceCode + '</td>' +
+                        '<td>' + item.basePrice.toFixed(2) + '</td>' +
+                        '<td>×' + item.complexitySum.toFixed(2) + '</td>' +
+                        '<td>' + item.workTotal.toFixed(2) + '</td>' +
+                        '<td>' + item.masterShare.toFixed(2) + '</td>';
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('resultClientTotal').textContent = data.clientTotal.toFixed(2);
+                document.getElementById('resultMasterShare').textContent = data.masterShare.toFixed(2);
+                document.getElementById('resultPerMaster').textContent = data.masterPerMaster.toFixed(2);
+            })
+            .catch(function() {
+                alert('Ошибка расчёта');
+            });
+        });
+
+        function serializeCalculationData() {
+            document.getElementById('serviceItemsHidden').value = JSON.stringify(addedServices.map(function(s) {
+                return { serviceCode: s.serviceCode, wheelCount: s.wheelCount };
+            }));
+            document.getElementById('complexityIdsHidden').value = JSON.stringify(
+                Array.from(document.querySelectorAll('.complexity-cb:checked')).map(function(cb) { return parseInt(cb.value); })
+            );
+            document.getElementById('consumableItemsHidden').value = JSON.stringify(addedConsumables.map(function(c) {
+                return { consumableId: c.consumableId, quantity: c.quantity };
+            }));
+        }
     </script>
 }

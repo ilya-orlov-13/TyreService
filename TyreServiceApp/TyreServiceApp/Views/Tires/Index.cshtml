@@ -1,225 +1,520 @@
-@* Index.cshtml *@
 @model IEnumerable<TyreServiceApp.Models.Tire>
 
 @{
     ViewData["Title"] = "Шины";
 }
 
+<partial name="_CardGridStyles" />
 <style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
+    .tire-card-wrapper {
+        cursor: pointer;
     }
 
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
+    .add-card-wrapper {
+        text-decoration: none;
         display: block;
-        margin-top: 0rem;
-        cursor: default;
     }
 
-    .main-3d-inner {
-        display: block;
+    .add-card {
+        min-height: 100%;
         box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 20px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-/* 
-    .main-3d-wrapper:hover .main-3d-inner {
-        transform: translateY(-0.35em);
-    } */
-
-    .uiverse-table {
-        width: 100%;
-        background: white;
-        border: 1px solid rgb(203, 203, 203);
-        border-radius: 8px;
-        overflow: hidden;
-        display: block;
-        margin-top: 15px;
     }
 
-    .uiverse-table__header {
-        display: flex;
-        background: rgb(60, 60, 60);
-        color: white;
-        border-bottom: 1px solid rgb(203, 203, 203);
+    .tire-card {
+        gap: 14px;
+        cursor: pointer;
     }
 
-    .uiverse-table__row {
-        display: flex;
-        border-bottom: 1px solid rgb(203, 203, 203);
-        background: white;
-    }
-
-    .uiverse-table__row:nth-child(even) {
-        background: rgb(234, 235, 234);
-    }
-
-    .uiverse-table__row:last-child {
-        border-bottom: none;
-    }
-
-    .uiverse-table__cell {
-        padding: 12px;
+    .card-top-row {
         display: flex;
         align-items: center;
-        min-height: 60px;
+        gap: 10px;
+        width: 100%;
     }
 
-    /* Настройка ширины колонок для Шин */
-    .col-manuf { width: 20%; border-right: 1px solid rgb(203, 203, 203); }
-    .col-model { width: 15%; border-right: 1px solid rgb(203, 203, 203); }
-    .col-size { width: 15%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-season { width: 15%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-wear { width: 15%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-actions { width: 20%; justify-content: center; }
+    .tire-manufacturer {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+        background: #474747;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+    }
 
-    .uiverse-table__header .uiverse-table__cell {
-        font-weight: bold;
-        font-size: 0.9rem;
+    .tire-title {
+        flex: 1;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 700;
+        font-size: clamp(15px, 1.8vw, 20px);
+        line-height: 1.15;
+        color: #000000;
+        text-align: left;
+        user-select: none;
+        min-width: 0;
+    }
+
+    .tire-size {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 600;
+        color: #888;
+        white-space: nowrap;
+    }
+
+    .card-bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .tire-meta {
+        display: flex;
+        gap: 10px;
+        font-size: 0.82rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .tire-meta .badge {
+        font-size: 0.75rem;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .action-btn {
+        background: none;
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+        padding: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        text-align: center;
+        transition: all 0.2s ease;
+        color: #999;
+        text-decoration: none;
     }
 
-    /* Внутренние стили */
-    .tire-text { font-weight: bold; font-size: 0.95rem; color: #212529; }
-    .model-text { font-size: 0.9rem; color: #495057; }
+    .action-btn:hover {
+        border-color: #000;
+        background: #f5f5f5;
+        color: #000;
+    }
 
-    /* Адаптивность */
-    @@media (max-width: 992px) {
-        .uiverse-table__header { display: none !important; }
-        .uiverse-table__row { flex-direction: column !important; padding: 10px 0; border-bottom: 1px solid rgb(203, 203, 203) !important; }
-        .col-manuf, .col-model, .col-size, .col-season, .col-wear, .col-actions { 
-            width: 100% !important; 
-            border-right: none !important; 
-            border-bottom: 1px solid rgba(203, 203, 203, 0.5); 
-            justify-content: flex-start !important; 
+    .action-btn.danger:hover {
+        border-color: #dc2626;
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .action-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.modal-show {
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #fff;
+        border-radius: 20px;
+        padding: 32px;
+        max-width: 460px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transform: translateY(10px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-show .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: center;
+        padding: 0;
+        border: none;
+        margin-bottom: 16px;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 0;
+        text-align: center;
+        border: none;
+    }
+
+    .modal-text {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .modal-tire-info {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+
+    .modal-hint {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #e0e0e0;
+    }
+
+    .modal-btn-delete {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .modal-btn-delete:hover {
+        background: #b91c1c;
+    }
+
+    .tire-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        text-align: left;
+    }
+
+    .tire-preview-grid div {
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .tire-preview-grid span {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 2px;
+    }
+
+    @@media (max-width: 768px) {
+        .tires-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
-        .uiverse-table__cell { min-height: auto !important; padding: 8px 15px !important; }
-        .col-actions { border-bottom: none; justify-content: center !important; }
+
+        .tire-card {
+            padding: 16px;
+        }
+
+        .tire-title {
+            font-size: clamp(15px, 3vw, 20px);
+        }
+
+        .card-bottom-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .tire-meta {
+            justify-content: center;
+        }
+
+        .action-btns {
+            justify-content: flex-end;
+        }
+
+        .tire-preview-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .tire-card {
+            padding: 14px;
+        }
     }
 </style>
 
 <div class="container-fluid pt-2 pb-4">
-    <div class="main-3d-wrapper">
-        <div class="main-3d-inner">
-            
-            <!-- Заголовок и кнопка -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0">
-                    <i class="bi bi-circle me-2"></i> Список шин
-                </h3>
-                <a asp-action="Create" class="btn btn-dark">
-                    <i class="bi bi-plus-circle me-1"></i> Добавить шину
-                </a>
-            </div>
+    @if (Model.Any())
+    {
+        await Html.RenderPartialAsync("_ViewToggle");
 
-            @if (Model.Any())
-            {
-                <div class="uiverse-table">
-                    <!-- Заголовок таблицы -->
-                    <div class="uiverse-table__header">
-                        <div class="uiverse-table__cell col-manuf">Производитель</div>
-                        <div class="uiverse-table__cell col-model">Модель</div>
-                        <div class="uiverse-table__cell col-size">Размер</div>
-                        <div class="uiverse-table__cell col-season">Сезонность</div>
-                        <div class="uiverse-table__cell col-wear">Износ</div>
-                        <div class="uiverse-table__cell col-actions">Действия</div>
-                    </div>
-                    
-                    <!-- Строки с данными -->
-                    @foreach (var item in Model)
+        <div class="view-cards">
+            <div class="tires-grid">
+                @foreach (var item in Model)
+                {
+                    var seasonalityBadge = item.Seasonality switch
                     {
-                        <div class="uiverse-table__row">
-                            <!-- Производитель -->
-                            <div class="uiverse-table__cell col-manuf">
-                                <div class="tire-text">
-                                    @item.Manufacturer
+                        "Летняя" => "bg-warning text-dark",
+                        "Зимняя" => "bg-info",
+                        "Всесезонная" => "bg-success",
+                        _ => "bg-secondary"
+                    };
+                    var wearBadge = item.WearPercentage switch
+                    {
+                        >= 80 => "bg-danger",
+                        >= 50 => "bg-warning text-dark",
+                        _ => "bg-success"
+                    };
+                    var tireTitle = $"{item.Manufacturer} {item.TireModel}";
+
+                    <div class="tire-card-wrapper"
+                         onclick="showTireModal(this)"
+                         data-tire-id="@item.TireId"
+                         data-tire-title="@tireTitle"
+                         data-tire-manufacturer="@item.Manufacturer"
+                         data-tire-model="@item.TireModel"
+                         data-tire-size="@item.Size"
+                         data-tire-seasonality="@item.Seasonality"
+                         data-tire-wear="@item.WearPercentage%"
+                         data-tire-load="@item.LoadIndex"
+                         data-tire-pressure="@item.Pressure"
+                         data-tire-type="@item.TireType">
+                        <div class="tire-card">
+                            <div class="card-top-row">
+                                <span class="tire-manufacturer">@item.Manufacturer</span>
+                                <div class="tire-title">@item.TireModel</div>
+                                <span class="tire-size">@item.Size</span>
+                            </div>
+                            <div class="card-bottom-row">
+                                <div class="tire-meta">
+                                    <span class="badge @seasonalityBadge">@item.Seasonality</span>
+                                    <span class="badge @wearBadge">@item.WearPercentage% износ</span>
                                 </div>
-                            </div>
-
-                            <!-- Модель -->
-                            <div class="uiverse-table__cell col-model">
-                                <div class="model-text">@item.TireModel</div>
-                            </div>
-
-                            <!-- Размер -->
-                            <div class="uiverse-table__cell col-size">
-                                <span class="badge bg-secondary">@item.Size</span>
-                            </div>
-
-                            <!-- Сезонность -->
-                            <div class="uiverse-table__cell col-season">
-                                @{
-                                    var seasonalityBadge = item.Seasonality switch
-                                    {
-                                        "Летняя" => "bg-warning",
-                                        "Зимняя" => "bg-info",
-                                        "Всесезонная" => "bg-success",
-                                        _ => "bg-secondary"
-                                    };
-                                }
-                                <span class="badge @seasonalityBadge">@item.Seasonality</span>
-                            </div>
-
-                            <!-- Износ -->
-                            <div class="uiverse-table__cell col-wear">
-                                @{
-                                    var wearBadge = item.WearPercentage switch
-                                    {
-                                        >= 80 => "bg-danger",
-                                        >= 50 => "bg-warning text-dark",
-                                        _ => "bg-success"
-                                    };
-                                }
-                                <span class="badge @wearBadge">@item.WearPercentage%</span>
-                            </div>
-
-                            <!-- Действия -->
-                            <div class="uiverse-table__cell col-actions">
-                                <div class="d-flex justify-content-center gap-2 w-100">
-                                    <a asp-action="Details" asp-route-id="@item.TireId" class="btn btn-outline-info btn-sm">
-                                        <i class="bi bi-eye"></i>
+                                <div class="action-btns">
+                                    <a asp-action="Edit" asp-route-id="@item.TireId" class="action-btn" title="Редактировать" onclick="event.stopPropagation()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                        </svg>
                                     </a>
-                                    <a asp-action="Edit" asp-route-id="@item.TireId" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.TireId" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <button type="button" class="action-btn danger" title="Удалить" onclick="event.stopPropagation(); showDeleteModal(@item.TireId, '@tireTitle')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5 border rounded bg-light">
-                    <i class="bi bi-circle text-muted" style="font-size: 3rem;"></i>
-                    <h4 class="mt-3">Шины не найдены</h4>
-                    <p class="text-muted">Добавьте первую шину в базу данных.</p>
-                </div>
-            }
+                    </div>
+                }
+                <a href="/Tires/Create" class="tire-card-wrapper add-card-wrapper">
+                    <div class="tire-card add-card">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Добавить шину</span>
+                    </div>
+                </a>
+            </div>
         </div>
+
+        <div class="view-table">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Производитель</th>
+                        <th>Модель</th>
+                        <th>Размер</th>
+                        <th>Сезонность</th>
+                        <th>Износ</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var tireTitle = $"{item.Manufacturer} {item.TireModel}";
+                        <tr onclick="showTireModal(this)"
+                            style="cursor:pointer;"
+                            data-tire-id="@item.TireId"
+                            data-tire-title="@tireTitle"
+                            data-tire-manufacturer="@item.Manufacturer"
+                            data-tire-model="@item.TireModel"
+                            data-tire-size="@item.Size"
+                            data-tire-seasonality="@item.Seasonality"
+                            data-tire-wear="@item.WearPercentage%"
+                            data-tire-load="@item.LoadIndex"
+                            data-tire-pressure="@item.Pressure"
+                            data-tire-type="@item.TireType">
+                            <td data-label="Производитель">@item.Manufacturer</td>
+                            <td data-label="Модель">@item.TireModel</td>
+                            <td data-label="Размер">@item.Size</td>
+                            <td data-label="Сезонность">
+                                <span class="badge @(item.Seasonality == "Летняя" ? "bg-warning text-dark" : item.Seasonality == "Зимняя" ? "bg-info" : item.Seasonality == "Всесезонная" ? "bg-success" : "bg-secondary")">@item.Seasonality</span>
+                            </td>
+                            <td data-label="Износ">
+                                <span class="badge @(item.WearPercentage >= 80 ? "bg-danger" : item.WearPercentage >= 50 ? "bg-warning text-dark" : "bg-success")">@item.WearPercentage%</span>
+                            </td>
+                            <td data-label="">
+                                <div class="table-actions" onclick="event.stopPropagation()">
+                                    <a asp-action="Edit" asp-route-id="@item.TireId" title="Редактировать">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                    </a>
+                                    <button class="danger" title="Удалить" onclick="showDeleteModal(@item.TireId, '@tireTitle')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 border rounded bg-light">
+            <i class="bi bi-circle text-muted" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Шины не найдены</h4>
+            <p class="text-muted">Добавьте первую шину в базу данных.</p>
+            <a href="/Tires/Create" class="btn btn-dark mt-3"><i class="bi bi-plus-circle me-1"></i> Добавить</a>
+        </div>
+    }
+</div>
+
+<div id="viewModal" class="modal-overlay" style="display:none;" onclick="closeViewModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="viewTireTitle" class="modal-title"></h3>
+        </div>
+        <div class="modal-body">
+            <div class="tire-preview-grid">
+                <div><span>Производитель</span><strong id="viewTireManufacturer"></strong></div>
+                <div><span>Модель</span><strong id="viewTireModel"></strong></div>
+                <div><span>Размер</span><strong id="viewTireSize"></strong></div>
+                <div><span>Сезонность</span><strong id="viewTireSeasonality"></strong></div>
+                <div><span>Износ</span><strong id="viewTireWear"></strong></div>
+                <div><span>Индекс нагрузки</span><strong id="viewTireLoad"></strong></div>
+                <div><span>Давление</span><strong id="viewTirePressure"></strong></div>
+                <div><span>Тип</span><strong id="viewTireType"></strong></div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeViewModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal-overlay" style="display:none;" onclick="closeDeleteModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">Удалить шину?</h3>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text">Вы уверены, что хотите удалить</p>
+            <p id="deleteTireInfo" class="modal-tire-info"></p>
+            <p class="modal-hint">Это действие нельзя отменить.</p>
+        </div>
+        <form id="deleteForm" method="post" asp-action="Delete" asp-controller="Tires">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="deleteTireId" name="id" value="" />
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Отмена</button>
+                <button type="submit" class="modal-btn modal-btn-delete">Удалить</button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
+        function showTireModal(source) {
+            document.getElementById('viewTireTitle').textContent = source.dataset.tireTitle;
+            document.getElementById('viewTireManufacturer').textContent = source.dataset.tireManufacturer || '—';
+            document.getElementById('viewTireModel').textContent = source.dataset.tireModel || '—';
+            document.getElementById('viewTireSize').textContent = source.dataset.tireSize || '—';
+            document.getElementById('viewTireSeasonality').textContent = source.dataset.tireSeasonality || '—';
+            document.getElementById('viewTireWear').textContent = source.dataset.tireWear || '—';
+            document.getElementById('viewTireLoad').textContent = source.dataset.tireLoad || '—';
+            document.getElementById('viewTirePressure').textContent = source.dataset.tirePressure || '—';
+            document.getElementById('viewTireType').textContent = source.dataset.tireType || '—';
+
+            var modal = document.getElementById('viewModal');
+            modal.style.display = 'flex';
+            setTimeout(function() { modal.classList.add('modal-show'); }, 10);
+        }
+
+        function closeViewModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            var modal = document.getElementById('viewModal');
+            modal.classList.remove('modal-show');
+            setTimeout(function() { modal.style.display = 'none'; }, 300);
+        }
+
+        function showDeleteModal(tireId, tireName) {
+            document.getElementById('deleteTireId').value = tireId;
+            document.getElementById('deleteTireInfo').textContent = tireName;
+            var modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+            setTimeout(function() { modal.classList.add('modal-show'); }, 10);
+        }
+
+        function closeDeleteModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            var modal = document.getElementById('deleteModal');
+            modal.classList.remove('modal-show');
+            setTimeout(function() { modal.style.display = 'none'; }, 300);
+        }
     </script>
 }

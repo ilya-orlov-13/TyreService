@@ -1,0 +1,681 @@
+@model IEnumerable<TyreServiceApp.Models.CustomerReview>
+
+@functions {
+    string GetAuthor(TyreServiceApp.Models.CustomerReview review)
+    {
+        return review.Customer?.Client?.FullName
+            ?? review.Customer?.Phone
+            ?? "—";
+    }
+
+    string GetReviewTitle(TyreServiceApp.Models.CustomerReview review)
+    {
+        var author = GetAuthor(review);
+        return author == "—" ? $"Отзыв #{review.ReviewId}" : author;
+    }
+
+    string Truncate(string text, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text.Length <= maxLength)
+        {
+            return text;
+        }
+
+        return text[..maxLength].TrimEnd() + "…";
+    }
+}
+
+@{
+    ViewData["Title"] = "Отзывы";
+}
+
+<partial name="_CardGridStyles" />
+<style>
+    .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--gm, 360px), var(--gu, 1fr)));
+        gap: var(--gg, 16px);
+    }
+
+    .review-card-wrapper {
+        cursor: pointer;
+        height: 100%;
+    }
+
+    .review-card {
+        background: #ffffff;
+        border: 1.5px solid #a1a1a5;
+        border-radius: 16px;
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 14px;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+
+    .review-card:hover {
+        border-color: #000000;
+    }
+
+    .review-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .review-author {
+        font-weight: 800;
+        font-size: clamp(16px, 2vw, 22px);
+        line-height: 1.15;
+        color: #000;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .review-id {
+        font-size: 11px;
+        font-weight: 700;
+        color: #777;
+        background: #f1f1f1;
+        border-radius: 999px;
+        padding: 3px 8px;
+        white-space: nowrap;
+    }
+
+    .review-rating {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 16px;
+    }
+
+    .review-text {
+        color: #333;
+        font-size: 14px;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 60px;
+    }
+
+    .review-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: #666;
+        font-size: 12px;
+    }
+
+    .review-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid #e5e5e5;
+        border-radius: 999px;
+        padding: 4px 9px;
+        background: #fafafa;
+    }
+
+    .review-status {
+        align-self: flex-start;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .review-status.approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .review-status.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .review-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .review-date {
+        color: #777;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .review-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .review-actions form {
+        margin: 0;
+    }
+
+    .review-action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1.5px solid #ccc;
+        background: #fff;
+        color: #999;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0;
+    }
+
+    .review-action-btn:hover {
+        border-color: #000;
+        color: #000;
+        background: #f5f5f5;
+    }
+
+    .review-action-btn.success:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        background: #f0fdf4;
+    }
+
+    .review-action-btn.danger:hover {
+        border-color: #dc2626;
+        color: #dc2626;
+        background: #fef2f2;
+    }
+
+    .review-action-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .review-text-cell {
+        max-width: 360px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .table-rating {
+        white-space: nowrap;
+    }
+
+    .data-table .table-actions form {
+        margin: 0;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.modal-show {
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #fff;
+        border-radius: 20px;
+        padding: 32px;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transform: translateY(10px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-show .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: center;
+        padding: 0;
+        border: none;
+        margin-bottom: 16px;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 0;
+        text-align: center;
+        border: none;
+    }
+
+    .modal-text {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .modal-review-info {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+
+    .review-preview-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .review-preview-text {
+        padding: 14px 16px;
+        background: #f8f9fa;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        color: #222;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+
+    .review-preview-meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        font-size: 13px;
+    }
+
+    .review-preview-meta div {
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .review-preview-meta span {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 2px;
+    }
+
+    .modal-hint {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #e0e0e0;
+    }
+
+    .modal-btn-delete {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .modal-btn-delete:hover {
+        background: #b91c1c;
+    }
+
+    @@media (max-width: 768px) {
+        .reviews-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .review-card {
+            padding: 16px;
+        }
+
+        .review-card-header,
+        .review-card-footer {
+            flex-wrap: wrap;
+        }
+
+        .review-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+<div class="container-fluid pt-2 pb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0"><i class="bi bi-star me-2"></i>Отзывы клиентов</h3>
+    </div>
+
+    @if (Model.Any())
+    {
+        await Html.RenderPartialAsync("_ViewToggle");
+
+        <div class="view-cards">
+            <div class="reviews-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="review-card-wrapper"
+                         onclick="handleReviewClick(event, this)"
+                         data-review-id="@item.ReviewId"
+                         data-review-title="@GetReviewTitle(item)"
+                         data-review-author="@GetAuthor(item)"
+                         data-review-rating="@item.Rating"
+                         data-review-text="@item.Text"
+                         data-review-car="@(item.CarModel ?? "—")"
+                         data-review-order="@(item.OrderNumber.HasValue ? $"#{item.OrderNumber}" : "—")"
+                         data-review-status="@(item.IsApproved ? "Опубликован" : "На модерации")"
+                         data-review-date="@item.CreatedAt.ToString("dd.MM.yyyy")">
+                        <div class="review-card">
+                            <div class="review-card-header">
+                                <div>
+                                    <div class="review-author">@GetReviewTitle(item)</div>
+                                    <div class="review-id">#@item.ReviewId</div>
+                                </div>
+                                <span class="review-status @(item.IsApproved ? "approved" : "pending")">
+                                    @(item.IsApproved ? "Опубликован" : "На модерации")
+                                </span>
+                            </div>
+
+                            <div class="review-rating" aria-label="Рейтинг @item.Rating из 5">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="bi @(i < item.Rating ? "bi-star-fill text-warning" : "bi-star text-muted")"></i>
+                                }
+                            </div>
+
+                            <div class="review-text">@item.Text</div>
+
+                            <div class="review-meta">
+                                <span class="review-meta-item">
+                                    <i class="bi bi-car-front"></i>
+                                    @(item.CarModel ?? "—")
+                                </span>
+                                <span class="review-meta-item">
+                                    <i class="bi bi-receipt"></i>
+                                    @(item.OrderNumber.HasValue ? $"#{item.OrderNumber}" : "—")
+                                </span>
+                            </div>
+
+                            <div class="review-card-footer">
+                                <span class="review-date">
+                                    <i class="bi bi-calendar me-1"></i>@item.CreatedAt.ToString("dd.MM.yyyy")
+                                </span>
+                                <div class="review-actions" onclick="event.stopPropagation()">
+                                    <a asp-action="Details" asp-route-id="@item.ReviewId" class="review-action-btn" title="Подробнее">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </a>
+                                    @if (!item.IsApproved)
+                                    {
+                                        <form asp-action="Approve" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.ReviewId" />
+                                            <button type="submit" class="review-action-btn success" title="Опубликовать">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </button>
+                                        </form>
+                                    }
+                                    <button type="button"
+                                            class="review-action-btn danger"
+                                            title="Удалить"
+                                            data-review-id="@item.ReviewId"
+                                            data-review-title="@GetReviewTitle(item)"
+                                            onclick="showDeleteModal(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="view-table">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Рейтинг</th>
+                        <th>Отзыв</th>
+                        <th>Автомобиль</th>
+                        <th>Статус</th>
+                        <th>Дата</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr onclick="handleReviewClick(event, this)"
+                            style="cursor:pointer;"
+                            data-review-id="@item.ReviewId"
+                            data-review-title="@GetReviewTitle(item)"
+                            data-review-author="@GetAuthor(item)"
+                            data-review-rating="@item.Rating"
+                            data-review-text="@item.Text"
+                            data-review-car="@(item.CarModel ?? "—")"
+                            data-review-order="@(item.OrderNumber.HasValue ? $"#{item.OrderNumber}" : "—")"
+                            data-review-status="@(item.IsApproved ? "Опубликован" : "На модерации")"
+                            data-review-date="@item.CreatedAt.ToString("dd.MM.yyyy")">
+                            <td data-label="ID">@item.ReviewId</td>
+                            <td data-label="Клиент">@GetAuthor(item)</td>
+                            <td data-label="Рейтинг" class="table-rating">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="bi @(i < item.Rating ? "bi-star-fill text-warning" : "bi-star text-muted")"></i>
+                                }
+                            </td>
+                            <td data-label="Отзыв" class="review-text-cell">@Truncate(item.Text, 120)</td>
+                            <td data-label="Автомобиль">@(item.CarModel ?? "—")</td>
+                            <td data-label="Статус">
+                                <span class="review-status @(item.IsApproved ? "approved" : "pending")">
+                                    @(item.IsApproved ? "Опубликован" : "На модерации")
+                                </span>
+                            </td>
+                            <td data-label="Дата">@item.CreatedAt.ToString("dd.MM.yyyy")</td>
+                            <td data-label="">
+                                <div class="table-actions" onclick="event.stopPropagation()">
+                                    <a asp-action="Details" asp-route-id="@item.ReviewId" title="Подробнее">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </a>
+                                    @if (!item.IsApproved)
+                                    {
+                                        <form asp-action="Approve" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.ReviewId" />
+                                            <button type="submit" title="Опубликовать">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </button>
+                                        </form>
+                                    }
+                                    <button class="danger"
+                                            type="button"
+                                            title="Удалить"
+                                            data-review-id="@item.ReviewId"
+                                            data-review-title="@GetReviewTitle(item)"
+                                            onclick="showDeleteModal(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 border rounded bg-light">
+            <i class="bi bi-star text-muted" style="font-size:3rem;"></i>
+            <h4 class="mt-3">Отзывов пока нет</h4>
+            <p class="text-muted">Когда клиенты начнут оставлять отзывы, они появятся здесь.</p>
+        </div>
+    }
+</div>
+
+<div id="viewModal" class="modal-overlay" style="display:none;" onclick="closeViewModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="viewReviewTitle" class="modal-title"></h3>
+        </div>
+        <div class="modal-body review-preview-body">
+            <div id="viewReviewRating" class="review-rating"></div>
+            <div id="viewReviewText" class="review-preview-text"></div>
+            <div class="review-preview-meta">
+                <div>
+                    <span>Клиент</span>
+                    <strong id="viewReviewAuthor"></strong>
+                </div>
+                <div>
+                    <span>Статус</span>
+                    <strong id="viewReviewStatus"></strong>
+                </div>
+                <div>
+                    <span>Автомобиль</span>
+                    <strong id="viewReviewCar"></strong>
+                </div>
+                <div>
+                    <span>Заказ</span>
+                    <strong id="viewReviewOrder"></strong>
+                </div>
+                <div>
+                    <span>Дата</span>
+                    <strong id="viewReviewDate"></strong>
+                </div>
+                <div>
+                    <span>ID</span>
+                    <strong id="viewReviewId"></strong>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeViewModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal-overlay" style="display:none;" onclick="closeDeleteModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">Удалить отзыв?</h3>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text">Вы уверены, что хотите удалить</p>
+            <p id="deleteReviewInfo" class="modal-review-info"></p>
+            <p class="modal-hint">Это действие нельзя отменить.</p>
+        </div>
+        <form id="deleteForm" method="post" asp-action="Delete" asp-controller="Reviews">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="deleteReviewId" name="id" value="" />
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Отмена</button>
+                <button type="submit" class="modal-btn modal-btn-delete">Удалить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function handleReviewClick(event, source) {
+            if (event.target.closest('.review-actions') || event.target.closest('.table-actions')) {
+                return;
+            }
+
+            showViewModal(source);
+        }
+
+        function showViewModal(source) {
+            document.getElementById('viewReviewTitle').textContent = source.dataset.reviewTitle;
+            document.getElementById('viewReviewAuthor').textContent = source.dataset.reviewAuthor;
+            document.getElementById('viewReviewStatus').textContent = source.dataset.reviewStatus;
+            document.getElementById('viewReviewCar').textContent = source.dataset.reviewCar;
+            document.getElementById('viewReviewOrder').textContent = source.dataset.reviewOrder;
+            document.getElementById('viewReviewDate').textContent = source.dataset.reviewDate;
+            document.getElementById('viewReviewId').textContent = '#' + source.dataset.reviewId;
+            document.getElementById('viewReviewText').textContent = source.dataset.reviewText;
+
+            var rating = Number(source.dataset.reviewRating || 0);
+            var ratingHtml = '';
+            for (var i = 0; i < 5; i++) {
+                ratingHtml += '<i class="bi ' + (i < rating ? 'bi-star-fill text-warning' : 'bi-star text-muted') + '"></i>';
+            }
+            document.getElementById('viewReviewRating').innerHTML = ratingHtml;
+
+            var modal = document.getElementById('viewModal');
+            modal.style.display = 'flex';
+            setTimeout(function() { modal.classList.add('modal-show'); }, 10);
+        }
+
+        function closeViewModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            var modal = document.getElementById('viewModal');
+            modal.classList.remove('modal-show');
+            setTimeout(function() { modal.style.display = 'none'; }, 300);
+        }
+
+        function showDeleteModal(button) {
+            document.getElementById('deleteReviewId').value = button.getAttribute('data-review-id');
+            document.getElementById('deleteReviewInfo').textContent = button.getAttribute('data-review-title');
+            var modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+            setTimeout(function() { modal.classList.add('modal-show'); }, 10);
+        }
+
+        function closeDeleteModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            var modal = document.getElementById('deleteModal');
+            modal.classList.remove('modal-show');
+            setTimeout(function() { modal.style.display = 'none'; }, 300);
+        }
+    </script>
+}

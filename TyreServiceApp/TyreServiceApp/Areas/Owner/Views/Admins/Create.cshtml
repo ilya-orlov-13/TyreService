@@ -1,0 +1,77 @@
+@model TyreServiceApp.Models.AdminUser
+
+@{
+    ViewData["Title"] = "Добавить администратора";
+}
+
+<partial name="_FormStyles" />
+
+<div class="container-fluid pt-2 pb-4">
+    <div class="main-3d-wrapper" style="--mw: 600px">
+        <div class="main-3d-inner">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold m-0">
+                    Добавить администратора
+                </h3>
+            </div>
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="alert-danger" role="alert"></div>
+
+                <div class="modern-form-group">
+                    <label asp-for="Login" class="modern-form-label">
+                        <i class="bi bi-person me-1"></i> Логин
+                    </label>
+                    <input asp-for="Login" class="modern-form-input" placeholder="Логин для входа" />
+                    <span asp-validation-for="Login" class="validation-error"></span>
+                </div>
+
+                <div class="modern-form-group">
+                    <label for="Password" class="modern-form-label">
+                        <i class="bi bi-lock me-1"></i> Пароль
+                    </label>
+                    <input name="Password" type="password" class="modern-form-input" placeholder="Минимум 4 символа" />
+                </div>
+
+                <div class="modern-form-group">
+                    <label asp-for="FullName" class="modern-form-label">
+                        <i class="bi bi-person-badge me-1"></i> Полное имя
+                    </label>
+                    <input asp-for="FullName" class="modern-form-input" placeholder="Имя и фамилия" />
+                    <span asp-validation-for="FullName" class="validation-error"></span>
+                </div>
+
+                <div class="modern-form-group">
+                    <label asp-for="Email" class="modern-form-label">
+                        <i class="bi bi-envelope me-1"></i> Email
+                    </label>
+                    <input asp-for="Email" class="modern-form-input" placeholder="email@example.com" />
+                    <span asp-validation-for="Email" class="validation-error"></span>
+                </div>
+
+                <div class="modern-form-group">
+                    <label asp-for="StaffPositionId" class="modern-form-label">
+                        <i class="bi bi-person-badge me-1"></i> Должность
+                    </label>
+                    <select asp-for="StaffPositionId" class="modern-form-input" asp-items="ViewBag.StaffPositionId">
+                        <option value="">— Не выбрана —</option>
+                    </select>
+                    <span asp-validation-for="StaffPositionId" class="validation-error"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 pt-2">
+                    <button type="submit" class="btn btn-dark px-4">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-lg"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

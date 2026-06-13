@@ -1,0 +1,674 @@
+@model TyreServiceApp.Models.Order
+
+@{
+    ViewData["Title"] = "Заказ #" + Model.OrderNumber;
+    var services = Model.CompletedWorks?.Where(cw => cw.Service?.IsConsultation != true).ToList() ?? new();
+    var hasConsultation = Model.CompletedWorks?.Any(cw => cw.Service?.IsConsultation == true) == true;
+}
+
+<style>
+    .work-wrapper {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+    .order-info-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        margin-bottom: 16px;
+    }
+    .order-info-card h4 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+    .order-info-card .sub {
+        color: #64748b;
+        font-size: 13px;
+    }
+    .info-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+        margin-top: 12px;
+        font-size: 13px;
+    }
+    .info-grid .label {
+        color: #94a3b8;
+        font-weight: 600;
+        margin-right: 4px;
+    }
+    .service-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .service-item {
+        background: #fff;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        transition: border-color 0.2s;
+    }
+    .service-item.done {
+        border-color: #10b981;
+        background: #f0fdf4;
+    }
+    .service-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    .service-header .svc-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #0f172a;
+    }
+    .service-header .svc-meta {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+    .progress-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .progress-bar-bg {
+        flex: 1;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+    }
+    .progress-seg {
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+    .progress-seg:first-child {
+        border-radius: 4px 0 0 4px;
+    }
+    .progress-seg:last-child {
+        border-radius: 0 4px 4px 0;
+    }
+    .progress-seg:only-child {
+        border-radius: 4px;
+    }
+    .progress-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        white-space: nowrap;
+        min-width: 45px;
+        text-align: right;
+    }
+    .timer-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #ef4444;
+        font-variant-numeric: tabular-nums;
+    }
+    .timer-display .timer-icon {
+        font-size: 14px;
+    }
+    .master-breakdown {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        margin-top: 6px;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+    .master-breakdown .master-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .master-breakdown .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .timer-actions {
+        margin-top: 8px;
+        display: flex;
+        gap: 8px;
+    }
+    .timer-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1.5px solid;
+        cursor: pointer;
+        background: none;
+        transition: all 0.15s;
+    }
+    .timer-btn:active {
+        transform: scale(0.97);
+    }
+    .timer-btn.start {
+        border-color: #10b981;
+        color: #10b981;
+    }
+    .timer-btn.start:hover {
+        background: #10b981;
+        color: #fff;
+    }
+    .timer-btn.stop {
+        border-color: #ef4444;
+        color: #ef4444;
+    }
+    .timer-btn.stop:hover {
+        background: #ef4444;
+        color: #fff;
+    }
+    .done-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1.5px solid #10b981;
+        cursor: pointer;
+        background: none;
+        color: #10b981;
+        transition: all 0.15s;
+    }
+    .done-btn:hover {
+        background: #10b981;
+        color: #fff;
+    }
+    .done-btn:active {
+        transform: scale(0.97);
+    }
+    .done-btn.done {
+        background: #10b981;
+        color: #fff;
+        cursor: default;
+    }
+    .confirm-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .confirm-overlay.show {
+        display: flex;
+    }
+    .confirm-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 380px;
+        width: 90%;
+        padding: 28px 24px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        animation: fadeIn 0.2s ease;
+    }
+    .confirm-modal .modal-icon {
+        font-size: 42px;
+        line-height: 1;
+        margin-bottom: 12px;
+    }
+    .confirm-modal h4 {
+        font-weight: 700;
+        font-size: 17px;
+        margin: 0 0 6px;
+    }
+    .confirm-modal p {
+        color: #64748b;
+        margin: 0 0 22px;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+    .confirm-modal .btn-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    .confirm-modal .btn-row button {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+    }
+    .confirm-modal .btn-row button:hover {
+        opacity: 0.85;
+    }
+    .confirm-modal .btn-row .btn-primary {
+        background: #000;
+        color: #fff;
+    }
+    .confirm-modal .btn-row .btn-secondary {
+        background: #eef0f4;
+        color: #1e293b;
+    }
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(12px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .spinner-sm {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        vertical-align: middle;
+    }
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @@media (max-width: 576px) {
+        .work-wrapper {
+            padding: 0;
+        }
+        .order-info-card {
+            padding: 16px;
+            border-radius: 12px;
+        }
+        .order-info-card h4 {
+            font-size: 16px;
+        }
+        .info-grid {
+            font-size: 14px;
+            gap: 6px 16px;
+        }
+        .service-item {
+            padding: 12px;
+        }
+        .confirm-modal {
+            padding: 24px 20px;
+            width: 92%;
+        }
+        .confirm-modal .btn-row button {
+            font-size: 14px;
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="work-wrapper">
+    <div class="order-info-card">
+        <div class="d-flex justify-content-between align-items-start">
+            <a href="@Url.Action("Index")" class="btn btn-outline-dark btn-sm">
+                <i class="bi bi-arrow-left"></i> На доску
+            </a>
+            <div class="text-end">
+                <h4>Заказ #@Model.OrderNumber</h4>
+                <div class="sub">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+        </div>
+        <div class="info-grid">
+            <div><span class="label">Авто:</span> @Model.Car?.Brand @Model.Car?.Model</div>
+            <div><span class="label">Номер:</span> @Model.Car?.LicensePlate</div>
+            @if (Model.Car?.Client != null)
+            {
+                <div><span class="label">Клиент:</span> @Model.Car.Client.FullName</div>
+            }
+            @if (Model.Master != null)
+            {
+                <div><span class="label">Мастер:</span> @Model.Master.FullName</div>
+            }
+        </div>
+    </div>
+
+    <div class="order-info-card">
+        <h5 class="fw-bold mb-3"><i class="bi bi-check2-square me-2"></i>Услуги</h5>
+
+        @if (hasConsultation)
+        {
+            <div class="alert alert-warning py-2 small mb-3">
+                <i class="bi bi-chat-dots me-1"></i> Заказ содержит консультацию. Назначьте услуги на доске.
+            </div>
+        }
+
+        @if (services.Any())
+        {
+            <div class="service-list">
+                @foreach (var w in services)
+                {
+                    var isDone = w.CompletionTimeMin > 0;
+                    var fixedDur = w.Service?.FixedDurationMin ?? 60;
+                    <div class="service-item @(isDone ? "done" : "")" id="svc-@w.WorkId">
+                        <div class="service-header">
+                            <span class="svc-name">@(w.Service?.ServiceName ?? "Услуга #" + w.ServiceCode)</span>
+                            <span class="svc-meta">@w.WheelCount кол.</span>
+                        </div>
+                        <div class="progress-wrap">
+                            <div class="progress-bar-bg" id="progress-@w.WorkId"></div>
+                            <span class="progress-label" id="label-@w.WorkId">0 / @fixedDur мин</span>
+                        </div>
+                        <div class="master-breakdown" id="masters-@w.WorkId"></div>
+                        <div class="timer-actions" id="actions-@w.WorkId">
+                            <div class="timer-display" id="td-@w.WorkId" style="display:none">
+                                <span class="timer-icon">&#9201;</span>
+                                <span id="tt-@w.WorkId">00:00</span>
+                            </div>
+                            <button class="timer-btn start" id="start-@w.WorkId" onclick="startTimer(@Model.OrderNumber, @w.WorkId, this)">Старт</button>
+                            <button class="timer-btn stop" id="stop-@w.WorkId" onclick="stopTimer(@Model.OrderNumber, @w.WorkId, this)" style="display:none">Стоп</button>
+                            <button class="done-btn @(isDone ? "done" : "")" id="done-@w.WorkId" onclick="markDone(@Model.OrderNumber, @w.WorkId, this)">Выполнено</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (!hasConsultation)
+        {
+            <div class="text-center py-4 text-muted small">Нет услуг для выполнения</div>
+        }
+
+        <div class="mt-4 pt-3 border-top d-flex gap-2">
+            <button class="btn" style="background:#10b981;border-color:#10b981;color:#fff;font-weight:600;" onclick="completeOrder(@Model.OrderNumber)">
+                <i class="bi bi-check-lg me-1"></i>Завершить
+            </button>
+            <button class="btn btn-outline-danger" onclick="showCancelModal(@Model.OrderNumber, this)">
+                <i class="bi bi-x-lg me-1"></i>Отменить
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-modal">
+        <h4>Не все услуги выполнены</h4>
+        <p>Вы уверены, что хотите завершить заказ? Неотмеченные услуги не будут учтены.</p>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="closeConfirmModal()">Отмена</button>
+            <button class="btn-primary" onclick="forceComplete(@Model.OrderNumber)">Завершить</button>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="allDoneOverlay">
+    <div class="confirm-modal">
+        <div class="modal-icon" style="color:#10b981;">&#10003;</div>
+        <h4>Все услуги выполнены!</h4>
+        <p>Заказ #@Model.OrderNumber готов к передаче клиенту.</p>
+        <div class="btn-row">
+            <button class="btn-primary" onclick="nextTask()" style="flex:0 1 auto;padding:10px 28px;">
+                <i class="bi bi-arrow-right me-1"></i>К следующей задаче
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="cancelOverlay">
+    <div class="confirm-modal">
+        <div class="modal-icon" style="color:#ef4444;">&#9888;</div>
+        <h4>Отменить заказ?</h4>
+        <p>Все таймеры будут сброшены, а записанное время удалено. Заказ вернётся в статус «Новый».</p>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="closeCancelModal()">Отмена</button>
+            <button class="btn-primary" onclick="doCancel(@Model.OrderNumber)" style="background:#ef4444;color:#fff;">Сбросить</button>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@{
+}
+
+@section Scripts {
+    <script>
+        var polling = true;
+        var masterColors = ["#3b82f6","#8b5cf6","#f59e0b","#ef4444","#14b8a6","#f97316"];
+        var timerIntervals = {};
+        var runningSince = {};
+
+        function getToken() {
+            var t = document.querySelector('input[name="__RequestVerificationToken"]');
+            return t ? t.value : '';
+        }
+
+        function pad(n) {
+            return n < 10 ? '0' + n : '' + n;
+        }
+
+        function formatDuration(seconds) {
+            var m = Math.floor(seconds / 60);
+            var s = seconds % 60;
+            return pad(m) + ':' + pad(s);
+        }
+
+        function startLocalTimer(workId, sinceIso) {
+            stopLocalTimer(workId);
+            runningSince[workId] = new Date(sinceIso);
+            var td = document.getElementById('td-' + workId);
+            var tt = document.getElementById('tt-' + workId);
+            if (td) td.style.display = 'inline-flex';
+            timerIntervals[workId] = setInterval(function() {
+                var now = new Date();
+                var diffSec = Math.floor((now - runningSince[workId]) / 1000);
+                if (tt) tt.textContent = formatDuration(diffSec);
+            }, 1000);
+        }
+
+        function stopLocalTimer(workId) {
+            if (timerIntervals[workId]) {
+                clearInterval(timerIntervals[workId]);
+                delete timerIntervals[workId];
+            }
+            delete runningSince[workId];
+            var td = document.getElementById('td-' + workId);
+            if (td) td.style.display = 'none';
+        }
+
+        function fetchProgress(orderId, workId) {
+            fetch('/api/orders/' + orderId + '/service/' + workId + '/progress')
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (!d.success) return;
+                    updateServiceUI(workId, d);
+                })
+                .catch(function() {});
+        }
+
+        function updateServiceUI(workId, d) {
+            var bar = document.getElementById('progress-' + workId);
+            var label = document.getElementById('label-' + workId);
+            var mastersEl = document.getElementById('masters-' + workId);
+            var item = document.getElementById('svc-' + workId);
+            var doneBtn = document.getElementById('done-' + workId);
+            var startBtn = document.getElementById('start-' + workId);
+            var stopBtn = document.getElementById('stop-' + workId);
+
+            var pct = Math.min(d.progressPercent, 100);
+            var segHtml = '';
+            var totalMin = d.totalMinutes || 1;
+            d.masters.forEach(function(m, i) {
+                var c = masterColors[i % masterColors.length];
+                var w = (m.minutes / totalMin) * pct;
+                if (w > 0) {
+                    segHtml += '<div class="progress-seg" style="width:' + w + '%;background:' + c + '"></div>';
+                }
+            });
+            bar.innerHTML = segHtml;
+            label.textContent = d.totalMinutes + ' / ' + d.fixedDurationMin + ' мин';
+
+            var html = '';
+            d.masters.forEach(function(m, i) {
+                var c = masterColors[i % masterColors.length];
+                html += '<span class="master-time"><span class="dot" style="background:' + c + '"></span> ' + m.name + ': ' + m.minutes + ' мин</span>';
+            });
+            mastersEl.innerHTML = html;
+
+            if (d.isDone) {
+                item.classList.add('done');
+                doneBtn.classList.add('done');
+            } else {
+                item.classList.remove('done');
+                doneBtn.classList.remove('done');
+            }
+
+            if (d.isTimerActive) {
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                if (d.runningSince) {
+                    startLocalTimer(workId, d.runningSince);
+                }
+            } else {
+                startBtn.style.display = 'inline-block';
+                stopBtn.style.display = 'none';
+                stopLocalTimer(workId);
+            }
+        }
+
+        function markDone(orderId, workId, btn) {
+            btn.innerHTML = '<span class="spinner-sm"></span>';
+            fetch('/api/orders/' + orderId + '/service/' + workId + '/done', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    fetchProgress(orderId, workId);
+                }
+                btn.innerHTML = 'Выполнено';
+            })
+            .catch(function() {
+                btn.innerHTML = 'Выполнено';
+            });
+        }
+
+        function startTimer(orderId, workId, btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-sm"></span>';
+            fetch('/api/orders/' + orderId + '/service/' + workId + '/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    if (d.startedAt) {
+                        startLocalTimer(workId, d.startedAt);
+                    }
+                    fetchProgress(orderId, workId);
+                }
+                btn.disabled = false;
+                btn.innerHTML = 'Старт';
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.innerHTML = 'Старт';
+            });
+        }
+
+        function stopTimer(orderId, workId, btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-sm"></span>';
+            fetch('/api/orders/' + orderId + '/service/' + workId + '/stop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    stopLocalTimer(workId);
+                    fetchProgress(orderId, workId);
+                }
+                btn.disabled = false;
+                btn.innerHTML = 'Стоп';
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.innerHTML = 'Стоп';
+            });
+        }
+
+        // Initial fetch for all services
+        var workIds = [@string.Join(", ", services.Select(s => s.WorkId))];
+        workIds.forEach(function(wid) {
+            fetchProgress(@Model.OrderNumber, wid);
+        });
+
+        // Poll every 5s
+        setInterval(function() {
+            if (polling) {
+                workIds.forEach(function(wid) {
+                    fetchProgress(@Model.OrderNumber, wid);
+                });
+            }
+        }, 5000);
+
+        function showCancelModal(orderId, btn) {
+            document.getElementById('cancelOverlay').classList.add('show');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelOverlay').classList.remove('show');
+        }
+
+        function doCancel(orderId) {
+            closeCancelModal();
+            // stop all local timers
+            var ids = [@string.Join(", ", services.Select(s => s.WorkId))];
+            ids.forEach(function(wid) { stopLocalTimer(wid); });
+            polling = false;
+            var btn = document.querySelector('.btn-outline-danger');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...'; }
+            fetch('/api/bookings/' + orderId + '/cancel', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function() { window.location.href = '@Url.Action("Index")'; })
+            .catch(function() { window.location.href = '@Url.Action("Index")'; });
+        }
+
+        function completeOrder(orderId) {
+            var unchecked = document.querySelectorAll('.service-item:not(.done)').length;
+            if (unchecked > 0) {
+                document.getElementById('confirmOverlay').classList.add('show');
+                return;
+            }
+            doComplete(orderId);
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmOverlay').classList.remove('show');
+        }
+
+        function forceComplete(orderId) {
+            closeConfirmModal();
+            doComplete(orderId);
+        }
+
+        function doComplete(orderId) {
+            fetch('/api/orders/' + orderId + '/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    polling = false;
+                    document.getElementById('allDoneOverlay').classList.add('show');
+                }
+            })
+            .catch(function() {});
+        }
+
+        function nextTask() {
+            window.location.href = '@Url.Action("Index")';
+        }
+    </script>
+}

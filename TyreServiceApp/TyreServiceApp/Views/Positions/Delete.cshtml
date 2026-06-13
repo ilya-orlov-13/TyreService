@@ -1,0 +1,108 @@
+@model TyreServiceApp.Models.Position
+
+@{
+    ViewData["Title"] = "Удалить должность";
+}
+
+<partial name="_FormStyles" />
+<style>
+    .modern-btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .modern-btn-danger:hover {
+        background-color: #bb2d3b;
+        color: white;
+        text-decoration: none;
+    }
+
+    .details-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .details-row:last-child {
+        border-bottom: none;
+    }
+
+    .details-label {
+        width: 140px;
+        font-weight: 600;
+        color: #495057;
+        flex-shrink: 0;
+    }
+
+    .details-value {
+        flex: 1;
+        color: #212529;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        color: #dc3545;
+    }
+</style>
+
+<div class="container-fluid pt-2 pb-4">
+    <div class="main-3d-wrapper" style="--mw: 600px; --button_outline_color: #dc2626">
+        <div class="main-3d-inner">
+            <div class="text-center mb-4">
+                <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+                <h3 class="fw-bold mt-2">Удалить должность</h3>
+                <p class="text-muted">Вы уверены, что хотите удалить эту должность?</p>
+            </div>
+
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            <div class="border rounded p-3 mb-4 bg-light">
+                <div class="details-row">
+                    <div class="details-label">
+                        <i class="bi bi-briefcase me-1"></i> Должность:
+                    </div>
+                    <div class="details-value fw-bold">
+                        @Html.DisplayFor(model => model.Name)
+                    </div>
+                </div>
+                <div class="details-row">
+                    <div class="details-label">
+                        <i class="bi bi-people me-1"></i> Мастеров:
+                    </div>
+                    <div class="details-value">
+                        @Model.Masters.Count
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Masters.Any())
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Нельзя удалить должность, к которой привязаны мастера.
+                </div>
+            }
+
+            <form asp-action="Delete" class="d-flex gap-2 justify-content-center">
+                <input type="hidden" asp-for="PositionId" />
+                @if (!Model.Masters.Any())
+                {
+                    <button type="submit" class="modern-btn modern-btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                }
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,96 @@
+@model TyreServiceApp.Models.Tire
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="modern-form-group">
+            <label for="Manufacturer" class="modern-form-label">
+                <i class="bi bi-building me-1"></i> Производитель
+            </label>
+            <input asp-for="Manufacturer" class="modern-form-input" id="Manufacturer" name="Manufacturer"
+                   placeholder="Например: Michelin" list="tireBrandList" autocomplete="off" />
+            <datalist id="tireBrandList">
+                <option value="Michelin" /><option value="Bridgestone" /><option value="Continental" />
+                <option value="Pirelli" /><option value="Goodyear" /><option value="Hankook" />
+                <option value="Nokian" /><option value="Yokohama" /><option value="Dunlop" />
+                <option value="Toyo" /><option value="Cooper" /><option value="Kumho" />
+                <option value="Gislaved" /><option value="BFGoodrich" /><option value="Maxxis" />
+                <option value="Cordiant" /><option value="Viatti" /><option value="Matador" />
+                <option value="Debica" /><option value="Sava" /><option value="Firestone" />
+                <option value="Barum" />
+            </datalist>
+            <span asp-validation-for="Manufacturer" class="validation-error"></span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="modern-form-group">
+            <label asp-for="TireModel" class="modern-form-label">
+                <i class="bi bi-tag me-1"></i> Модель шины
+            </label>
+            <input asp-for="TireModel" class="modern-form-input" id="TireModel" name="TireModel"
+                   placeholder="Модель шины" list="tireModelList" autocomplete="off" />
+            <datalist id="tireModelList"></datalist>
+            <span asp-validation-for="TireModel" class="validation-error"></span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="modern-form-group">
+            <label asp-for="Size" class="modern-form-label">
+                <i class="bi bi-rulers me-1"></i> Размер
+            </label>
+            <input asp-for="Size" class="modern-form-input" id="Size" name="Size"
+                   placeholder="225/55 R17" list="tireSizeList" autocomplete="off" />
+            <datalist id="tireSizeList">
+                <option value="135/80R13" /><option value="155/65R13" /><option value="155/70R13" />
+                <option value="165/65R13" /><option value="165/70R13" /><option value="175/70R13" /><option value="185/60R13" />
+                <option value="155/65R14" /><option value="165/65R14" /><option value="175/65R14" />
+                <option value="185/60R14" /><option value="185/65R14" /><option value="195/60R14" />
+                <option value="175/65R15" /><option value="185/55R15" /><option value="185/60R15" /><option value="185/65R15" />
+                <option value="195/55R15" /><option value="195/60R15" /><option value="195/65R15" />
+                <option value="205/55R15" /><option value="205/60R15" />
+                <option value="185/55R16" /><option value="195/50R16" /><option value="195/55R16" />
+                <option value="205/50R16" /><option value="205/55R16" /><option value="205/60R16" />
+                <option value="215/55R16" /><option value="215/60R16" /><option value="225/55R16" /><option value="225/60R16" />
+                <option value="205/45R17" /><option value="205/50R17" /><option value="215/45R17" /><option value="215/50R17" /><option value="215/55R17" />
+                <option value="225/45R17" /><option value="225/50R17" /><option value="225/55R17" />
+                <option value="235/45R17" /><option value="235/55R17" /><option value="245/45R17" />
+                <option value="225/40R18" /><option value="225/45R18" /><option value="235/40R18" /><option value="235/45R18" />
+                <option value="245/40R18" /><option value="245/45R18" /><option value="255/40R18" /><option value="265/35R18" />
+                <option value="225/35R19" /><option value="235/35R19" /><option value="235/40R19" />
+                <option value="245/35R19" /><option value="245/40R19" /><option value="255/35R19" /><option value="255/40R19" />
+                <option value="245/30R20" /><option value="245/35R20" /><option value="255/30R20" /><option value="255/35R20" />
+                <option value="265/30R20" /><option value="275/30R20" />
+            </datalist>
+            <span asp-validation-for="Size" class="validation-error"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="modern-form-group">
+            <label asp-for="Seasonality" class="modern-form-label">
+                <i class="bi bi-snow me-1"></i> Сезонность
+            </label>
+            <div class="seasonality-select-wrap">
+                <select asp-for="Seasonality" class="modern-form-select seasonality-select">
+                    <option value="">-- Выберите --</option>
+                    <option value="Летняя">Летняя</option>
+                    <option value="Зимняя">Зимняя</option>
+                    <option value="Всесезонная">Всесезонная</option>
+                </select>
+            </div>
+            <span asp-validation-for="Seasonality" class="validation-error"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="modern-form-group">
+            <label asp-for="TireType" class="modern-form-label">
+                <i class="bi bi-tag me-1"></i> Тип шины
+            </label>
+            <input asp-for="TireType" class="modern-form-input" placeholder="Например: Легковая" />
+            <span asp-validation-for="TireType" class="validation-error"></span>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/tireBrands.js"></script>

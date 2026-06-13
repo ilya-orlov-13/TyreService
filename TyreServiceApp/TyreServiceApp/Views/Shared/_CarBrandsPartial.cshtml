@@ -1,0 +1,19 @@
+<div class="form-group">
+    <label for="Brand">
+        <i class="bi bi-tag text-dark"></i> Марка
+    </label>
+    <input type="text" name="Brand" id="Brand" list="brandList" placeholder="Выберите или введите марку" autocomplete="off"
+           data-val="true" data-val-required="Поле 'Марка' обязательно." data-val-length-max="50" />
+    <span class="text-danger field-validation-valid" data-valmsg-for="Brand" data-valmsg-replace="true"></span>
+</div>
+
+<div class="form-group">
+    <label for="Model">
+        <i class="bi bi-tag text-dark"></i> Модель
+    </label>
+    <input type="text" name="Model" id="Model" list="modelList" placeholder="Выберите или введите модель" autocomplete="off"
+           data-val="true" data-val-required="Поле 'Модель' обязательно." data-val-length-max="50" />
+    <span class="text-danger field-validation-valid" data-valmsg-for="Model" data-valmsg-replace="true"></span>
+</div>
+
+<script src="~/js/carBrands.js"></script>

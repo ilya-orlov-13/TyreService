@@ -1,0 +1,213 @@
+@model TyreServiceApp.Models.Post
+
+@{
+    ViewData["Title"] = "Ожидание состава";
+}
+
+<style>
+    .waiting-card {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    .master-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e8ecf1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        color: #475569;
+        flex-shrink: 0;
+    }
+    .pulse-dot {
+        width: 10px;
+        height: 10px;
+        background: #f59e0b;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="waiting-card">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <span class="pulse-dot"></span>
+                </div>
+                <h4 class="fw-bold mb-1">@Model.Name</h4>
+                <p class="text-muted mb-4">
+                    @(Model.IsLocked ? "Состав набран. Вы можете открыть состав для изменений." : "Вы присоединились. Ожидайте, пока напарник подтвердит состав.")
+                </p>
+
+                <div class="text-start mb-4">
+                    <h6 class="fw-bold text-muted mb-3">
+                        <i class="bi bi-people me-1"></i>
+                        Состав бригады
+                    </h6>
+                    @if (Model.ActiveSessions != null)
+                    {
+                        var activeMasters = Model.ActiveSessions
+                            .Where(s => s.EndedAt == null)
+                            .ToList();
+
+                        foreach (var session in activeMasters)
+                        {
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="master-avatar">
+                                    @(session.Master?.FullName?.FirstOrDefault() ?? '?')
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@session.Master?.FullName</div>
+                                    <small class="text-muted">На посту с @session.StartedAt.ToString("HH:mm")</small>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                @if (!Model.IsLocked)
+                {
+                    <button id="lockBtn" class="btn btn-dark w-100 py-2 fw-semibold"
+                            onclick="lockPost()">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Работать в текущем составе
+                    </button>
+                }
+                else
+                {
+                    <button id="unlockBtn" class="btn btn-outline-warning w-100 py-2 fw-semibold"
+                            onclick="unlockPost()">
+                        <i class="bi bi-unlock me-1"></i>
+                        Открыть состав
+                    </button>
+                }
+
+                <button class="btn btn-outline-secondary w-100 mt-2"
+                        onclick="leavePost()">
+                    <i class="bi bi-box-arrow-left me-1"></i>
+                    Выйти с поста
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        var postId = @Model.PostId;
+        var postIsLocked = @(Model.IsLocked ? "true" : "false");
+        var lockClicked = false;
+
+        function lockPost() {
+            if (lockClicked) return;
+            lockClicked = true;
+
+            var btn = document.getElementById('lockBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Блокировка...';
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/lock', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = '/Worker/Board';
+                } else {
+                    alert(data.error || 'Ошибка');
+                    lockClicked = false;
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-shield-check me-1"></i>Работать в текущем составе';
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+                lockClicked = false;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-check me-1"></i>Работать в текущем составе';
+            });
+        }
+
+        function unlockPost() {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/unlock', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+
+        function leavePost() {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = '/Worker/Post';
+                }
+            });
+        }
+
+        // Poll post status every 5s — if unlocked, redirect to Post list; if locked by another, go to Board
+        setInterval(function() {
+            if (lockClicked) return;
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId, {
+                headers: { 'RequestVerificationToken': tokenValue }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(post) {
+                if (post.isLocked && !postIsLocked) {
+                    window.location.href = '/Worker/Board';
+                }
+                if (!post.isLocked && postIsLocked) {
+                    location.reload();
+                }
+            })
+            .catch(function() {});
+        }, 5000);
+    </script>
+}

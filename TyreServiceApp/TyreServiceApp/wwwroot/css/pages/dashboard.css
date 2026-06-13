@@ -1,0 +1,589 @@
+﻿.main-content {
+        padding-top: 10px;
+    }
+
+    /* Стили для таблицы */
+    .uiverse-table {
+        width: 100%;
+        background: rgb(44, 44, 44);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .uiverse-table__title {
+        color: white;
+        font-weight: bold;
+        padding: 8px 12px;
+        border-bottom: 1px solid rgb(167, 159, 159);
+        font-size: 0.95rem;
+        background: rgb(44, 44, 44);
+    }
+
+    .uiverse-table__data {
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        border-right: 1px solid rgb(203, 203, 203);
+        border-left: 1px solid rgb(203, 203, 203);
+        border-bottom: 1px solid rgb(203, 203, 203);
+        background: white;
+    }
+
+    .uiverse-table__right {
+        width: 70%;
+        border-right: 1px solid rgb(203, 203, 203);
+    }
+
+    .uiverse-table__left {
+        width: 30%;
+        text-align: end;
+    }
+
+    .uiverse-table__item {
+        padding: 8px 0;
+        background-color: white;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .uiverse-table__right .uiverse-table__item {
+        padding-left: 0.8em;
+    }
+
+    .uiverse-table__left .uiverse-table__item {
+        padding-right: 0.8em;
+        justify-content: flex-end;
+    }
+
+    .uiverse-table__item:nth-child(even) {
+        background: rgb(234, 235, 234);
+    }
+
+    .uiverse-table__header .uiverse-table__item {
+        background: rgb(60, 60, 60);
+        color: white;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    /* Стили для ссылок в таблице */
+    .table-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .table-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Стили для бейджей в таблице */
+    .table-badge {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .badge-paid {
+        background: #198754;
+        color: white;
+    }
+
+    .badge-unpaid {
+        background: #ffc107;
+        color: rgb(231, 231, 231);
+    }
+
+    .badge-master {
+        background: #6c757d;
+        color: white;
+    }
+
+    .badge-no-master {
+        background: #ffc107;
+        color: white;
+    }
+
+    /* Стили для таблицы с тремя колонками */
+.uiverse-table__header {
+    display: flex;
+    border-bottom: 1px solid rgb(203, 203, 203);
+    background: rgb(60, 60, 60);
+    color: white;
+}
+
+.uiverse-table__col-60 {
+    width: 60%;
+    border-right: 1px solid rgb(203, 203, 203);
+}
+
+.uiverse-table__col-20 {
+    width: 20%;
+    border-right: 1px solid rgb(203, 203, 203);
+    text-align: center;
+}
+
+.uiverse-table__col-20:last-child {
+    border-right: none;
+}
+
+.uiverse-table__row {
+    display: flex;
+    border-bottom: 1px solid rgb(203, 203, 203);
+    background: white;
+}
+
+.uiverse-table__row:nth-child(even) {
+    background: rgb(234, 235, 234);
+}
+
+.uiverse-table__cell {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+}
+
+/* Для заголовка таблицы */
+.uiverse-table__header .uiverse-table__cell {
+    font-weight: bold;
+    font-size: 0.9rem;
+    justify-content: center;
+}
+
+/* Для ячеек с информацией о заказе */
+.order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-number {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #212529;
+}
+
+.order-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.car-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.car-photo-small {
+    width: 40px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.car-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.car-model {
+    font-weight: 500;
+}
+
+.car-license {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.client-info {
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+/* Стили для столбца мастера */
+.master-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* Стили для столбца статуса */
+.status-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+    .chart-container-sm {
+        position: relative;
+        height: 120px;
+        width: 100%;
+    }
+
+    .chart-tooltip-arrow {
+        position: absolute;
+        background: #333;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        pointer-events: none;
+        z-index: 1000;
+        transform: translate(-50%, -100%);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .chart-tooltip-arrow:after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #333;
+    }
+
+
+
+
+    :root {
+        --stat_button_radius: 0.75em;
+        --stat_button_outline_color: #000000;
+    }
+
+    .stat-3d-wrapper {
+        position: relative;
+        background: var(--stat_button_outline_color);
+        border-radius: var(--stat_button_radius);
+        display: block;
+        margin-top: 0rem;
+        cursor: default;
+        height: 100%;
+    }
+
+    .stat-3d-content {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid var(--stat_button_outline_color);
+        border-radius: var(--stat_button_radius);
+        background: #ffffff;
+        transform: translateY(-0.15em);
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+    }
+
+    .dashboard-top-grid .stat-3d-content {
+        border: none;
+    }
+
+    .dashboard-top-grid .stat-3d-wrapper {
+        background: #ffffff;
+    }
+
+    .stat-3d-content:hover {
+        transform: translateY(-0.3em);
+    }
+
+    .dashboard-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .quick-action-btn {
+        display: block;
+        height: 100%;
+    }
+
+    .quick-action-btn-inner {
+        min-height: 88px;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .quick-action-btn:hover .quick-action-btn-inner {
+        border-color: #000000;
+        background: #f8f9fa;
+    }
+
+    .dashboard-table-card .card-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .dashboard-table-card .table-responsive {
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .dashboard-table-card .table {
+        margin-bottom: 0;
+    }
+
+    .table-3d-wrapper {
+        background: #000000; 
+        border-radius: 0.75em;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .table-3d-content {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid #000000;
+        border-radius: 0.75em;
+        background: #ffffff;
+        transform: translateY(-0.3em);
+        transition: transform 0.1s ease;
+        overflow: hidden;
+    }
+
+    @media (max-width: 992px) {
+        .uiverse-table__header {
+            display: none !important;
+        }
+
+        .uiverse-table__row {
+            flex-direction: column !important;
+            padding: 10px 0;
+            border-bottom: 2px solid #000000 !important;
+        }
+
+        /* Колонки занимают 100% ширины */
+        .uiverse-table__col-60, 
+        .uiverse-table__col-20 {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid rgb(203, 203, 203);
+            justify-content: flex-start !important;
+            padding-left: 15px;
+        }
+
+        .uiverse-table__col-20:last-child {
+            border-bottom: none;
+        }
+
+        .uiverse-table__cell {
+            min-height: auto !important;
+            padding: 8px 15px !important;
+        }
+
+        .master-cell, .status-cell {
+            align-items: flex-start !important;
+            text-align: left !important;
+        }
+    }
+
+
+
+    .uiverse-table {
+        width: 100%;
+        background: white;
+        border: 1px solid rgb(203, 203, 203);
+        border-radius: 12px;
+        overflow: hidden;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 992px) {
+        .uiverse-table__header {
+            display: none !important;
+        }
+
+        .uiverse-table__row {
+            flex-direction: column !important;
+            padding: 10px 0;
+            border-bottom: 1px solid rgb(203, 203, 203) !important;
+        }
+
+        .uiverse-table__col-60, 
+        .uiverse-table__col-20 {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid rgba(203, 203, 203, 0.5);
+            justify-content: flex-start !important;
+        }
+
+        .uiverse-table__col-20:last-child {
+            border-bottom: none;
+        }
+
+        .uiverse-table__cell {
+            min-height: auto !important;
+            padding: 8px 15px !important;
+        }
+
+        .master-cell, .status-cell {
+            align-items: flex-start !important;
+            text-align: left !important;
+        }
+    }
+
+    .orders-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border: 1.5px solid #c0c0c5;
+        border-radius: 14px;
+        padding: 14px 16px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: border-color 0.2s ease;
+    }
+
+    .order-card:hover {
+        border-color: #000000;
+    }
+
+    .order-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .order-card-header {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .order-card-header .order-number {
+        font-weight: 700;
+        font-size: 16px;
+        color: #212529;
+    }
+
+    .order-card-header .order-date {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .order-status-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .order-status-badge.paid {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .order-status-badge.unpaid {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .order-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .order-car-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .order-car-photo {
+        width: 44px;
+        height: 34px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+
+    .order-car-photo-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+        color: #adb5bd;
+        font-size: 16px;
+    }
+
+    .order-car-details {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .order-car-model {
+        font-weight: 600;
+        font-size: 13px;
+        color: #212529;
+    }
+
+    .order-car-plate {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .order-client-info {
+        font-size: 12px;
+        color: #495057;
+    }
+
+    .order-card-footer {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: auto;
+    }
+
+    .order-master-badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+        background: #e9ecef;
+        color: #212529;
+        padding: 3px 10px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .order-master-badge:hover {
+        background: #dee2e6;
+    }
+
+    .order-master-badge.no-master {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    @media (max-width: 768px) {
+        .orders-cards-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }

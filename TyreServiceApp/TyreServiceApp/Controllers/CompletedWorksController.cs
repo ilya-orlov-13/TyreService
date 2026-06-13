@@ -11,7 +11,7 @@ namespace TyreServiceApp.Controllers
     /// Контроллер для управления выполненными работами в шиномонтажной мастерской.
     /// Обеспечивает CRUD-операции над записями о выполненных работах, включая связь с заказами, услугами и мастерами.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class CompletedWorksController : Controller
     {
         private readonly ApplicationDbContext _context;

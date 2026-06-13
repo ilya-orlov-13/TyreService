@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
@@ -10,7 +11,7 @@ namespace TyreServiceApp.Controllers
     /// Контроллер для управления мастерами шиномонтажной мастерской.
     /// Предоставляет CRUD-операции для работы с данными о мастерах.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class MastersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -31,7 +32,25 @@ namespace TyreServiceApp.Controllers
         /// <returns>Представление Index со списком мастеров.</returns>
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Masters.ToListAsync());
+            var masters = await _context.Masters.Include(m => m.Position).ToListAsync();
+            var masterIds = masters.Select(m => m.MasterId).ToList();
+
+            var revenueData = await _context.CompletedWorks
+                .Where(cw => cw.MasterId != null && masterIds.Contains(cw.MasterId.Value))
+                .GroupBy(cw => cw.MasterId)
+                .Select(g => new { MasterId = g.Key, Total = g.Sum(cw => cw.WorkTotal) })
+                .ToListAsync();
+
+            var payoutData = await _context.CompletedJobsPayouts
+                .Where(p => masterIds.Contains(p.MasterId))
+                .GroupBy(p => p.MasterId)
+                .Select(g => new { MasterId = g.Key, Total = g.Sum(p => p.Amount) })
+                .ToListAsync();
+
+            ViewBag.Revenue = revenueData.ToDictionary(d => d.MasterId, d => d.Total);
+            ViewBag.Payouts = payoutData.ToDictionary(d => d.MasterId, d => d.Total);
+
+            return View(masters);
         }
 
         /// <summary>
@@ -51,6 +70,7 @@ namespace TyreServiceApp.Controllers
             }
 
             var master = await _context.Masters
+                .Include(m => m.Position)
                 .FirstOrDefaultAsync(m => m.MasterId == id);
                 
             if (master == null)
@@ -66,8 +86,9 @@ namespace TyreServiceApp.Controllers
         /// GET: /Masters/Create
         /// </summary>
         /// <returns>Представление Create с пустой формой.</returns>
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.PositionId = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "PositionId", "Name");
             return View();
         }
 
@@ -82,7 +103,7 @@ namespace TyreServiceApp.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FullName,Position,Rank,HourlyRate")] Master master)
+        public async Task<IActionResult> Create([Bind("FullName,PositionId,Rank")] Master master)
         {
             if (ModelState.IsValid)
             {
@@ -90,6 +111,7 @@ namespace TyreServiceApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.PositionId = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "PositionId", "Name", master.PositionId);
             return View(master);
         }
 
@@ -114,6 +136,7 @@ namespace TyreServiceApp.Controllers
             {
                 return NotFound();
             }
+            ViewBag.PositionId = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "PositionId", "Name", master.PositionId);
             return View(master);
         }
 
@@ -130,7 +153,7 @@ namespace TyreServiceApp.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MasterId,FullName,Position,Rank,HourlyRate")] Master master)
+        public async Task<IActionResult> Edit(int id, [Bind("MasterId,FullName,PositionId,Rank")] Master master)
         {
             if (id != master.MasterId)
             {
@@ -157,6 +180,7 @@ namespace TyreServiceApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.PositionId = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "PositionId", "Name", master.PositionId);
             return View(master);
         }
 
@@ -177,6 +201,7 @@ namespace TyreServiceApp.Controllers
             }
 
             var master = await _context.Masters
+                .Include(m => m.Position)
                 .FirstOrDefaultAsync(m => m.MasterId == id);
             if (master == null)
             {

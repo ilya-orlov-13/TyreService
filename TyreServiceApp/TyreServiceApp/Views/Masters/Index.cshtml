@@ -4,203 +4,438 @@
     ViewData["Title"] = "Мастера";
 }
 
+<partial name="_CardGridStyles" />
 <style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
+    .master-card-wrapper {
+        cursor: pointer;
     }
 
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
+    .add-card-wrapper {
+        text-decoration: none;
         display: block;
-        margin-top: 0rem;
-        cursor: default;
     }
 
-    .main-3d-inner {
-        display: block;
+    .add-card {
+        min-height: 100%;
         box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 20px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* .main-3d-wrapper:hover .main-3d-inner {
-        transform: translateY(-0.35em);
-    } */
-
-    .uiverse-table {
-        width: 100%;
-        background: white;
-        border: 1px solid rgb(203, 203, 203);
-        border-radius: 8px;
-        overflow: hidden;
-        display: block;
-        margin-top: 15px;
+    .master-card {
+        gap: 14px;
+        cursor: pointer;
     }
 
-    .uiverse-table__header {
-        display: flex;
-        background: rgb(60, 60, 60);
-        color: white;
-        border-bottom: 1px solid rgb(203, 203, 203);
-    }
-
-    .uiverse-table__row {
-        display: flex;
-        border-bottom: 1px solid rgb(203, 203, 203);
-        background: white;
-    }
-
-    .uiverse-table__row:nth-child(even) {
-        background: rgb(234, 235, 234);
-    }
-
-    .uiverse-table__row:last-child {
-        border-bottom: none;
-    }
-
-    .uiverse-table__cell {
-        padding: 12px;
+    .card-top-row {
         display: flex;
         align-items: center;
-        min-height: 60px;
+        gap: 10px;
+        width: 100%;
     }
 
-    .col-name { width: 30%; border-right: 1px solid rgb(203, 203, 203); }
-    .col-pos { width: 25%; border-right: 1px solid rgb(203, 203, 203); }
-    .col-rank { width: 10%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-rate { width: 15%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-actions { width: 20%; justify-content: center; }
+    .master-rank-badge {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+        background: #474747;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+    }
 
-    .uiverse-table__header .uiverse-table__cell {
-        font-weight: bold;
-        font-size: 0.9rem;
+    .master-name {
+        flex: 1;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 600;
+        font-size: clamp(16px, 2vw, 22px);
+        line-height: 1.15;
+        color: #000000;
+        text-align: left;
+        user-select: none;
+        min-width: 0;
+    }
+
+    .master-position {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 600;
+        color: #888;
+        white-space: nowrap;
+    }
+
+    .card-bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .master-stats {
+        display: flex;
+        gap: 10px;
+        font-size: 0.82rem;
+        flex-wrap: wrap;
+    }
+
+    .master-stats span {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .action-btn {
+        background: none;
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+        padding: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        text-align: center;
+        transition: all 0.2s ease;
+        color: #999;
+        text-decoration: none;
     }
 
-    /* Внутренние стили */
-    .master-name-text { font-weight: bold; font-size: 1rem; color: #212529; }
-    .master-pos-text { font-size: 0.95rem; color: #495057; }
-    .rate-text { font-weight: bold; font-size: 1rem; color: #198754; }
+    .action-btn:hover {
+        border-color: #000;
+        background: #f5f5f5;
+        color: #000;
+    }
 
-    /* Адаптивность */
-    @@media (max-width: 992px) {
-        .uiverse-table__header { display: none !important; }
-        .uiverse-table__row { flex-direction: column !important; padding: 10px 0; border-bottom: 1px solid rgb(203, 203, 203) !important; }
-        .col-name, .col-pos, .col-rank, .col-rate, .col-actions { 
-            width: 100% !important; 
-            border-right: none !important; 
-            border-bottom: 1px solid rgba(203, 203, 203, 0.5); 
-            justify-content: flex-start !important; 
+    .action-btn.danger:hover {
+        border-color: #dc2626;
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .action-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Delete modal styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.modal-show {
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #fff;
+        border-radius: 20px;
+        padding: 32px;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        transform: translateY(10px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-show .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: none;
+        margin-bottom: 16px;
+    }
+
+    .modal-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #111;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 0;
+        text-align: center;
+        border: none;
+    }
+
+    .modal-text {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .modal-master-info {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+
+    .modal-hint {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .modal-btn-cancel {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #e0e0e0;
+    }
+
+    .modal-btn-delete {
+        background: #dc2626;
+        color: white;
+    }
+
+    .modal-btn-delete:hover {
+        background: #b91c1c;
+    }
+
+    .trash-icon {
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 768px) {
+        .masters-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
-        .uiverse-table__cell { min-height: auto !important; padding: 8px 15px !important; }
-        .col-actions { border-bottom: none; justify-content: center !important; }
+
+        .master-card {
+            padding: 16px;
+        }
+
+        .master-name {
+            font-size: clamp(16px, 3vw, 22px);
+        }
+
+        .card-bottom-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .master-stats {
+            justify-content: center;
+        }
+
+        .action-btns {
+            justify-content: flex-end;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .master-card {
+            padding: 14px;
+        }
     }
 </style>
 
 <div class="container-fluid pt-2 pb-4">
-    <div class="main-3d-wrapper">
-        <div class="main-3d-inner">
-            
-            <!-- Заголовок и кнопка -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0">
-                    <i class="bi bi-person-badge-fill me-2"></i> Список мастеров
-                </h3>
-                <a asp-action="Create" class="btn btn-dark">
-                    <i class="bi bi-plus-circle me-1"></i> Добавить мастера
-                </a>
-            </div>
+    
+    @if (Model.Any())
+    {
+        await Html.RenderPartialAsync("_ViewToggle");
 
-            @if (Model.Any())
-            {
-                <div class="uiverse-table">
-                    <!-- Заголовок таблицы -->
-                    <div class="uiverse-table__header">
-                        <div class="uiverse-table__cell col-name">ФИО мастера</div>
-                        <div class="uiverse-table__cell col-pos">Должность</div>
-                        <div class="uiverse-table__cell col-rank">Разряд</div>
-                        <div class="uiverse-table__cell col-rate">Ставка</div>
-                        <div class="uiverse-table__cell col-actions">Действия</div>
-                    </div>
-                    
-                    <!-- Строки с данными -->
-                    @foreach (var item in Model)
-                    {
-                        <div class="uiverse-table__row">
-                            <!-- ФИО -->
-                            <div class="uiverse-table__cell col-name">
-                                <div class="master-name-text">
-                                    <i class="bi bi-person-fill text-dark me-2"></i>@item.FullName
+        <div class="view-cards">
+            <div class="masters-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="master-card-wrapper" onclick="location.href='/Masters/Details/@item.MasterId'">
+                        <div class="master-card">
+                            <div class="card-top-row">
+                                <span class="master-rank-badge">@item.Rank разряд</span>
+                                <div class="master-name">@item.FullName</div>
+                                <span class="master-position">@item.Position?.Name</span>
+                            </div>
+                            <div class="card-bottom-row">
+                                @{
+                                    var rev = ViewBag.Revenue != null && ViewBag.Revenue.ContainsKey(item.MasterId) ? ViewBag.Revenue[item.MasterId] : 0m;
+                                    var pay = ViewBag.Payouts != null && ViewBag.Payouts.ContainsKey(item.MasterId) ? ViewBag.Payouts[item.MasterId] : 0m;
+                                    var pct = rev > 0 ? (pay / rev * 100).ToString("N1") : "—";
+                                }
+                                <div class="master-stats">
+                                    <span title="Выручка"><i class="bi bi-graph-up-arrow"></i> @rev.ToString("N0")</span>
+                                    <span title="Начислено"><i class="bi bi-wallet2"></i> @pay.ToString("N0")</span>
+                                    <span title="Процент" class="badge bg-secondary" style="font-size:0.75rem;padding:2px 8px;border-radius:20px;">@pct%</span>
                                 </div>
-                            </div>
-
-                            <!-- Должность -->
-                            <div class="uiverse-table__cell col-pos">
-                                <div class="master-pos-text">
-                                    <i class="bi bi-briefcase text-secondary me-2"></i>@item.Position
-                                </div>
-                            </div>
-
-                            <!-- Разряд -->
-                            <div class="uiverse-table__cell col-rank">
-                                <div class="id-badge-container">
-                                    <div><span class="badge bg-secondary">@item.Rank разряд</span></div>
-                                </div>
-                            </div>
-
-                            <!-- Ставка -->
-                            <div class="uiverse-table__cell col-rate">
-                                <span class="rate-text text-success">
-                                    @item.HourlyRate.ToString("N0") ₽/ч
-                                </span>
-                            </div>
-
-                            <!-- Действия -->
-                            <div class="uiverse-table__cell col-actions">
-                                <div class="d-flex justify-content-center gap-2 w-100">
-                                    <a asp-action="Details" asp-route-id="@item.MasterId" class="btn btn-outline-info btn-sm">
-                                        <i class="bi bi-eye"></i>
+                                <div class="action-btns">
+                                    <a asp-action="Edit" asp-route-id="@item.MasterId" class="action-btn" title="Редактировать" onclick="event.stopPropagation()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                        </svg>
                                     </a>
-                                    <a asp-action="Edit" asp-route-id="@item.MasterId" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.MasterId" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <button type="button" class="action-btn danger" title="Удалить" onclick="event.stopPropagation(); showDeleteModal(@item.MasterId, '@item.FullName')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5 border rounded bg-light">
-                    <i class="bi bi-person-badge text-muted" style="font-size: 3rem;"></i>
-                    <h4 class="mt-3">Мастера не найдены</h4>
-                    <p class="text-muted">Добавьте первого мастера в штат шиномонтажа.</p>
-                </div>
-            }
+                    </div>
+                }
+                <a asp-action="Create" class="master-card-wrapper add-card-wrapper">
+                    <div class="master-card add-card">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Добавить мастера</span>
+                    </div>
+                </a>
+            </div>
         </div>
+
+        <div class="view-table">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Разряд</th>
+                        <th>ФИО</th>
+                        <th>Должность</th>
+                        <th>Выручка</th>
+                        <th>Начислено</th>
+                        <th>%</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var rev = ViewBag.Revenue != null && ViewBag.Revenue.ContainsKey(item.MasterId) ? ViewBag.Revenue[item.MasterId] : 0m;
+                        var pay = ViewBag.Payouts != null && ViewBag.Payouts.ContainsKey(item.MasterId) ? ViewBag.Payouts[item.MasterId] : 0m;
+                        var pct = rev > 0 ? (pay / rev * 100).ToString("N1") : "—";
+                        <tr onclick="location.href='/Masters/Details/@item.MasterId'" style="cursor:pointer;">
+                            <td data-label="Разряд">@item.Rank разряд</td>
+                            <td data-label="ФИО">@item.FullName</td>
+                            <td data-label="Должность">@item.Position?.Name</td>
+                            <td data-label="Выручка">@rev.ToString("N0")</td>
+                            <td data-label="Начислено">@pay.ToString("N0")</td>
+                            <td data-label="%">@pct%</td>
+                            <td data-label="">
+                                <div class="table-actions" onclick="event.stopPropagation()">
+                                    <a asp-action="Edit" asp-route-id="@item.MasterId" title="Редактировать">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                    </a>
+                                    <button class="danger" title="Удалить" onclick="showDeleteModal(@item.MasterId, '@item.FullName')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 border rounded bg-light">
+            <i class="bi bi-person-badge text-muted" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Мастера не найдены</h4>
+            <p class="text-muted">Добавьте первого мастера в штат Шиномонтаж у Бориса.</p>
+            <a asp-action="Create" class="btn btn-dark mt-3"><i class="bi bi-plus-circle me-1"></i> Добавить</a>
+        </div>
+    }
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal-overlay" style="display:none;" onclick="closeDeleteModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">Удалить мастера?</h3>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text">Вы уверены, что хотите удалить</p>
+            <p id="deleteMasterInfo" class="modal-master-info"></p>
+            <p class="modal-hint">Это действие нельзя отменить.</p>
+        </div>
+        <form id="deleteForm" method="post" asp-action="Delete" asp-controller="Masters">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="deleteMasterId" name="id" value="" />
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Отмена</button>
+                <button type="submit" class="modal-btn modal-btn-delete">
+                    <svg class="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Удалить
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
+        function showDeleteModal(masterId, masterName) {
+            document.getElementById('deleteMasterId').value = masterId;
+            document.getElementById('deleteMasterInfo').textContent = masterName;
+            var modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+            setTimeout(function() { modal.classList.add('modal-show'); }, 10);
+        }
+
+        function closeDeleteModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            var modal = document.getElementById('deleteModal');
+            modal.classList.remove('modal-show');
+            setTimeout(function() { modal.style.display = 'none'; }, 300);
+        }
     </script>
 }

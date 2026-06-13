@@ -4,125 +4,10 @@
     ViewData["Title"] = "Добавить клиента";
 }
 
-<style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
-    }
-
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
-        display: block;
-        margin-top: 0rem;
-        cursor: default;
-        transition: max-width 0.3s ease;
-    }
-
-    @@media (min-width: 992px) {
-        .main-3d-wrapper {
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    .main-3d-inner {
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 30px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    /* Стили для форм */
-    .modern-form-group {
-        margin-bottom: 20px;
-    }
-
-    .modern-form-label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #333;
-        font-size: 14px;
-    }
-
-    .modern-form-input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        background-color: #fff;
-    }
-
-    .modern-form-input:focus {
-        outline: none;
-        border-color: #000000;
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .modern-btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-
-    .modern-btn-primary {
-        background-color: #000000;
-        color: white;
-    }
-
-    .modern-btn-primary:hover {
-        background-color: #333333;
-        transform: translateY(-1px);
-    }
-
-    .modern-btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-
-    .modern-btn-secondary:hover {
-        background-color: #545b62;
-        transform: translateY(-1px);
-        color: white;
-        text-decoration: none;
-    }
-
-    .validation-error {
-        color: #dc3545;
-        font-size: 12px;
-        margin-top: 4px;
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-</style>
+<partial name="_FormStyles" />
 
 <div class="container-fluid pt-2 pb-4">
-    <div class="main-3d-wrapper">
+    <div class="main-3d-wrapper" style="--mw: 600px">
         <div class="main-3d-inner">
             
             <!-- Заголовок -->
@@ -151,6 +36,14 @@
                     <span asp-validation-for="Phone" class="validation-error"></span>
                 </div>
                 
+                <div class="modern-form-group">
+                    <label asp-for="Email" class="modern-form-label">
+                        <i class="bi bi-envelope me-1"></i> Email
+                    </label>
+                    <input asp-for="Email" class="modern-form-input" placeholder="example@mail.com" />
+                    <span asp-validation-for="Email" class="validation-error"></span>
+                </div>
+                
                 <!-- Кнопки действий -->
                 <div class="d-flex gap-2 mt-4 pt-2">
                     <button type="submit" class="btn btn-dark px-4">
@@ -168,4 +61,34 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const phoneInput = document.getElementById('Phone');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function (e) {
+                    let digits = this.value.replace(/\D/g, '');
+                    if (digits.length === 0) {
+                        this.value = '';
+                        return;
+                    }
+                    if (digits[0] !== '7') digits = '7' + digits;
+                    digits = digits.substring(0, 11);
+                    let formatted = '+7';
+                    if (digits.length > 1) {
+                        formatted += ' (' + digits.substring(1, Math.min(4, digits.length));
+                    }
+                    if (digits.length >= 4) {
+                        formatted += ') ' + digits.substring(4, Math.min(7, digits.length));
+                    }
+                    if (digits.length >= 7) {
+                        formatted += '-' + digits.substring(7, Math.min(9, digits.length));
+                    }
+                    if (digits.length >= 9) {
+                        formatted += '-' + digits.substring(9, 11);
+                    }
+                    this.value = formatted;
+                });
+            }
+        });
+    </script>
 }

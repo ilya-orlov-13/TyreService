@@ -1,0 +1,240 @@
+@model IEnumerable<Order>
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+
+<style>
+    .orders-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .orders-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .order-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .order-card:hover {
+        border-color: #000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .order-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .order-card-header .order-number {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #000;
+    }
+    .order-card-header .order-date {
+        font-size: 0.8rem;
+        color: #888;
+        white-space: nowrap;
+    }
+    .order-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: #555;
+        flex: 1;
+    }
+    .order-card-body .car-info {
+        font-weight: 500;
+        color: #333;
+    }
+    .order-card-body .service-list {
+        margin: 0;
+        padding-left: 16px;
+        font-size: 0.8rem;
+        color: #777;
+    }
+    .order-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding-top: 8px;
+        border-top: 1px solid #f0f0f0;
+    }
+    .order-card-footer .badge-wrap {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .order-card-footer .badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    .order-card-footer .total-price {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #000;
+        white-space: nowrap;
+    }
+    .order-card-footer .edit-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        color: #333;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+        flex-shrink: 0;
+    }
+    .order-card-footer .edit-btn:hover {
+        background: #000;
+        color: #fff;
+    }
+
+    @@media (max-width: 768px) {
+        .orders-header h3 {
+            font-size: 1.1rem;
+        }
+        .orders-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .order-card {
+            padding: 14px 14px;
+            border-radius: 10px;
+        }
+        .order-card-header .order-number {
+            font-size: 0.95rem;
+        }
+        .order-card-footer .total-price {
+            font-size: 0.9rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .order-card {
+            padding: 12px 12px;
+        }
+        .order-card-header {
+            flex-direction: column;
+        }
+        .order-card-header .order-date {
+            white-space: normal;
+        }
+        .order-card-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .order-card-footer .badge-wrap {
+            justify-content: flex-start;
+        }
+        .order-card-footer .edit-btn {
+            align-self: flex-end;
+        }
+    }
+    .time-slot-badge {
+        background: #000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        margin-left: 6px;
+        letter-spacing: 0.5px;
+    }
+    .time-slot-badge.fallback {
+        background: #e2e8f0;
+        color: #64748b;
+    }
+</style>
+
+<div class="orders-header">
+    <h3><i class="bi bi-receipt"></i>Мои заказы</h3>
+    <button class="btn btn-outline-secondary btn-sm"
+            hx-get="@Url.Action("OrdersPartial", "Cabinet", new { area = "Customer" })"
+            hx-target="#orders-list"
+            hx-swap="innerHTML">
+        <i class="bi bi-arrow-clockwise me-1"></i>Обновить
+    </button>
+</div>
+
+<div id="orders-list">
+    @if (Model.Any())
+    {
+        <div class="orders-grid">
+            @foreach (var order in Model)
+            {
+                <div class="order-card">
+                    <div class="order-card-header">
+                        <span class="order-number">#@order.OrderNumber</span>
+                        <span class="order-date">@(order.ScheduledAt?.ToString("dd.MM.yyyy") ?? order.OrderDate.ToString("dd.MM.yyyy")) <span class="time-slot-badge @(order.ScheduledAt.HasValue ? "" : "fallback")">@(order.ScheduledAt?.ToString("HH:mm") ?? order.OrderDate.ToString("HH:mm"))</span></span>
+                    </div>
+                    <div class="order-card-body">
+                        <span class="car-info">@order.Car?.FullInfo</span>
+                        @if (order.CompletedWorks?.Any() == true)
+                        {
+                            <ul class="service-list">
+                                @foreach (var cw in order.CompletedWorks)
+                                {
+                                    <li>@cw.Service?.ServiceName</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                    <div class="order-card-footer">
+                        <div class="badge-wrap">
+                            <span class="badge @(order.IsCompleted() ? "bg-success" : "bg-warning")">@order.PaymentStatus</span>
+                            @if (order.Master != null)
+                            {
+                                <span class="badge bg-secondary">@order.Master.FullName</span>
+                            }
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            @if (order.ClientTotal.HasValue && order.ClientTotal > 0)
+                            {
+                                <span class="total-price">@order.ClientTotal.Value.ToString("C2")</span>
+                            }
+                            @if (order.Status == "Новый")
+                            {
+                                <a asp-action="EditOrder" asp-route-id="@order.OrderNumber" class="edit-btn" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            У вас пока нет заказов
+        </div>
+    }
+</div>

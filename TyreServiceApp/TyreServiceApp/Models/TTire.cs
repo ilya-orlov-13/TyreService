@@ -16,10 +16,14 @@ namespace TyreServiceApp.Models
         public int TireId { get; set; }
 
         /// <summary>
-        /// Идентификатор автомобиля, к которому привязана шина.
+        /// Идентификатор автомобиля, к которому привязана шина (null для шин на хранении).
         /// </summary>
-        [Required]
-        public int CarId { get; set; }
+        public int? CarId { get; set; }
+
+        /// <summary>
+        /// Идентификатор клиента для шин на хранении (null для шин, привязанных к авто).
+        /// </summary>
+        public int? ClientId { get; set; }
 
         /// <summary>
         /// Тип шины в зависимости от типа транспортного средства.
@@ -84,5 +88,16 @@ namespace TyreServiceApp.Models
         /// Навигационное свойство для доступа к автомобилю.
         /// </summary>
         public Car? Car { get; set; }
+
+        /// <summary>
+        /// Навигационное свойство для доступа к клиенту (для шин на хранении).
+        /// </summary>
+        public Client? Client { get; set; }
+
+        /// <summary>
+        /// Полное описание шины для отображения.
+        /// </summary>
+        [NotMapped]
+        public string FullInfo => $"{Manufacturer} {TireModel} ({Size}, {Seasonality})";
     }
 }

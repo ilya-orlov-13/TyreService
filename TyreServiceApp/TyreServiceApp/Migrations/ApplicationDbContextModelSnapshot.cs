@@ -22,6 +22,117 @@ namespace TyreServiceApp.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("TyreServiceApp.Areas.Customer.Models.CustomerUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PinHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("Phone")
+                        .IsUnique();
+
+                    b.ToTable("CustomerUsers");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Areas.Worker.Models.MasterUser", b =>
+                {
+                    b.Property<int>("MasterUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MasterUserId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("MasterId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("MasterUserId");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.HasIndex("MasterId");
+
+                    b.ToTable("MasterUsers");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.AdminUser", b =>
+                {
+                    b.Property<int>("AdminUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AdminUserId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("StaffPositionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AdminUserId");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.HasIndex("StaffPositionId");
+
+                    b.ToTable("AdminUsers");
+                });
+
             modelBuilder.Entity("TyreServiceApp.Models.Car", b =>
                 {
                     b.Property<int>("CarId")
@@ -37,6 +148,9 @@ namespace TyreServiceApp.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<int?>("CarClassId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("integer");
@@ -64,9 +178,41 @@ namespace TyreServiceApp.Migrations
 
                     b.HasKey("CarId");
 
+                    b.HasIndex("CarClassId");
+
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("LicensePlate")
+                        .IsUnique();
+
+                    b.HasIndex("Vin")
+                        .IsUnique();
+
                     b.ToTable("Cars");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.CarClass", b =>
+                {
+                    b.Property<int>("CarClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CarClassId"));
+
+                    b.Property<decimal>("BaseTariff")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CarClassId");
+
+                    b.ToTable("CarClasses");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Client", b =>
@@ -77,19 +223,54 @@ namespace TyreServiceApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ClientId"));
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("ClientId");
 
+                    b.HasIndex("Phone")
+                        .IsUnique();
+
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.CompletedJobsPayout", b =>
+                {
+                    b.Property<int>("PayoutId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PayoutId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("MasterId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PayoutId");
+
+                    b.HasIndex("MasterId");
+
+                    b.HasIndex("OrderNumber");
+
+                    b.ToTable("CompletedJobsPayouts");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.CompletedWork", b =>
@@ -103,13 +284,19 @@ namespace TyreServiceApp.Migrations
                     b.Property<int>("CompletionTimeMin")
                         .HasColumnType("integer");
 
-                    b.Property<int>("MasterId")
+                    b.Property<int?>("MasterId")
                         .HasColumnType("integer");
 
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer");
 
                     b.Property<int>("ServiceCode")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("TimeSavedMin")
                         .HasColumnType("integer");
 
                     b.Property<int>("WheelCount")
@@ -129,6 +316,98 @@ namespace TyreServiceApp.Migrations
                     b.ToTable("CompletedWorks");
                 });
 
+            modelBuilder.Entity("TyreServiceApp.Models.ComplexityCoefficient", b =>
+                {
+                    b.Property<int>("ComplexityCoefficientId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ComplexityCoefficientId"));
+
+                    b.Property<decimal>("Factor")
+                        .HasColumnType("decimal(5, 2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("ComplexityCoefficientId");
+
+                    b.ToTable("ComplexityCoefficients");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Consumable", b =>
+                {
+                    b.Property<int>("ConsumableId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConsumableId"));
+
+                    b.Property<decimal>("CostPrice")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("SellPrice")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.HasKey("ConsumableId");
+
+                    b.ToTable("Consumables");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.CustomerReview", b =>
+                {
+                    b.Property<int>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewId"));
+
+                    b.Property<string>("CarModel")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderNumber");
+
+                    b.ToTable("CustomerReviews");
+                });
+
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
                 {
                     b.Property<int>("MasterId")
@@ -145,15 +424,15 @@ namespace TyreServiceApp.Migrations
                     b.Property<decimal>("HourlyRate")
                         .HasColumnType("decimal(10, 2)");
 
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("PositionId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Rank")
                         .HasColumnType("integer");
 
                     b.HasKey("MasterId");
+
+                    b.HasIndex("PositionId");
 
                     b.ToTable("Masters");
                 });
@@ -166,8 +445,24 @@ namespace TyreServiceApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderNumber"));
 
-                    b.Property<int>("CarId")
+                    b.Property<int?>("CarId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("ClientTotal")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<decimal?>("ConsumablesCost")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("DiscountType")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<decimal?>("LaborCost")
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<int?>("MasterId")
                         .HasColumnType("integer");
@@ -178,13 +473,213 @@ namespace TyreServiceApp.Migrations
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<DateTime?>("ScheduledAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int?>("TireId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalWorkMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("WorkStartTime")
+                        .HasColumnType("timestamp without time zone");
+
                     b.HasKey("OrderNumber");
 
                     b.HasIndex("CarId");
 
                     b.HasIndex("MasterId");
 
+                    b.HasIndex("TireId");
+
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.OrderComplexity", b =>
+                {
+                    b.Property<int>("OrderComplexityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderComplexityId"));
+
+                    b.Property<int>("ComplexityCoefficientId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("OrderComplexityId");
+
+                    b.HasIndex("ComplexityCoefficientId");
+
+                    b.HasIndex("OrderNumber", "ComplexityCoefficientId")
+                        .IsUnique();
+
+                    b.ToTable("OrderComplexities");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.OrderConsumable", b =>
+                {
+                    b.Property<int>("OrderConsumableId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderConsumableId"));
+
+                    b.Property<int>("ConsumableId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("OrderConsumableId");
+
+                    b.HasIndex("ConsumableId");
+
+                    b.HasIndex("OrderNumber", "ConsumableId")
+                        .IsUnique();
+
+                    b.ToTable("OrderConsumables");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.OwnerSetting", b =>
+                {
+                    b.Property<int>("OwnerSettingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OwnerSettingId"));
+
+                    b.Property<decimal>("AcquiringFeePercent")
+                        .HasColumnType("decimal(5, 2)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("TaxPercent")
+                        .HasColumnType("decimal(5, 2)");
+
+                    b.HasKey("OwnerSettingId");
+
+                    b.ToTable("OwnerSettings");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.OwnerUser", b =>
+                {
+                    b.Property<int>("OwnerUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OwnerUserId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("OwnerUserId");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.ToTable("OwnerUsers");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Position", b =>
+                {
+                    b.Property<int>("PositionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PositionId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("PositionId");
+
+                    b.ToTable("Positions");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Post", b =>
+                {
+                    b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostId"));
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.PostActiveSession", b =>
+                {
+                    b.Property<int>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SessionId"));
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("MasterId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("SessionId");
+
+                    b.HasIndex("MasterId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostActiveSessions");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Service", b =>
@@ -194,6 +689,12 @@ namespace TyreServiceApp.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ServiceCode"));
+
+                    b.Property<int?>("FixedDurationMin")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsConsultation")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("ServiceCost")
                         .HasColumnType("numeric");
@@ -208,6 +709,89 @@ namespace TyreServiceApp.Migrations
                     b.ToTable("Services");
                 });
 
+            modelBuilder.Entity("TyreServiceApp.Models.ServiceTariff", b =>
+                {
+                    b.Property<int>("ServiceTariffId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ServiceTariffId"));
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<int>("CarClassId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("MasterSharePercent")
+                        .HasColumnType("decimal(5, 2)");
+
+                    b.Property<int>("ServiceCode")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ServiceTariffId");
+
+                    b.HasIndex("CarClassId");
+
+                    b.HasIndex("ServiceCode", "CarClassId")
+                        .IsUnique();
+
+                    b.ToTable("ServiceTariffs");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.SpeedBonus", b =>
+                {
+                    b.Property<int>("SpeedBonusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SpeedBonusId"));
+
+                    b.Property<decimal>("BonusAmount")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("MasterId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TimeSavedMin")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WorkId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SpeedBonusId");
+
+                    b.HasIndex("MasterId");
+
+                    b.HasIndex("OrderNumber");
+
+                    b.ToTable("SpeedBonuses");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.StaffPosition", b =>
+                {
+                    b.Property<int>("StaffPositionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StaffPositionId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("StaffPositionId");
+
+                    b.ToTable("StaffPositions");
+                });
+
             modelBuilder.Entity("TyreServiceApp.Models.Tire", b =>
                 {
                     b.Property<int>("TireId")
@@ -216,7 +800,10 @@ namespace TyreServiceApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TireId"));
 
-                    b.Property<int>("CarId")
+                    b.Property<int?>("CarId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ClientId")
                         .HasColumnType("integer");
 
                     b.Property<int>("LoadIndex")
@@ -257,18 +844,109 @@ namespace TyreServiceApp.Migrations
 
                     b.HasIndex("CarId");
 
+                    b.HasIndex("ClientId");
+
                     b.ToTable("Tires");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.WorkTimeLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("MasterId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("WorkId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MasterId");
+
+                    b.HasIndex("WorkId");
+
+                    b.ToTable("WorkTimeLogs");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Areas.Customer.Models.CustomerUser", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Areas.Worker.Models.MasterUser", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Master", "Master")
+                        .WithMany()
+                        .HasForeignKey("MasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Master");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.AdminUser", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.StaffPosition", "StaffPosition")
+                        .WithMany("AdminUsers")
+                        .HasForeignKey("StaffPositionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("StaffPosition");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Car", b =>
                 {
+                    b.HasOne("TyreServiceApp.Models.CarClass", "CarClass")
+                        .WithMany("Cars")
+                        .HasForeignKey("CarClassId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("TyreServiceApp.Models.Client", "Client")
                         .WithMany("Cars")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CarClass");
+
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.CompletedJobsPayout", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Master", "Master")
+                        .WithMany("CompletedJobsPayouts")
+                        .HasForeignKey("MasterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Order", "Order")
+                        .WithMany("CompletedJobsPayouts")
+                        .HasForeignKey("OrderNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Master");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.CompletedWork", b =>
@@ -276,8 +954,7 @@ namespace TyreServiceApp.Migrations
                     b.HasOne("TyreServiceApp.Models.Master", "Master")
                         .WithMany("CompletedWorks")
                         .HasForeignKey("MasterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("TyreServiceApp.Models.Order", "Order")
                         .WithMany("CompletedWorks")
@@ -286,7 +963,7 @@ namespace TyreServiceApp.Migrations
                         .IsRequired();
 
                     b.HasOne("TyreServiceApp.Models.Service", "Service")
-                        .WithMany()
+                        .WithMany("CompletedWorks")
                         .HasForeignKey("ServiceCode")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -298,22 +975,151 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("TyreServiceApp.Models.CustomerReview", b =>
+                {
+                    b.HasOne("TyreServiceApp.Areas.Customer.Models.CustomerUser", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderNumber");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Position", "Position")
+                        .WithMany("Masters")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Position");
+                });
+
             modelBuilder.Entity("TyreServiceApp.Models.Order", b =>
                 {
                     b.HasOne("TyreServiceApp.Models.Car", "Car")
                         .WithMany("Orders")
                         .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("TyreServiceApp.Models.Master", "Master")
                         .WithMany("Orders")
                         .HasForeignKey("MasterId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("TyreServiceApp.Models.Tire", "Tire")
+                        .WithMany()
+                        .HasForeignKey("TireId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Car");
 
                     b.Navigation("Master");
+
+                    b.Navigation("Tire");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.OrderComplexity", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.ComplexityCoefficient", "ComplexityCoefficient")
+                        .WithMany("OrderComplexities")
+                        .HasForeignKey("ComplexityCoefficientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Order", "Order")
+                        .WithMany("OrderComplexities")
+                        .HasForeignKey("OrderNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ComplexityCoefficient");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.OrderConsumable", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Consumable", "Consumable")
+                        .WithMany("OrderConsumables")
+                        .HasForeignKey("ConsumableId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Order", "Order")
+                        .WithMany("OrderConsumables")
+                        .HasForeignKey("OrderNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Consumable");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.PostActiveSession", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Master", "Master")
+                        .WithMany("PostActiveSessions")
+                        .HasForeignKey("MasterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Post", "Post")
+                        .WithMany("ActiveSessions")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Master");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.ServiceTariff", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.CarClass", "CarClass")
+                        .WithMany("ServiceTariffs")
+                        .HasForeignKey("CarClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Service", "Service")
+                        .WithMany("ServiceTariffs")
+                        .HasForeignKey("ServiceCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CarClass");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.SpeedBonus", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Master", "Master")
+                        .WithMany()
+                        .HasForeignKey("MasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Master");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Tire", b =>
@@ -321,10 +1127,35 @@ namespace TyreServiceApp.Migrations
                     b.HasOne("TyreServiceApp.Models.Car", "Car")
                         .WithMany("Tires")
                         .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TyreServiceApp.Models.Client", "Client")
+                        .WithMany("Tires")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Car");
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.WorkTimeLog", b =>
+                {
+                    b.HasOne("TyreServiceApp.Models.Master", "Master")
+                        .WithMany("WorkTimeLogs")
+                        .HasForeignKey("MasterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TyreServiceApp.Models.CompletedWork", "CompletedWork")
+                        .WithMany("WorkTimeLogs")
+                        .HasForeignKey("WorkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Car");
+                    b.Navigation("CompletedWork");
+
+                    b.Navigation("Master");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Car", b =>
@@ -334,21 +1165,79 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("Tires");
                 });
 
+            modelBuilder.Entity("TyreServiceApp.Models.CarClass", b =>
+                {
+                    b.Navigation("Cars");
+
+                    b.Navigation("ServiceTariffs");
+                });
+
             modelBuilder.Entity("TyreServiceApp.Models.Client", b =>
                 {
                     b.Navigation("Cars");
+
+                    b.Navigation("Tires");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.CompletedWork", b =>
+                {
+                    b.Navigation("WorkTimeLogs");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.ComplexityCoefficient", b =>
+                {
+                    b.Navigation("OrderComplexities");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Consumable", b =>
+                {
+                    b.Navigation("OrderConsumables");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
                 {
+                    b.Navigation("CompletedJobsPayouts");
+
                     b.Navigation("CompletedWorks");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("PostActiveSessions");
+
+                    b.Navigation("WorkTimeLogs");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Order", b =>
                 {
+                    b.Navigation("CompletedJobsPayouts");
+
                     b.Navigation("CompletedWorks");
+
+                    b.Navigation("OrderComplexities");
+
+                    b.Navigation("OrderConsumables");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Position", b =>
+                {
+                    b.Navigation("Masters");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Post", b =>
+                {
+                    b.Navigation("ActiveSessions");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.Service", b =>
+                {
+                    b.Navigation("CompletedWorks");
+
+                    b.Navigation("ServiceTariffs");
+                });
+
+            modelBuilder.Entity("TyreServiceApp.Models.StaffPosition", b =>
+                {
+                    b.Navigation("AdminUsers");
                 });
 #pragma warning restore 612, 618
         }

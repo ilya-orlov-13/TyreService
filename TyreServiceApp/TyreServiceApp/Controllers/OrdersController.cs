@@ -11,7 +11,7 @@ namespace TyreServiceApp.Controllers
     /// Контроллер для управления заказами в системе шиномонтажа.
     /// Обеспечивает CRUD-операции с заказами, включая создание, редактирование, просмотр и удаление.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -119,24 +119,43 @@ namespace TyreServiceApp.Controllers
 
             // Получаем мастеров
             var mastersList = await _context.Masters
+                .Include(m => m.Position)
                 .OrderBy(m => m.FullName)
                 .ToListAsync();
 
             var masters = mastersList.Select(m => new
             {
                 masterId = m.MasterId,
-                displayText = $"{m.FullName} ({m.Position}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
+                displayText = $"{m.FullName} ({m.Position?.Name}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
                 fullName = m.FullName,
-                position = m.Position,
+                position = m.Position?.Name ?? "",
                 rank = m.Rank,
                 hourlyRate = m.HourlyRate
             }).ToList();
 
+            // Получаем услуги
+            var servicesList = await _context.Services
+                .OrderBy(s => s.ServiceName)
+                .ToListAsync();
+
+            // Получаем коэффициенты сложности
+            var complexityCoefficients = await _context.ComplexityCoefficients
+                .OrderBy(cc => cc.Name)
+                .ToListAsync();
+
+            // Получаем расходники
+            var consumables = await _context.Consumables
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
             ViewBag.CarId = new SelectList(cars, "carId", "displayText");
             ViewBag.MasterId = new SelectList(masters, "masterId", "displayText");
             ViewBag.CarsData = cars;
+            ViewBag.Services = servicesList;
+            ViewBag.ComplexityCoefficients = complexityCoefficients;
+            ViewBag.Consumables = consumables;
 
-            return View();
+            return View(new Order { OrderDate = DateTime.Now });
         }
 
         /// <summary>
@@ -158,9 +177,16 @@ namespace TyreServiceApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (order.PaymentDate.HasValue && !order.MasterId.HasValue)
+                {
+                    ModelState.AddModelError(nameof(order.PaymentDate), "Нельзя установить дату оплаты без назначенного мастера");
+                }
+                else
+                {
+                    _context.Add(order);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
             
             // При ошибке валидации загружаем данные снова
@@ -181,15 +207,16 @@ namespace TyreServiceApp.Controllers
             
             // Получаем мастеров
             var mastersList = await _context.Masters
+                .Include(m => m.Position)
                 .OrderBy(m => m.FullName)
                 .ToListAsync();
             
             var masters = mastersList.Select(m => new
             {
                 masterId = m.MasterId,
-                displayText = $"{m.FullName} ({m.Position}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
+                displayText = $"{m.FullName} ({m.Position?.Name}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
                 fullName = m.FullName,
-                position = m.Position,
+                position = m.Position?.Name ?? "",
                 rank = m.Rank,
                 hourlyRate = m.HourlyRate
             }).ToList();
@@ -246,15 +273,16 @@ namespace TyreServiceApp.Controllers
             
             // Получаем мастеров
             var mastersList = await _context.Masters
+                .Include(m => m.Position)
                 .OrderBy(m => m.FullName)
                 .ToListAsync();
             
             var masters = mastersList.Select(m => new
             {
                 masterId = m.MasterId,
-                displayText = $"{m.FullName} ({m.Position}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
+                displayText = $"{m.FullName} ({m.Position?.Name}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
                 fullName = m.FullName,
-                position = m.Position,
+                position = m.Position?.Name ?? "",
                 rank = m.Rank,
                 hourlyRate = m.HourlyRate
             }).ToList();
@@ -293,23 +321,30 @@ namespace TyreServiceApp.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                if (order.PaymentDate.HasValue && !order.MasterId.HasValue)
                 {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError(nameof(order.PaymentDate), "Нельзя установить дату оплаты без назначенного мастера");
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!OrderExists(order.OrderNumber))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(order);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!OrderExists(order.OrderNumber))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
             }
             
             // При ошибке валидации загружаем данные снова
@@ -330,15 +365,16 @@ namespace TyreServiceApp.Controllers
             
             // Получаем мастеров
             var mastersList = await _context.Masters
+                .Include(m => m.Position)
                 .OrderBy(m => m.FullName)
                 .ToListAsync();
             
             var masters = mastersList.Select(m => new
             {
                 masterId = m.MasterId,
-                displayText = $"{m.FullName} ({m.Position}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
+                displayText = $"{m.FullName} ({m.Position?.Name}, {m.Rank} разряд) - {m.HourlyRate:C2}/час",
                 fullName = m.FullName,
-                position = m.Position,
+                position = m.Position?.Name ?? "",
                 rank = m.Rank,
                 hourlyRate = m.HourlyRate
             }).ToList();
@@ -399,7 +435,12 @@ namespace TyreServiceApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.CompletedWorks)
+                .Include(o => o.OrderConsumables)
+                .Include(o => o.OrderComplexities)
+                .Include(o => o.CompletedJobsPayouts)
+                .FirstOrDefaultAsync(m => m.OrderNumber == id);
             if (order != null)
             {
                 _context.Orders.Remove(order);
@@ -421,5 +462,86 @@ namespace TyreServiceApp.Controllers
         {
             return _context.Orders.Any(e => e.OrderNumber == id);
         }
+
+        /// <summary>
+        /// Переключает статус оплаты заказа.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TogglePayment(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (!order.PaymentDate.HasValue && !order.MasterId.HasValue)
+            {
+                return Json(new { success = false, error = "Нельзя оплатить заказ без назначенного мастера" });
+            }
+
+            if (!order.PaymentDate.HasValue) // устанавливаем оплату
+            {
+                order.PaymentDate = DateTime.Now;
+                order.Status = "Оплачено";
+            }
+            else // снимаем оплату
+            {
+                order.PaymentDate = null;
+            }
+            await _context.SaveChangesAsync();
+
+            var status = order.PaymentDate.HasValue ? "Оплачено" : "Не оплачено";
+            return Json(new { success = true, status = status, orderNumber = order.OrderNumber });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeWorkStatus(int id, string status)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+                return NotFound();
+
+            var allowed = new[] { "Новый", "В работе", "Готов", "Оплачено" };
+            if (!allowed.Contains(status))
+                return Json(new { success = false, error = "Недопустимый статус" });
+
+            if (!order.MasterId.HasValue && status != "Новый")
+                return Json(new { success = false, error = "Сначала назначьте мастера" });
+
+            if (status == "Оплачено" && !order.MasterId.HasValue)
+                return Json(new { success = false, error = "Нельзя оплатить заказ без назначенного мастера" });
+
+            if (status == "Оплачено" && !order.PaymentDate.HasValue)
+                order.PaymentDate = DateTime.Now;
+            else if (status != "Оплачено" && order.PaymentDate.HasValue)
+                order.PaymentDate = null;
+
+            var prevStatus = order.Status;
+            order.Status = status;
+
+            if (status == "В работе" && prevStatus != "В работе")
+            {
+                order.WorkStartTime = DateTime.Now;
+            }
+            else if (prevStatus == "В работе" && status != "В работе")
+            {
+                if (order.WorkStartTime.HasValue)
+                {
+                    var elapsed = (int)(DateTime.Now - order.WorkStartTime.Value).TotalMinutes;
+                    if (elapsed < 1) elapsed = 1;
+                    order.TotalWorkMinutes += elapsed;
+
+                    order.WorkStartTime = null;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
     }
 }

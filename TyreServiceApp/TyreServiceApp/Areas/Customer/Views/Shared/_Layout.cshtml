@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Шиномонтаж у Бориса</title>
+    
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TyreServiceApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/custom-buttons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
+    <script src="https://unpkg.com/htmx.org@@2.0.4"></script>
+    <style>
+        .dock-outer {
+            display: flex;
+            justify-content: flex-end; 
+            width: 100%;
+        }
+
+        .nav-container {
+            position: relative;
+            display: flex;
+            align-items: flex-start; 
+            width: fit-content;
+            background-color: transparent !important;
+            border: none !important;
+            border-radius: 1rem;
+            padding: 10px;
+            height: 70px;
+            overflow: visible;
+            gap: 0; 
+        }
+
+        .nav-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background-color: #060010;
+            border: 1px solid #222;
+            cursor: pointer;
+            outline: none;
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            text-decoration: none !important;
+            color: #fff !important;
+            z-index: 1;
+        }
+
+        .nav-button:hover, 
+        .nav-item.active .nav-button {
+            background-color: #ffffff !important;
+            border-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .nav-button:hover i,
+        .nav-item.active .nav-button i {
+            color: #000000 !important;
+        }
+
+        .nav-button i {
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .dock-label {
+            position: absolute;
+            top: 100%; 
+            left: 50%;
+            margin-top: 15px;
+            width: fit-content;
+            white-space: nowrap;
+            border-radius: 0.375rem;
+            border: 1px solid #222;
+            background-color: #060010;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            color: #fff;
+            transform: translateX(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+
+        .nav-button:hover .dock-label {
+            opacity: 1;
+        }
+
+        .navbar-dark.bg-dark {
+            background-color: #111111 !important;
+            border-bottom: 1px solid #333;
+            min-height: 90px;
+        }
+
+        .full-nav-container {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-end; 
+            align-items: center;
+        }
+
+        .brand-text {
+            color: white !important;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-left: 8px;
+            letter-spacing: 0.5px;
+        }
+
+    </style>
+    <style>
+        .mobile-account-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .mobile-account-btn:active { background: #000; }
+
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .mobile-overlay.show { opacity: 1; }
+        .mobile-overlay-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(-100%);
+            transition: transform 0.35s ease;
+        }
+        .mobile-overlay.show .mobile-overlay-panel { transform: translateY(0); }
+        .mobile-overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 12px;
+            border-bottom: 1px solid #222;
+        }
+        .mobile-overlay-header span { color: #fff; font-weight: 600; font-size: 16px; }
+        .mobile-overlay-close {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: none; border: 1px solid #333;
+            color: #888; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .mobile-overlay-close:hover { background: #111; color: #fff; }
+        .mobile-overlay-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+        .mobile-overlay-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 15px;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .mobile-overlay-link i { width: 22px; font-size: 18px; color: #666; flex-shrink: 0; }
+        .mobile-overlay-link:active, .mobile-overlay-link:hover { background: #111; color: #fff; }
+        .mobile-overlay-link:active i, .mobile-overlay-link:hover i { color: #fff; }
+        .mobile-overlay-link.active-link { color: #fff; background: #111; }
+        .mobile-overlay-link.active-link i { color: #fff; }
+        .mobile-overlay-footer { padding: 12px 0; border-top: 1px solid #222; }
+        .mobile-overlay-link.logout-link { color: #f87171; }
+        .mobile-overlay-link.logout-link i { color: #f87171; }
+
+        @@media (max-width: 991px) {
+            .navbar-toggler, #navbarNav { display: none !important; }
+            .mobile-account-btn { display: flex; }
+            .navbar-dark.bg-dark { min-height: 60px; }
+            .brand-text { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+            <div class="container-fluid">
+                <div class="brand-container d-flex align-items-center" style="flex-grow:1;">
+                    <a class="navbar-brand d-flex align-items-center" asp-area="Customer" asp-controller="Cabinet" asp-action="Index">
+                        <img src="~/images/logo.png" alt="Logo" style="height: 40px; width: auto;" />
+                        <span class="brand-text fw-bold">Шиномонтаж у Бориса</span>
+                    </a>
+                    <button class="mobile-account-btn ms-auto" type="button" onclick="toggleMobileMenu()" aria-label="Меню">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+                </div>
+              
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="full-nav-container">
+                        <div class="dock-outer">
+                            <div class="nav-container" id="navContainer">
+                                @if (Context.User.Identity?.IsAuthenticated == true)
+                                {
+                                    var customerMenuItems = new[] {
+                                        new { c = "Cabinet", a = "Index", i = "speedometer2", t = "Главная" },
+                                        new { c = "Cabinet", a = "Orders", i = "receipt", t = "Заказы" },
+                                        new { c = "Cabinet", a = "Book", i = "calendar-plus", t = "Записаться" }
+                                    };
+
+                                    @foreach (var item in customerMenuItems)
+                                    {
+                                        <div class="nav-item @(ViewContext.RouteData.Values["Action"]?.ToString() == item.a ? "active" : "")">
+                                            <a asp-area="Customer" asp-controller="@item.c" asp-action="@item.a" class="nav-button">
+                                                <i class="bi bi-@item.i"></i>
+                                                <div class="dock-label">@item.t</div>
+                                            </a>
+                                        </div>
+                                    }
+
+                                    <!-- Кнопка выхода -->
+                                    <div class="nav-item">
+                                        <form asp-area="Customer" asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="nav-button">
+                                                <i class="bi bi-box-arrow-right"></i>
+                                                <div class="dock-label">Выйти</div>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile overlay -->
+        <div class="mobile-overlay" id="mobileOverlay" onclick="if(event.target===this)closeMobileMenu()">
+            <div class="mobile-overlay-panel">
+                <div class="mobile-overlay-header">
+                    <span>Меню</span>
+                    <button class="mobile-overlay-close" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="mobile-overlay-body">
+                    @if (Context.User.Identity?.IsAuthenticated == true)
+                    {
+                        var custItems = new[] {
+                            new { c = "Cabinet", a = "Index", i = "speedometer2", t = "Главная" },
+                            new { c = "Cabinet", a = "Orders", i = "receipt", t = "Заказы" },
+                            new { c = "Cabinet", a = "Book", i = "calendar-plus", t = "Записаться" }
+                        };
+                        foreach (var item in custItems)
+                        {
+                            var isActive = ViewContext.RouteData.Values["Action"]?.ToString() == item.a;
+                            <a asp-area="Customer" asp-controller="@item.c" asp-action="@item.a" class="mobile-overlay-link @(isActive ? "active-link" : "")" onclick="closeMobileMenu()">
+                                <i class="bi bi-@item.i"></i>@item.t
+                            </a>
+                        }
+                    }
+                </div>
+                @if (Context.User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="mobile-overlay-footer">
+                        <form asp-area="Customer" asp-controller="Auth" asp-action="Logout" method="post">
+                            <button type="submit" class="mobile-overlay-link logout-link">
+                                <i class="bi bi-box-arrow-right"></i>Выйти
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+        <script>
+            function toggleMobileMenu() {
+                var el = document.getElementById('mobileOverlay');
+                el.style.display = 'block';
+                requestAnimationFrame(function() { el.classList.add('show'); });
+                document.body.style.overflow = 'hidden';
+            }
+            function closeMobileMenu() {
+                var el = document.getElementById('mobileOverlay');
+                el.classList.remove('show');
+                setTimeout(function() { el.style.display = 'none'; document.body.style.overflow = ''; }, 300);
+            }
+        </script>
+    </header>
+
+    <div class="container-fluid px-4 pt-2 pb-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-light border-top mt-auto py-3">
+        <div class="container-fluid text-center text-muted">
+            <small>&copy; 2026 - Шиномонтаж у Бориса - Система управления шиномонтажем</small>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

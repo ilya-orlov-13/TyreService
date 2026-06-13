@@ -1,262 +1,408 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders-index.css" asp-append-version="true" />
+}
+
 @model IEnumerable<TyreServiceApp.Models.Order>
 
 @{
     ViewData["Title"] = "Заказы";
 }
 
-<style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
-    }
-
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
-        display: block;
-        margin-top: 0rem;
-        cursor: default;
-    }
-
-    .main-3d-inner {
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 20px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    /* .main-3d-wrapper:hover .main-3d-inner {
-        transform: translateY(-0.35em);
-    } */
-
-    .uiverse-table {
-        width: 100%;
-        background: white;
-        border: 1px solid rgb(203, 203, 203);
-        border-radius: 8px;
-        overflow: hidden;
-        display: block;
-        margin-top: 15px;
-    }
-
-    .uiverse-table__header {
-        display: flex;
-        background: rgb(60, 60, 60);
-        color: white;
-        border-bottom: 1px solid rgb(203, 203, 203);
-    }
-
-    .uiverse-table__row {
-        display: flex;
-        border-bottom: 1px solid rgb(203, 203, 203);
-        background: white;
-    }
-
-    .uiverse-table__row:nth-child(even) {
-        background: rgb(234, 235, 234);
-    }
-
-    .uiverse-table__row:last-child {
-        border-bottom: none;
-    }
-
-    .uiverse-table__cell {
-        padding: 12px;
-        display: flex;
-        align-items: center;
-        min-height: 75px;
-    }
-
-    .col-photo { width: 8%; justify-content: center; border-right: 1px solid rgb(203, 203, 203); }
-    .col-order-info { width: 17%; border-right: 1px solid rgb(203, 203, 203); }
-    .col-master { width: 25%; border-right: 1px solid rgb(203, 203, 203); }
-    .col-car { width: 15%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-status { width: 15%; border-right: 1px solid rgb(203, 203, 203); justify-content: center; }
-    .col-actions { width: 20%; justify-content: center; }
-
-    .uiverse-table__header .uiverse-table__cell {
-        font-weight: bold;
-        font-size: 0.85rem;
-        justify-content: center;
-        text-align: center;
-    }
-
-    .order-main-info { display: flex; flex-direction: column; gap: 2px; }
-    .order-num { font-weight: bold; font-size: 1rem; color: #212529; }
-    .order-date { font-size: 0.85rem; color: #6c757d; }
-
-    .master-info { display: flex; flex-direction: column; gap: 2px; }
-    .master-link { text-decoration: none; font-weight: 600; color: #0d6efd; font-size: 0.9rem; }
-    .master-link:hover { text-decoration: underline; }
-    .master-subtext { font-size: 0.75rem; color: #6c757d; line-height: 1.2; }
-
-    .car-photo-sm {
-        width: 50px;
-        height: 35px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-    }
-
-    /* Адаптивность */
-    @@media (max-width: 1200px) {
-        .master-subtext { display: none; }
-    }
-
-    @@media (max-width: 992px) {
-        .uiverse-table__header { display: none !important; }
-        .uiverse-table__row { flex-direction: column !important; padding: 10px 0; border-bottom: 2px solid #000 !important; }
-        .col-photo, .col-order-info, .col-master, .col-car, .col-status, .col-actions { 
-            width: 100% !important; 
-            border-right: none !important; 
-            border-bottom: 1px solid rgba(203, 203, 203, 0.5); 
-            justify-content: flex-start !important; 
-        }
-        .uiverse-table__cell { min-height: auto !important; padding: 8px 20px !important; }
-        .col-actions { border-bottom: none; justify-content: center !important; }
-    }
-</style>
-
+<partial name="_CardGridStyles" />
 <div class="container-fluid pt-2 pb-4">
-    <div class="main-3d-wrapper">
-        <div class="main-3d-inner">
-            
-            <!-- Заголовок и кнопка -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0">
-                    <i class="bi bi-receipt me-2"></i> Список заказов
-                </h3>
-                <a asp-action="Create" class="btn btn-dark">
-                    Создать заказ
-                </a>
-            </div>
 
-            @if (Model.Any())
-            {
-                <div class="uiverse-table">
-                    <!-- Заголовок таблицы -->
-                    <div class="uiverse-table__header">
-                        <div class="uiverse-table__cell col-photo">Фото</div>
-                        <div class="uiverse-table__cell col-order-info">№ Заказа / Дата</div>
-                        <div class="uiverse-table__cell col-master">Ответственный мастер</div>
-                        <div class="uiverse-table__cell col-car">Автомобиль</div>
-                        <div class="uiverse-table__cell col-status">Оплата</div>
-                        <div class="uiverse-table__cell col-actions">Действия</div>
-                    </div>
-                    
-                    <!-- Строки данных -->
-                    @foreach (var item in Model)
-                    {
-                        <div class="uiverse-table__row">
-                            <!-- Фото авто -->
-                            <div class="uiverse-table__cell col-photo">
-                                @if (!string.IsNullOrEmpty(item.Car?.PhotoPath))
-                                {
-                                    <img src="@item.Car.PhotoPath" 
-                                         class="car-photo-sm" 
-                                         data-bs-toggle="tooltip" 
-                                         title="@item.Car?.Brand @item.Car?.Model (@item.Car?.LicensePlate)" />
-                                }
-                                else
-                                {
-                                    <div class="text-muted"><i class="bi bi-car-front"></i></div>
-                                }
-                            </div>
-
-                            <!-- Номер и Дата -->
-                            <div class="uiverse-table__cell col-order-info">
-                                <div class="order-main-info">
-                                    <div class="order-num">@item.OrderNumber</div>
-                                    <div class="order-date"><i class="bi bi-calendar3 me-1"></i>@item.OrderDate.ToString("dd.MM.yyyy")</div>
-                                </div>
-                            </div>
-
-                            <!-- Мастер -->
-                            <div class="uiverse-table__cell col-master">
-                                @if (item.Master != null)
-                                {
-                                    <div class="master-info">
-                                        <a asp-controller="Masters" asp-action="Details" asp-route-id="@item.Master.MasterId" class="master-link">
-                                            <i class="bi bi-person-badge me-1"></i>@item.Master.FullName
-                                        </a>
-                                        <div class="master-subtext">
-                                            @item.Master.Position, @item.Master.Rank разряд
+    @if (Model.Any())
+    {
+        await Html.RenderPartialAsync("_ViewToggle");
+        
+        <div class="view-cards">
+            <div class="orders-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="order-card-wrapper" onclick="handleCardClick(event, @item.OrderNumber)">
+                        <div class="order-card">
+                            <div class="order-top-row">
+                                <div class="order-car-image-wrapper">
+                                    @if (!string.IsNullOrEmpty(item.Car?.PhotoPath))
+                                    {
+                                        <img src="@item.Car.PhotoPath" alt="@item.Car.Brand @item.Car.Model" class="order-car-image" />
+                                    }
+                                    else
+                                    {
+                                        <div class="order-car-icon">
+                                            <span style="font-size:24px;font-weight:700;color:#bbb;">@item.OrderNumber</span>
                                         </div>
-                                    </div>
-                                }
-                                else
+                                    }
+                                </div>
+                                <div class="order-car-info">
+                                    <div class="order-car-name">@item.Car?.Brand @item.Car?.Model</div>
+                                    <div class="order-car-plate">@item.Car?.LicensePlate</div>
+                                </div>
+                                @if (item.Car?.Client != null)
                                 {
-                                    <span class="badge bg-warning text-dark px-2 py-1" style="font-size: 0.75rem;">
-                                        <i class="bi bi-person-x me-1"></i>Не назначен
+                                    <span class="client-btn-wrap">
+                                        <a asp-controller="Clients" asp-action="Details" asp-route-id="@item.Car.Client.ClientId"
+                                           asp-route-returnUrl="/Orders/Index"
+                                           class="order-client-btn" onclick="event.stopPropagation()">
+                                            <i class="bi bi-person me-1"></i>@item.Car.Client.FullName
+                                        </a>
+                                        <div class="client-popup">
+                                            @if (!string.IsNullOrEmpty(item.Car.Client.Phone))
+                                            {
+                                                <div class="cp-row">
+                                                    <i class="bi bi-telephone cp-icon"></i>
+                                                    <span class="cp-value">@item.Car.Client.Phone</span>
+                                                    <button type="button" class="cp-copy" data-value="@item.Car.Client.Phone" onclick="event.stopPropagation(); copyContact(this)" title="Копировать">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                                    </button>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(item.Car.Client.Email))
+                                            {
+                                                <div class="cp-row">
+                                                    <i class="bi bi-envelope cp-icon"></i>
+                                                    <span class="cp-value">@item.Car.Client.Email</span>
+                                                    <button type="button" class="cp-copy" data-value="@item.Car.Client.Email" onclick="event.stopPropagation(); copyContact(this)" title="Копировать">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
                                     </span>
                                 }
                             </div>
 
-                            <!-- Авто ID / Номер -->
-                            <div class="uiverse-table__cell col-car">
-                                <span class="badge bg-secondary px-3 py-2">@item.CarId</span>
-                            </div>
-
-                            <!-- Статус оплаты -->
-                            <div class="uiverse-table__cell col-status">
-                                @if (item.PaymentDate.HasValue)
-                                {
-                                    <div class="text-center">
-                                        <span class="badge bg-success w-100">Оплачено</span>
-                                        <div style="font-size: 0.7rem;" class="text-success mt-1">@item.PaymentDate.Value.ToString("dd.MM.yyyy")</div>
+                            <div class="order-details">
+                                <div class="order-detail-row">
+                                    <span><i class="bi bi-calendar3 me-1"></i>@item.OrderDate.ToString("dd.MM.yyyy") <span class="time-slot-badge @(item.ScheduledAt.HasValue ? "" : "fallback")">@(item.ScheduledAt?.ToString("HH:mm") ?? item.OrderDate.ToString("HH:mm"))</span></span>
+                                    @{
+                                                var statusClass = item.PaymentDate.HasValue ? "paid" : "pending";
+                                            }
+                                            <div class="order-status-wrapper" onclick="event.stopPropagation()">
+                                        <div class="order-status-badge order-status-@statusClass" onclick="toggleStatusDropdown(this)">
+                                            @if (item.PaymentDate.HasValue)
+                                            {
+                                                @:<i class="bi bi-check-circle-fill"></i> Оплачено
+                                            }
+                                            else
+                                            {
+                                                @:<i class="bi bi-clock-fill"></i> Ожидает
+                                            }
+                                        </div>
+                                        <div class="order-status-dropdown">
+                                            @{
+                                                var paidActive = item.PaymentDate.HasValue ? "active" : "";
+                                                var pendingActive = !item.PaymentDate.HasValue ? "active" : "";
+                                                var paidDisabled = item.MasterId == null ? "disabled" : "";
+                                            }
+                                            <div class="order-status-option @paidActive @paidDisabled" title="@(item.MasterId == null ? "Сначала назначьте мастера" : "")" onclick="changeOrderStatus(@item.OrderNumber, this)">
+                                                <i class="bi bi-check-circle-fill" style="color:#065f46"></i> Оплачено
+                                            </div>
+                                            <div class="order-status-option @pendingActive" onclick="changeOrderStatus(@item.OrderNumber, this)">
+                                                <i class="bi bi-clock-fill" style="color:#92400e"></i> Ожидает
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="text-center">
-                                        <span class="badge bg-warning w-100">Ожидает</span>
+                                </div>
+                                <div class="order-detail-row">
+                                    <span class="label">Статус</span>
+                                    @{
+                                        var wsBadgeClass = "ws-badge-" + item.Status.Replace(" ", "");
+                                        var wsStatuses = new[] { "Новый", "В работе", "Готов", "Оплачено" };
+                                        var wsColors = new Dictionary<string, string>
+                                        {
+                                            ["Новый"] = "#6366f1",
+                                            ["В работе"] = "#f59e0b",
+                                            ["Готов"] = "#10b981",
+                                            ["Оплачено"] = "#6b7280"
+                                        };
+                                    }
+                                    <div class="ws-wrapper" onclick="event.stopPropagation()">
+                                        <div class="order-status-badge @wsBadgeClass" onclick="toggleWsDropdown(this)">
+                                            <i class="bi @(item.Status == "Новый" ? "bi-inbox" : item.Status == "В работе" ? "bi-gear" : item.Status == "Готов" ? "bi-check2-circle" : "bi-credit-card")" style="font-size:10px"></i>
+                                            @item.Status
+                                        </div>
+                                        <div class="ws-dropdown">
+                                            @foreach (var s in wsStatuses)
+                                            {
+                                                var isActive = item.Status == s;
+                                                <div class="ws-option @(isActive ? "active" : "")" onclick="changeWsStatus(@item.OrderNumber, '@s', this)">
+                                                    <span class="ws-dot" style="background:@wsColors[s]"></span>
+                                                    @s
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                }
-                            </div>
-
-                            <!-- Действия -->
-                            <div class="uiverse-table__cell col-actions">
-                                <div class="d-flex justify-content-center gap-2 w-100">
-                                    <a asp-action="Details" asp-route-id="@item.OrderNumber" class="btn btn-outline-info btn-sm">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a asp-action="Edit" asp-route-id="@item.OrderNumber" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.OrderNumber" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                </div>
+                                <div class="order-detail-row">
+                                    <span class="label">Мастер</span>
+                                    @if (item.Master != null)
+                                    {
+                                        <a asp-controller="Masters" asp-action="Details" asp-route-id="@item.Master.MasterId"
+                                           asp-route-returnUrl="/Orders/Index"
+                                           class="order-client-btn" onclick="event.stopPropagation()">
+                                            <i class="bi bi-person-badge me-1"></i>@item.Master.FullName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted"><i class="bi bi-person-x me-1"></i>Не назначен</span>
+                                    }
+                                    <span style="margin-left:auto;display:flex;gap:6px">
+                                        <a asp-action="Edit" asp-route-id="@item.OrderNumber"
+                                           class="action-btn" onclick="event.stopPropagation()" title="Редактировать">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                            </svg>
+                                        </a>
+                                        <button type="button" class="action-btn delete-btn" onclick="event.stopPropagation(); showDeleteModal(@item.OrderNumber)" title="Удалить">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5 border rounded bg-light">
-                    <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-                    <h4 class="mt-3">Заказы не найдены</h4>
-                    <p class="text-muted">Создайте первый заказ, чтобы начать учет работ.</p>
-                </div>
-            }
+                    </div>
+                }
+                <a href="/Orders/Create" class="order-card-wrapper add-card-wrapper">
+                    <div class="order-card add-card">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Создать заказ</span>
+                    </div>
+                </a>
+            </div>
         </div>
+
+        <div class="view-table">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Автомобиль</th>
+                        <th>Госномер</th>
+                        <th>Клиент</th>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                        <th>Сумма</th>
+                        <th>Мастер</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr onclick="handleCardClick(event, @item.OrderNumber)" style="cursor:pointer;">
+                            <td data-label="№">@item.OrderNumber</td>
+                            <td data-label="Автомобиль">@item.Car?.Brand @item.Car?.Model</td>
+                            <td data-label="Госномер">@item.Car?.LicensePlate</td>
+                            <td data-label="Клиент">@(item.Car?.Client?.FullName ?? "—")</td>
+                            <td data-label="Дата">@item.OrderDate.ToString("dd.MM.yyyy")</td>
+                            <td data-label="Статус">
+                                <span class="badge @(item.Status == "Новый" ? "bg-dark" : item.Status == "В работе" ? "bg-primary" : item.Status == "Готов" ? "bg-success" : "bg-secondary")" style="font-size:0.75rem;">@item.Status</span>
+                            </td>
+                            <td data-label="Сумма">@item.ClientTotal?.ToString("N0") ₽</td>
+                            <td data-label="Мастер">@(item.Master?.FullName ?? "—")</td>
+                            <td data-label="">
+                                <div class="table-actions" onclick="event.stopPropagation()">
+                                    <a asp-action="Edit" asp-route-id="@item.OrderNumber" title="Редактировать">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </a>
+                                    <button class="danger" title="Удалить" onclick="showDeleteModal(@item.OrderNumber)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 border rounded bg-light">
+            <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Заказы не найдены</h4>
+            <p class="text-muted">Создайте первый заказ, чтобы начать учет работ.</p>
+            <a href="/Orders/Create" class="btn btn-dark mt-3"><i class="bi bi-plus-circle me-1"></i> Добавить</a>
+        </div>
+    }
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal-overlay" style="display:none;" onclick="closeDeleteModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">Удалить заказ?</h3>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text">Вы уверены, что хотите удалить</p>
+            <p id="deleteOrderInfo" class="modal-order-info"></p>
+            <p class="modal-hint">Это действие нельзя отменить.</p>
+        </div>
+        <form id="deleteForm" method="post" asp-action="Delete" asp-controller="Orders">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="deleteOrderId" name="id" value="" />
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Отмена</button>
+                <button type="submit" class="modal-btn modal-btn-delete">
+                    <svg class="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Удалить
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
+        function handleCardClick(event, orderNumber) {
+            var target = event.target;
+            if (target.closest('.action-btn') || target.closest('.order-client-btn') || target.closest('.order-master-link') || target.closest('.delete-btn') || target.closest('.order-status-wrapper') || target.closest('.ws-wrapper') || target.closest('.client-btn-wrap')) {
+                return;
+            }
+            location.href = '/Orders/Details/' + orderNumber;
+        }
+
+        function showDeleteModal(orderNumber) {
+            document.getElementById('deleteOrderId').value = orderNumber;
+            document.getElementById('deleteOrderInfo').textContent = 'Заказ №' + orderNumber;
+            var modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+            setTimeout(function() { modal.classList.add('modal-show'); }, 10);
+        }
+
+        function closeDeleteModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            var modal = document.getElementById('deleteModal');
+            modal.classList.remove('modal-show');
+            setTimeout(function() { modal.style.display = 'none'; }, 300);
+        }
+
+        function toggleStatusDropdown(trigger) {
+            var wrapper = trigger.closest('.order-status-wrapper');
+            var dropdown = wrapper.querySelector('.order-status-dropdown');
+            var isVisible = dropdown.classList.contains('show');
+            closeAllStatusDropdowns();
+            if (!isVisible) {
+                dropdown.classList.add('show');
+            }
+        }
+
+        function closeAllStatusDropdowns() {
+            document.querySelectorAll('.order-status-dropdown.show').forEach(function(d) {
+                d.classList.remove('show');
             });
+        }
+
+        function toggleWsDropdown(trigger) {
+            var wrapper = trigger.closest('.ws-wrapper');
+            var dropdown = wrapper.querySelector('.ws-dropdown');
+            var isVisible = dropdown.classList.contains('show');
+            closeAllWsDropdowns();
+            if (!isVisible) {
+                dropdown.classList.add('show');
+            }
+        }
+
+        function closeAllWsDropdowns() {
+            document.querySelectorAll('.ws-dropdown.show').forEach(function(d) {
+                d.classList.remove('show');
+            });
+        }
+
+        function changeWsStatus(orderId, status, element) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch('/Orders/ChangeWorkStatus/' + orderId + '?status=' + encodeURIComponent(status), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else if (data.error) {
+                    var wrapper = element.closest('.ws-wrapper');
+                    var existing = wrapper.querySelector('.ws-error-toast');
+                    if (existing) existing.remove();
+                    var toast = document.createElement('div');
+                    toast.className = 'ws-error-toast';
+                    toast.textContent = data.error;
+                    wrapper.appendChild(toast);
+                    setTimeout(function() { toast.remove(); }, 3000);
+                }
+            })
+            .catch(function() {});
+            closeAllWsDropdowns();
+        }
+
+        function changeOrderStatus(orderId, element) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch('/Orders/TogglePayment/' + orderId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: '__RequestVerificationToken=' + encodeURIComponent(token)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else if (data.error) {
+                    var wrapper = element.closest('.order-status-wrapper');
+                    var existing = wrapper.querySelector('.status-error-toast');
+                    if (existing) existing.remove();
+                    var toast = document.createElement('div');
+                    toast.className = 'status-error-toast';
+                    toast.textContent = data.error;
+                    wrapper.appendChild(toast);
+                    setTimeout(function() { toast.remove(); }, 3000);
+                }
+            })
+            .catch(function() {});
+            closeAllStatusDropdowns();
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.order-status-wrapper')) {
+                closeAllStatusDropdowns();
+            }
+            if (!e.target.closest('.ws-wrapper')) {
+                closeAllWsDropdowns();
+            }
         });
+
+        function copyContact(btn) {
+            var text = btn.getAttribute('data-value');
+            navigator.clipboard.writeText(text).then(function() {
+                btn.classList.add('cp-copied');
+                var svg = btn.querySelector('svg');
+                var orig = svg.outerHTML;
+                svg.outerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(function() {
+                    btn.classList.remove('cp-copied');
+                    var check = btn.querySelector('svg');
+                    if (check) check.outerHTML = orig;
+                }, 1200);
+            }).catch(function() {});
+        }
     </script>
 }

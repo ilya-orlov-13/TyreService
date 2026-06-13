@@ -10,7 +10,7 @@ namespace TyreServiceApp.Controllers
     /// Контроллер для управления услугами шиномонтажа.
     /// Предоставляет CRUD-операции для работы с услугами.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class ServicesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -82,7 +82,7 @@ namespace TyreServiceApp.Controllers
         // POST: Services/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ServiceName,ServiceCost")] Service service)
+        public async Task<IActionResult> Create([Bind("ServiceName,ServiceCost,IsConsultation,FixedDurationMin")] Service service)
         {
             if (ModelState.IsValid)
             {
@@ -130,7 +130,7 @@ namespace TyreServiceApp.Controllers
         // POST: Services/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ServiceCode,ServiceName,ServiceCost")] Service service)
+        public async Task<IActionResult> Edit(int id, [Bind("ServiceCode,ServiceName,ServiceCost,IsConsultation,FixedDurationMin")] Service service)
         {
             if (id != service.ServiceCode)
             {

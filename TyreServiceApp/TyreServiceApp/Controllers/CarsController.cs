@@ -13,7 +13,7 @@ namespace TyreServiceApp.Controllers
     /// Контроллер для управления автомобилями в системе шиномонтажа.
     /// Обеспечивает CRUD-операции для сущности Car, включая загрузку фотографий.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class CarsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -109,36 +109,42 @@ namespace TyreServiceApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Обработка загрузки фото
-                if (photos != null && photos.Count > 0)
+                if (await _context.Cars.AnyAsync(c => c.LicensePlate == car.LicensePlate))
+                    ModelState.AddModelError("LicensePlate", "Автомобиль с таким госномером уже существует");
+                if (await _context.Cars.AnyAsync(c => c.Vin == car.Vin))
+                    ModelState.AddModelError("Vin", "Автомобиль с таким VIN уже существует");
+
+                if (ModelState.IsValid)
                 {
-                    var photoPaths = new List<string>();
-                    
-                    foreach (var photo in photos)
+                    // Обработка загрузки фото
+                    if (photos != null && photos.Count > 0)
                     {
-                        if (photo != null && photo.Length > 0)
+                        var photoPaths = new List<string>();
+
+                        foreach (var photo in photos)
                         {
-                            var photoPath = await SavePhotoAsync(photo);
-                            photoPaths.Add(photoPath);
+                            if (photo != null && photo.Length > 0)
+                            {
+                                var photoPath = await SavePhotoAsync(photo);
+                                photoPaths.Add(photoPath);
+                            }
+                        }
+
+                        if (photoPaths.Count > 0)
+                        {
+                            car.PhotoPath = photoPaths[0];
+
+                            if (photoPaths.Count > 1)
+                            {
+                                car.AdditionalPhotos = System.Text.Json.JsonSerializer.Serialize(photoPaths.Skip(1).ToList());
+                            }
                         }
                     }
-                    
-                    if (photoPaths.Count > 0)
-                    {
-                        // Первое фото как основное
-                        car.PhotoPath = photoPaths[0];
-                        
-                        // Остальные как дополнительные
-                        if (photoPaths.Count > 1)
-                        {
-                            car.AdditionalPhotos = System.Text.Json.JsonSerializer.Serialize(photoPaths.Skip(1).ToList());
-                        }
-                    }
+
+                    _context.Add(car);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                
-                _context.Add(car);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
             ViewBag.ClientId = new SelectList(_context.Clients, "ClientId", "FullName", car.ClientId);
             return View(car);
@@ -198,6 +204,13 @@ namespace TyreServiceApp.Controllers
 
             if (ModelState.IsValid)
             {
+                if (await _context.Cars.AnyAsync(c => c.LicensePlate == car.LicensePlate && c.CarId != id))
+                    ModelState.AddModelError("LicensePlate", "Автомобиль с таким госномером уже существует");
+                if (await _context.Cars.AnyAsync(c => c.Vin == car.Vin && c.CarId != id))
+                    ModelState.AddModelError("Vin", "Автомобиль с таким VIN уже существует");
+
+                if (ModelState.IsValid)
+                {
                 try
                 {
                     // Получаем текущие данные из базы
@@ -290,7 +303,18 @@ namespace TyreServiceApp.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException pg && pg.SqlState == "23505")
+                {
+                    var pgEx = (Npgsql.PostgresException)ex.InnerException;
+                    if (pgEx.ConstraintName == "IX_Cars_LicensePlate")
+                        ModelState.AddModelError("LicensePlate", "Автомобиль с таким госномером уже существует");
+                    else if (pgEx.ConstraintName == "IX_Cars_Vin")
+                        ModelState.AddModelError("Vin", "Автомобиль с таким VIN уже существует");
+                    ViewBag.ClientId = new SelectList(_context.Clients, "ClientId", "FullName", car.ClientId);
+                    return View(car);
+                }
                 return RedirectToAction(nameof(Index));
+                }
             }
             ViewBag.ClientId = new SelectList(_context.Clients, "ClientId", "FullName", car.ClientId);
             return View(car);

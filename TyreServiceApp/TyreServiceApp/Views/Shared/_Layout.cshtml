@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TyreServiceApp</title>
+    <title>@ViewData["Title"] - Шиномонтаж у Бориса</title>
     
     <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="~/TyreServiceApp.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/custom-buttons.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
     <style>
         .dock-outer {
             display: flex;
@@ -69,6 +70,14 @@
             transition: color 0.3s ease;
         }
 
+        .nav-divider {
+            width: 1px;
+            height: 40px;
+            background-color: #333;
+            margin: 0 8px;
+            align-self: center;
+        }
+
         .dock-label {
             position: absolute;
             top: 100%; 
@@ -93,6 +102,77 @@
             opacity: 1;
         }
 
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 200px;
+            background: #060010;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 8px 0;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .nav-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 0;
+            right: 0;
+            height: 12px;
+        }
+
+        .nav-dropdown:hover .nav-dropdown-menu {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            color: #ccc !important;
+            text-decoration: none !important;
+            font-size: 0.85rem;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .nav-dropdown-item:hover,
+        .nav-dropdown-item.active-item {
+            color: #fff !important;
+        }
+
+        .nav-dropdown-item i {
+            width: 18px;
+            font-size: 15px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .nav-dropdown-item:hover i,
+        .nav-dropdown-item.active-item i {
+            color: #fff;
+        }
+
+        .nav-dropdown-arrow {
+            font-size: 10px;
+            margin-left: 4px;
+            opacity: 0.6;
+        }
+
         .navbar-dark.bg-dark {
             background-color: #111111 !important;
             border-bottom: 1px solid #333;
@@ -113,30 +193,153 @@
             margin-left: 8px;
             letter-spacing: 0.5px;
         }
+    </style>
+    <style>
+        /* Mobile account button (visible only on <992px) */
+        .mobile-account-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+        .mobile-account-btn:active {
+            background: #333;
+        }
 
-        /* Мобильная версия */
+        /* Full-screen mobile overlay */
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .mobile-overlay.show {
+            opacity: 1;
+        }
+        .mobile-overlay-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(-100%);
+            transition: transform 0.35s ease;
+        }
+        .mobile-overlay.show .mobile-overlay-panel {
+            transform: translateY(0);
+        }
+        .mobile-overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 12px;
+            border-bottom: 1px solid #222;
+        }
+        .mobile-overlay-header span {
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .mobile-overlay-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: none;
+            border: 1px solid #333;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .mobile-overlay-close:hover {
+            background: #111;
+            color: #fff;
+        }
+        .mobile-overlay-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .mobile-overlay-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 15px;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .mobile-overlay-link i {
+            width: 22px;
+            font-size: 18px;
+            color: #666;
+            flex-shrink: 0;
+        }
+        .mobile-overlay-link:active,
+        .mobile-overlay-link:hover {
+            background: #111;
+            color: #fff;
+        }
+        .mobile-overlay-link:active i,
+        .mobile-overlay-link:hover i {
+            color: #fff;
+        }
+        .mobile-overlay-link.active-link {
+            color: #fff;
+            background: #111;
+        }
+        .mobile-overlay-link.active-link i {
+            color: #fff;
+        }
+        .mobile-overlay-footer {
+            padding: 12px 0;
+            border-top: 1px solid #222;
+        }
+        .mobile-overlay-link.logout-link {
+            color: #f87171;
+        }
+        .mobile-overlay-link.logout-link i {
+            color: #f87171;
+        }
+
         @@media (max-width: 991px) {
-            .nav-container {
-                flex-direction: column;
-                width: 100%;
-                height: auto;
-                align-items: stretch;
-                gap: 10px;
+            .navbar-toggler,
+            #navbarNav {
+                display: none !important;
             }
-            .nav-button {
-                width: 100% !important;
-                margin: 0 !important;
-                height: 50px !important;
-                justify-content: flex-start;
-                padding-left: 15px;
+            .mobile-account-btn {
+                display: flex;
             }
-            .dock-label {
-                position: static;
-                opacity: 1;
-                transform: none;
-                margin: 0 0 0 10px;
-                border: none;
-                background: none;
+            .navbar-dark.bg-dark {
+                min-height: 60px;
+            }
+            .brand-text {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -145,13 +348,17 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
             <div class="container-fluid">
-                <div class="brand-container d-flex align-items-center" style="margin-right: 30px;">
+                <div class="brand-container d-flex align-items-center" style="flex-grow:1;">
                     <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
                         <img src="~/images/logo.png" alt="Logo" style="height: 40px; width: auto;" />
-                        <span class="brand-text fw-bold">TyreService</span>
+                        <span class="brand-text fw-bold">Шиномонтаж у Бориса</span>
                     </a>
+                    <!-- Mobile account button -->
+                    <button class="mobile-account-btn ms-auto" type="button" onclick="toggleMobileMenu()" aria-label="Меню">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
                 </div>
-              
+               
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -162,26 +369,98 @@
                             <div class="nav-container" id="navContainer">
                                 
                                 @{
+                                    var currentArea = ViewContext.RouteData.Values["Area"]?.ToString();
+                                    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+
                                     var menuItems = new[] {
-                                        new { c = "Home", i = "house-door", t = "Главная" },
-                                        new { c = "Clients", i = "people", t = "Клиенты" },
-                                        new { c = "Cars", i = "car-front", t = "Автомобили" },
-                                        new { c = "Orders", i = "receipt", t = "Заказы" },
-                                        new { c = "Services", i = "gear", t = "Услуги" },
-                                        new { c = "Masters", i = "person-badge", t = "Мастера" },
-                                        new { c = "Tires", i = "circle", t = "Шины" },
-                                        new { c = "CompletedWorks", i = "check-circle", t = "Работы" }
+                                        new { c = "Home", i = "house-door", t = "Главная", area = "" },
+                                        new { c = "Clients", i = "people", t = "Клиенты", area = "" },
+                                        new { c = "Cars", i = "car-front", t = "Автомобили", area = "" },
+                                        new { c = "Orders", i = "receipt", t = "Заказы", area = "" },
+                                        new { c = "Services", i = "gear", t = "Услуги", area = "" },
+                                        new { c = "Posts", i = "grid-3x3-gap", t = "Посты", area = "" },
+                                        new { c = "Tires", i = "circle", t = "Шины", area = "" },
+                                        new { c = "Consumables", i = "box-seam", t = "Расходники", area = "" },
+                                        new { c = "Reviews", i = "star", t = "Отзывы", area = "" }
+                                    };
+                                    var masterDropdownItems = new[] {
+                                        new { c = "Masters", i = "person-badge", t = "Мастера", a = "Index" },
+                                        new { c = "Positions", i = "briefcase", t = "Должности мастеров", a = "Index" }
+                                    };
+                                    var staffDropdownItems = new[] {
+                                        new { c = "Admins", i = "person-badge", t = "Персонал", a = "Index" },
+                                        new { c = "StaffPositions", i = "briefcase", t = "Должности персонала", a = "Index" }
+                                    };
+                                    var ownerSingleItems = new[] {
+                                        new { c = "Reports", i = "bar-chart", t = "Отчёты", a = "Revenue" },
+                                        new { c = "Settings", i = "gear-wide", t = "Настройки", a = "Index" }
                                     };
                                 }
 
                                 @foreach (var item in menuItems)
                                 {
-                                    <div class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == item.c ? "active" : "")">
-                                        <a asp-controller="@item.c" asp-action="Index" class="nav-button">
+                                    <div class="nav-item @(currentController == item.c ? "active" : "")">
+                                        <a asp-area="@item.area" asp-controller="@item.c" asp-action="Index" class="nav-button">
                                             <i class="bi bi-@item.i"></i>
                                             <div class="dock-label">@item.t</div>
                                         </a>
                                     </div>
+                                }
+
+                                @if (User.IsInRole("Owner"))
+                                {
+                                    <div class="nav-divider"></div>
+
+                                    <!-- Мастера dropdown -->
+                                    <div class="nav-item nav-dropdown @(masterDropdownItems.Any(d => d.c == currentController) ? "active" : "")">
+                                        <div class="nav-button">
+                                            <i class="bi bi-tools"></i>
+                                            <div class="dock-label">
+                                                Мастера
+                                                <span class="nav-dropdown-arrow">▼</span>
+                                            </div>
+                                        </div>
+                                        <div class="nav-dropdown-menu">
+                                            @foreach (var item in masterDropdownItems)
+                                            {
+                                                <a asp-area="Owner" asp-controller="@item.c" asp-action="@item.a"
+                                                   class="nav-dropdown-item @(currentController == item.c ? "active-item" : "")">
+                                                    <i class="bi bi-@item.i"></i> @item.t
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Сотрудники dropdown -->
+                                    <div class="nav-item nav-dropdown @(staffDropdownItems.Any(d => d.c == currentController) ? "active" : "")">
+                                        <div class="nav-button">
+                                            <i class="bi bi-people"></i>
+                                            <div class="dock-label">
+                                                Сотрудники
+                                                <span class="nav-dropdown-arrow">▼</span>
+                                            </div>
+                                        </div>
+                                        <div class="nav-dropdown-menu">
+                                            @foreach (var item in staffDropdownItems)
+                                            {
+                                                <a asp-area="Owner" asp-controller="@item.c" asp-action="@item.a"
+                                                   class="nav-dropdown-item @(currentController == item.c ? "active-item" : "")">
+                                                    <i class="bi bi-@item.i"></i> @item.t
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Отдельные пункты (Отчёты, Настройки) -->
+                                    @foreach (var item in ownerSingleItems)
+                                    {
+                                        <div class="nav-item @(currentController == item.c ? "active" : "")">
+                                            <a asp-area="Owner" asp-controller="@item.c" asp-action="@item.a" class="nav-button">
+                                                <i class="bi bi-@item.i"></i>
+                                                <div class="dock-label">@item.t</div>
+                                            </a>
+                                        </div>
+                                    }
                                 }
 
                                 <!-- Кнопка выхода -->
@@ -199,6 +478,100 @@
                 </div>
             </div>
         </nav>
+        <!-- Mobile overlay menu -->
+        <div class="mobile-overlay" id="mobileOverlay" onclick="if(event.target===this)closeMobileMenu()">
+            <div class="mobile-overlay-panel">
+                <div class="mobile-overlay-header">
+                    <span>Меню</span>
+                    <button class="mobile-overlay-close" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="mobile-overlay-body">
+                    @{
+                        var overlayItems = new[] {
+                            new { c = "Home", i = "house-door", t = "Главная", area = "" },
+                            new { c = "Clients", i = "people", t = "Клиенты", area = "" },
+                            new { c = "Cars", i = "car-front", t = "Автомобили", area = "" },
+                            new { c = "Orders", i = "receipt", t = "Заказы", area = "" },
+                            new { c = "Services", i = "gear", t = "Услуги", area = "" },
+                            new { c = "Posts", i = "grid-3x3-gap", t = "Посты", area = "" },
+                            new { c = "Tires", i = "circle", t = "Шины", area = "" },
+                            new { c = "Consumables", i = "box-seam", t = "Расходники", area = "" }
+                        };
+                        var overlayMasterItems = new[] {
+                            new { c = "Masters", i = "person-badge", t = "Мастера", a = "Index" },
+                            new { c = "Positions", i = "briefcase", t = "Должности мастеров", a = "Index" }
+                        };
+                        var overlayStaffItems = new[] {
+                            new { c = "Admins", i = "person-badge", t = "Персонал", a = "Index" },
+                            new { c = "StaffPositions", i = "briefcase", t = "Должности персонала", a = "Index" }
+                        };
+                        var overlaySingleItems = new[] {
+                            new { c = "Reports", i = "bar-chart", t = "Отчёты", a = "Revenue" },
+                            new { c = "Settings", i = "gear-wide", t = "Настройки", a = "Index" }
+                        };
+                    }
+                    @foreach (var item in overlayItems)
+                    {
+                        var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == item.c;
+                        <a asp-area="@item.area" asp-controller="@item.c" asp-action="Index" class="mobile-overlay-link @(isActive ? "active-link" : "")" onclick="closeMobileMenu()">
+                            <i class="bi bi-@item.i"></i>@item.t
+                        </a>
+                    }
+                    @if (User.IsInRole("Owner"))
+                    {
+                        <div style="height:1px;background:#222;margin:8px 20px;"></div>
+                        <div class="mobile-overlay-link" style="color:#888;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;padding:8px 20px 4px;pointer-events:none;">
+                            <i class="bi bi-tools" style="color:#888;"></i> МАСТЕРА
+                        </div>
+                        foreach (var item in overlayMasterItems)
+                        {
+                            var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == item.c;
+                            <a asp-area="Owner" asp-controller="@item.c" asp-action="@item.a" class="mobile-overlay-link @(isActive ? "active-link" : "")" onclick="closeMobileMenu()">
+                                <i class="bi bi-@item.i"></i>@item.t
+                            </a>
+                        }
+                        <div class="mobile-overlay-link" style="color:#888;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;padding:8px 20px 4px;pointer-events:none;">
+                            <i class="bi bi-people" style="color:#888;"></i> СОТРУДНИКИ
+                        </div>
+                        foreach (var item in overlayStaffItems)
+                        {
+                            var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == item.c;
+                            <a asp-area="Owner" asp-controller="@item.c" asp-action="@item.a" class="mobile-overlay-link @(isActive ? "active-link" : "")" onclick="closeMobileMenu()">
+                                <i class="bi bi-@item.i"></i>@item.t
+                            </a>
+                        }
+                        <div style="height:1px;background:#222;margin:4px 20px;"></div>
+                        foreach (var item in overlaySingleItems)
+                        {
+                            var isActive = ViewContext.RouteData.Values["Controller"]?.ToString() == item.c;
+                            <a asp-area="Owner" asp-controller="@item.c" asp-action="@item.a" class="mobile-overlay-link @(isActive ? "active-link" : "")" onclick="closeMobileMenu()">
+                                <i class="bi bi-@item.i"></i>@item.t
+                            </a>
+                        }
+                    }
+                </div>
+                <div class="mobile-overlay-footer">
+                    <form asp-controller="Auth" asp-action="Logout" method="post">
+                        <button type="submit" class="mobile-overlay-link logout-link">
+                            <i class="bi bi-box-arrow-right"></i>Выйти
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            function toggleMobileMenu() {
+                var el = document.getElementById('mobileOverlay');
+                el.style.display = 'block';
+                requestAnimationFrame(function() { el.classList.add('show'); });
+                document.body.style.overflow = 'hidden';
+            }
+            function closeMobileMenu() {
+                var el = document.getElementById('mobileOverlay');
+                el.classList.remove('show');
+                setTimeout(function() { el.style.display = 'none'; document.body.style.overflow = ''; }, 300);
+            }
+        </script>
     </header>
 
     <div class="container-fluid px-4 pt-2 pb-4">
@@ -209,7 +582,7 @@
 
     <footer class="bg-light border-top mt-auto py-3">
         <div class="container-fluid text-center text-muted">
-            <small>&copy; 2026 - TyreServiceApp - Система управления шиномонтажем</small>
+            <small>&copy; 2026 - Шиномонтаж у Бориса - Система управления шиномонтажем</small>
         </div>
     </footer>
 
