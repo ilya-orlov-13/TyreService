@@ -1,0 +1,710 @@
+@model IEnumerable<TyreServiceApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Канбан доска";
+    var columns = new[] { "Новый", "В работе", "Готов", "Оплачено" };
+    var columnIcons = new Dictionary<string, string>
+    {
+        ["Новый"] = "bi-inbox",
+        ["В работе"] = "bi-gear",
+        ["Готов"] = "bi-check2-circle",
+        ["Оплачено"] = "bi-credit-card"
+    };
+    var columnColors = new Dictionary<string, string>
+    {
+        ["Новый"] = "#6366f1",
+        ["В работе"] = "#f59e0b",
+        ["Готов"] = "#10b981",
+        ["Оплачено"] = "#6b7280"
+    };
+}
+
+<style>
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding-bottom: 16px;
+        min-height: calc(100vh - 100px);
+        align-items: flex-start;
+    }
+
+    .kanban-column {
+        flex: 1;
+        min-width: 280px;
+        max-width: 380px;
+        background: #e8ecf1;
+        border-radius: 14px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kanban-column-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        color: #1e293b;
+        padding: 4px 8px 12px;
+        border-bottom: 2px solid rgba(0,0,0,0.06);
+        margin-bottom: 10px;
+    }
+
+    .kanban-column-header .count {
+        margin-left: auto;
+        background: rgba(0,0,0,0.08);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .kanban-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 60px;
+        flex: 1;
+    }
+
+    .kanban-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        transition: box-shadow 0.15s, transform 0.15s;
+        user-select: none;
+    }
+
+    .kanban-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    }
+
+    .kanban-card.dragging {
+        opacity: 0.5;
+        transform: rotate(2deg);
+    }
+
+    .kanban-column.drag-over {
+        background: #dbeafe;
+    }
+
+    .kanban-column.drag-over .kanban-cards {
+        min-height: 80px;
+    }
+
+    .kanban-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .kanban-car-name {
+        font-weight: 700;
+        font-size: 13px;
+        color: #0f172a;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .kanban-order-num {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
+
+    .kanban-card-body {
+        font-size: 11px;
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .kanban-card-body .row-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .kanban-card-body .row-item i {
+        width: 14px;
+        text-align: center;
+        font-size: 10px;
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    .kanban-plate {
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .kanban-client {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .time-slot-badge {
+        background: #000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        margin-left: 6px;
+        letter-spacing: 0.5px;
+    }
+    .time-slot-badge.fallback {
+        background: #e2e8f0;
+        color: #64748b;
+    }
+
+    .kanban-empty {
+        text-align: center;
+        padding: 20px 10px;
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .timer-row {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    /* Modal styles */
+    .order-info-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .order-info-modal.show {
+        display: flex;
+    }
+
+    .order-info-content {
+        background: #fff;
+        border-radius: 20px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 85vh;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalIn 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .order-info-scroll {
+        overflow-y: auto;
+    }
+    .order-info-scroll::-webkit-scrollbar {
+        width: 5px;
+    }
+    .order-info-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .order-info-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    @@keyframes modalIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px 0;
+    }
+
+    .modal-header-bar h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #94a3b8;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+        color: #1e293b;
+    }
+
+    .modal-body {
+        padding: 16px 24px 24px;
+    }
+
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 12px;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .info-row .info-icon {
+        width: 20px;
+        text-align: center;
+        color: #64748b;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .info-row .info-label {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        min-width: 80px;
+        flex-shrink: 0;
+    }
+
+    .info-row .info-value {
+        font-size: 14px;
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .info-row .info-value .badge {
+        font-size: 11px;
+    }
+
+    .works-section {
+        margin-top: 12px;
+    }
+
+    .works-section h5 {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .work-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .work-item .work-service {
+        flex: 1;
+        font-weight: 600;
+    }
+
+    .work-item .work-detail {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .modal-actions-bar {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .modal-action-btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1.5px solid #e2e8f0;
+        background: #fff;
+        color: #1e293b;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.15s;
+    }
+
+    .modal-action-btn:hover {
+        border-color: #000;
+        background: #f8fafc;
+    }
+
+    .modal-action-btn.primary {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+    }
+
+    .modal-action-btn.primary:hover {
+        background: #333;
+    }
+
+    @@media (max-width: 900px) {
+        .kanban-board {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .kanban-column {
+            max-width: none;
+            min-width: 0;
+        }
+    }
+</style>
+
+<div class="kanban-board">
+    @foreach (var col in columns)
+    {
+        var colOrders = Model.Where(o => o.Status == col || (string.IsNullOrEmpty(o.Status) && col == "Новый")).ToList();
+        <div class="kanban-column" data-status="@col">
+            <div class="kanban-column-header">
+                <i class="bi @columnIcons[col]" style="color:@columnColors[col]"></i>
+                @col
+                <span class="count">@colOrders.Count</span>
+            </div>
+            <div class="kanban-cards">
+                @foreach (var item in colOrders)
+                {
+                    <div class="kanban-card" draggable="true"
+                         data-order-id="@item.OrderNumber"
+                         onclick="showOrderInfo(@item.OrderNumber)"
+                         ondragstart="onDragStart(event)"
+                         ondragend="onDragEnd(event)">
+                        <div class="kanban-card-header">
+                            <span class="kanban-car-name">@item.Car?.Brand @item.Car?.Model</span>
+                            <span class="kanban-order-num">#@item.OrderNumber</span>
+                        </div>
+                        <div class="kanban-card-body">
+                            <div class="row-item">
+                                <i class="bi bi-tag"></i>
+                                <span class="kanban-plate">@item.Car?.LicensePlate</span>
+                            </div>
+                            @if (item.Car?.Client != null)
+                            {
+                                <div class="row-item">
+                                    <i class="bi bi-person"></i>
+                                    <span class="kanban-client">@item.Car.Client.FullName</span>
+                                </div>
+                            }
+                            @if (item.Master != null)
+                            {
+                                <div class="row-item">
+                                    <i class="bi bi-person-badge"></i>
+                                    <span>@item.Master.FullName</span>
+                                </div>
+                            }
+                            <div class="row-item">
+                                <i class="bi bi-calendar3"></i>
+                                <span>@item.OrderDate.ToString("dd.MM.yyyy")</span>
+                                <span class="time-slot-badge @(item.ScheduledAt.HasValue ? "" : "fallback")">@(item.ScheduledAt?.ToString("HH:mm") ?? item.OrderDate.ToString("HH:mm"))</span>
+                            </div>
+                            @if (item.Master == null)
+                            {
+                                <div class="row-item" style="color:#f59e0b;font-style:italic">
+                                    <i class="bi bi-hand-index"></i>
+                                    <span>Нет мастера</span>
+                                </div>
+                            }
+                            @if (item.WorkStartTime.HasValue)
+                            {
+                                <div class="row-item timer-row">
+                                    <i class="bi bi-stopwatch"></i>
+                                    <span style="color:#94a3b8;">В работе</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (!colOrders.Any())
+                {
+                    <div class="kanban-empty">Нет заказов</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+
+<!-- Order Info Modal -->
+<div id="orderInfoModal" class="order-info-modal" onclick="closeOrderInfo(event)">
+    <div class="order-info-content" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="modalOrderTitle">Заказ</h3>
+            <button class="modal-close-btn" onclick="closeOrderInfo()">&times;</button>
+        </div>
+        <div class="order-info-scroll">
+            <div class="modal-body" id="modalBody">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-car-front"></i></div>
+                        <div class="info-label">Автомобиль</div>
+                        <div class="info-value" id="modalCar">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-tag"></i></div>
+                        <div class="info-label">Номер</div>
+                        <div class="info-value" id="modalPlate">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-person"></i></div>
+                        <div class="info-label">Клиент</div>
+                        <div class="info-value" id="modalClient">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-person-badge"></i></div>
+                        <div class="info-label">Мастер</div>
+                        <div class="info-value" id="modalMaster">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-calendar3"></i></div>
+                        <div class="info-label">Дата</div>
+                        <div class="info-value" id="modalDate">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-info-circle"></i></div>
+                        <div class="info-label">Статус</div>
+                        <div class="info-value" id="modalStatus">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-credit-card"></i></div>
+                        <div class="info-label">Оплата</div>
+                        <div class="info-value" id="modalPayment">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-stopwatch"></i></div>
+                        <div class="info-label">Время</div>
+                        <div class="info-value" id="modalTime">—</div>
+                    </div>
+                </div>
+                <div class="works-section">
+                    <h5>Выполненные работы</h5>
+                    <div id="modalWorks"><p class="text-muted" style="font-size:13px">Нет выполненных работ</p></div>
+                </div>
+                <div class="modal-actions-bar">
+                    <a id="modalDetailsLink" href="#" class="modal-action-btn primary">
+                        <i class="bi bi-eye"></i> Подробнее
+                    </a>
+                    <a id="modalEditLink" href="#" class="modal-action-btn">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var ordersData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(o => new {
+            orderNumber = o.OrderNumber,
+            orderDate = o.OrderDate.ToString("dd.MM.yyyy HH:mm"),
+            status = o.Status,
+            paymentDate = o.PaymentDate?.ToString("dd.MM.yyyy HH:mm"),
+            totalWorkMinutes = o.TotalWorkMinutes,
+            car = o.Car == null ? null : new {
+                brand = o.Car.Brand,
+                model = o.Car.Model,
+                licensePlate = o.Car.LicensePlate,
+                vin = o.Car.Vin
+            },
+            client = o.Car?.Client == null ? null : new {
+                fullName = o.Car.Client.FullName,
+                phone = o.Car.Client.Phone,
+                email = o.Car.Client.Email
+            },
+            master = o.Master == null ? null : new {
+                fullName = o.Master.FullName
+            },
+            completedWorks = o.CompletedWorks.Select(cw => new {
+                serviceName = cw.Service?.ServiceName ?? "—",
+                wheelCount = cw.WheelCount,
+                completionTimeMin = cw.CompletionTimeMin,
+                workTotal = cw.WorkTotal
+            })
+        }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+        var dragSrcId = null;
+        var columnCounters = {};
+
+        function getColumnKey(col) {
+            return col.getAttribute('data-status');
+        }
+
+        function onDragStart(e) {
+            var card = e.target.closest('.kanban-card');
+            if (!card) return;
+            dragSrcId = card.getAttribute('data-order-id');
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', dragSrcId);
+        }
+
+        function onDragEnd(e) {
+            var card = e.target.closest('.kanban-card');
+            if (card) card.classList.remove('dragging');
+            document.querySelectorAll('.kanban-column').forEach(function(c) {
+                c.classList.remove('drag-over');
+            });
+            columnCounters = {};
+        }
+
+        document.addEventListener('dragenter', function(e) {
+            var column = e.target.closest('.kanban-column');
+            if (!column) return;
+            var key = getColumnKey(column);
+            columnCounters[key] = (columnCounters[key] || 0) + 1;
+            column.classList.add('drag-over');
+        });
+
+        document.addEventListener('dragover', function(e) {
+            var column = e.target.closest('.kanban-column');
+            if (!column) return;
+            e.preventDefault();
+        });
+
+        document.addEventListener('dragleave', function(e) {
+            var column = e.target.closest('.kanban-column');
+            if (!column) return;
+            var key = getColumnKey(column);
+            columnCounters[key] = (columnCounters[key] || 1) - 1;
+            if (columnCounters[key] <= 0) {
+                column.classList.remove('drag-over');
+                columnCounters[key] = 0;
+            }
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.kanban-column').forEach(function(c) {
+                c.classList.remove('drag-over');
+            });
+            columnCounters = {};
+            var column = e.target.closest('.kanban-column');
+            if (!column) return;
+
+            var orderId = dragSrcId || e.dataTransfer.getData('text/plain');
+            if (!orderId) return;
+            var newStatus = column.getAttribute('data-status');
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!token) return;
+            var tokenValue = token.value;
+
+            fetch('/Owner/Board/UpdateStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': tokenValue
+                },
+                body: 'id=' + encodeURIComponent(orderId) + '&status=' + encodeURIComponent(newStatus) + '&__RequestVerificationToken=' + encodeURIComponent(tokenValue)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(function() {});
+
+            dragSrcId = null;
+        });
+
+        function showOrderInfo(orderNumber) {
+            var order = ordersData.find(function(o) { return o.orderNumber == orderNumber; });
+            if (!order) return;
+
+            document.getElementById('modalOrderTitle').textContent = 'Заказ #' + order.orderNumber;
+            document.getElementById('modalCar').textContent = order.car ? (order.car.brand + ' ' + order.car.model) : '—';
+            document.getElementById('modalPlate').textContent = order.car ? (order.car.licensePlate || '—') : '—';
+            document.getElementById('modalClient').textContent = order.client ? order.client.fullName : '—';
+            document.getElementById('modalMaster').textContent = order.master ? order.master.fullName : 'Не назначен';
+            document.getElementById('modalDate').textContent = order.orderDate;
+
+            var statusBadge = '';
+            var statusColors = { 'Новый': 'secondary', 'В работе': 'warning', 'Готов': 'success', 'Оплачено': 'info' };
+            var color = statusColors[order.status] || 'secondary';
+            statusBadge = '<span class="badge bg-' + color + '">' + order.status + '</span>';
+            document.getElementById('modalStatus').innerHTML = statusBadge;
+
+            document.getElementById('modalPayment').textContent = order.paymentDate ? 'Оплачено: ' + order.paymentDate : 'Не оплачено';
+
+            if (order.totalWorkMinutes > 0) {
+                var h = Math.floor(order.totalWorkMinutes / 60);
+                var m = order.totalWorkMinutes % 60;
+                document.getElementById('modalTime').textContent = h + ' ч ' + m + ' мин';
+            } else {
+                document.getElementById('modalTime').textContent = '—';
+            }
+
+            var completed = order.completedWorks ? order.completedWorks.filter(function(w) { return w.completionTimeMin > 0; }) : [];
+            var worksHtml = '';
+            if (completed.length > 0) {
+                completed.forEach(function(w) {
+                    worksHtml += '<div class="work-item">' +
+                        '<span class="work-service">' + w.serviceName + '</span>' +
+                        '<span class="work-detail">' + w.wheelCount + ' кол. | ' + w.completionTimeMin + ' мин</span>' +
+                        '</div>';
+                });
+            } else {
+                worksHtml = '<p class="text-muted" style="font-size:13px">Нет выполненных работ</p>';
+            }
+            document.getElementById('modalWorks').innerHTML = worksHtml;
+
+            document.getElementById('modalDetailsLink').href = '/Orders/Details/' + order.orderNumber;
+            document.getElementById('modalEditLink').href = '/Orders/Edit/' + order.orderNumber;
+
+            var modal = document.getElementById('orderInfoModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrderInfo(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('orderInfoModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeOrderInfo();
+        });
+
+
+    </script>
+}
