@@ -32,6 +32,7 @@ builder.Services.AddScoped<IDistributionService, DistributionService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IMinioService, MinioService>();
 builder.Services.AddScoped<IPublicStatsService, PublicStatsService>();
+builder.Services.AddScoped<BootstrapIdentityService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -61,14 +62,24 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
-        policy.WithOrigins("http://localhost:5173")
+    {
+        var origins = builder.Configuration.GetSection("Frontend:Origins").Get<string[]>() ?? ["http://localhost:5173"];
+        policy.WithOrigins(origins)
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
 });
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var bootstrapIdentity = scope.ServiceProvider.GetRequiredService<BootstrapIdentityService>();
+    await bootstrapIdentity.EnsureBootstrapUsersAsync();
+}
 
 if (!app.Environment.IsDevelopment())
 {
