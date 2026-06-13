@@ -1,0 +1,137 @@
+@import "tailwindcss";
+@import "./styles/theme.css";
+@import "./styles/base.css";
+@import "./styles/typography.css";
+@import "./styles/layout.css";
+@import "./styles/buttons.css";
+@import "./styles/forms.css";
+@import "./styles/cards.css";
+@import "./styles/stat-tiles.css";
+@import "./styles/chips.css";
+@import "./styles/tabs.css";
+@import "./styles/switches.css";
+@import "./styles/checks.css";
+@import "./styles/misc.css";
+
+html {
+  scroll-behavior: smooth;
+}
+
+[class*="ymaps-"] [class*="balloon"] {
+  border-radius: 14px !important;
+  background: #14151C !important;
+}
+
+[class*="ymaps-"] [class*="balloon__content"] {
+  animation: balloonTextIn 0.25s ease;
+}
+
+@keyframes balloonTextIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+[class*="ymaps-"] [class*="balloon__layout"],
+[class*="ymaps-"] [class*="balloon__panel"],
+[class*="ymaps-"] [class*="balloon__wrapper"],
+[class*="ymaps-"] [class*="balloon__content"] {
+  background: #14151C !important;
+}
+
+[class*="ymaps-"] [class*="balloon__content"] {
+  color: #F2F4F8 !important;
+  padding: 16px 18px !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 0.875rem !important;
+}
+
+[class*="ymaps-"] [class*="balloon__tail"] {
+  background: transparent !important;
+}
+
+[class*="ymaps-"] [class*="balloon__tail"]::before,
+[class*="ymaps-"] [class*="balloon__tail"]::after,
+[class*="ymaps-"] [class*="balloon"] [class*="tail"] {
+  background: #14151C !important;
+  border-color: #14151C !important;
+}
+
+[class*="ymaps-"] [class*="balloon__close"] {
+  cursor: pointer !important;
+  width: 24px !important;
+  height: 24px !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 10 !important;
+  background: rgba(255,255,255,0.06) !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[class*="ymaps-"] [class*="balloon__close"] > * {
+  display: none !important;
+}
+
+[class*="ymaps-"] [class*="balloon__close"]::after {
+  content: "✕";
+  color: #9AA0AE;
+  font-size: 12px;
+  line-height: 1;
+}
+
+[class*="ymaps-"][class*="ground-pane"] {
+  filter: grayscale(3) invert(-0.01) !important;
+}
+
+.ya-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding-inline: 18px;
+  border-radius: 10px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  background: #252525;
+  color: #FFFFFF;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  text-decoration: none;
+  transition-property: box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.ya-btn:active {
+  transform: translateY(1px);
+}
+
+.ya-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(91, 107, 255, 0.35);
+}
+
+.ya-btn svg {
+  width: 16px;
+  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  flex-shrink: 0;
+  stroke-width: 1.75;
+  transition: transform 150ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.ya-btn:hover svg {
+  transform: translateY(-4px);
+}

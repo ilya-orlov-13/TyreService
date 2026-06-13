@@ -1,0 +1,32 @@
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.swatch-chip {
+  height: 92px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.swatch-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-base);
+}
+
+.swatch-hex {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

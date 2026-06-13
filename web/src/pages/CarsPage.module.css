@@ -1,0 +1,36 @@
+.thumbStrip {
+  display: flex;
+  gap: 4px;
+  padding: 4px 4px 0;
+  overflow-x: auto;
+}
+
+.thumb {
+  width: 56px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border, #2A2D38);
+}
+
+.thumbActive {
+  border: 1px solid var(--color-primary, #5B6BFF);
+}
+
+.moreBadge {
+  width: 56px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface, #14151C);
+  border: 1px solid var(--color-border, #2A2D38);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #9AA0AE;
+  cursor: pointer;
+  flex-shrink: 0;
+}
