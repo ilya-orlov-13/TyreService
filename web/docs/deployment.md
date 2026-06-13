@@ -1,33 +1,30 @@
 # Деплой frontend
 
-## Vercel
+Этот документ описывает деплой папки `web/` как отдельного Vite-приложения.
 
-Настройки проекта:
+## Рекомендуемый хостинг
+
+Для frontend лучше использовать Vercel:
+
+- хорошо подходит для Vite SPA
+- быстро подключается к GitHub
+- удобно задавать env-переменные
+- нормально работает с React Router через rewrites
+
+## Настройки Vercel
 
 - Root Directory: `web`
 - Install Command: `npm ci`
 - Build Command: `npm run build`
 - Output Directory: `dist`
 
+Если используется SPA routing, в проекте нужен `vercel.json` с rewrite на `index.html`.
+
 ## Production env
+
+Минимальный набор:
 
 ```text
 VITE_API_URL=https://your-backend.example.com/api/customer
 VITE_YMAPS_API_KEY=...
-APP_URL=https://your-frontend.vercel.app
 ```
-
-## Проверка
-
-```powershell
-cd web
-npm ci
-npm run build
-```
-
-После деплоя проверьте:
-
-- главная страница открывается по Vercel URL;
-- авторизация клиента обращается к production backend;
-- CORS на backend разрешает домен frontend;
-- карты получают ключи из env.
