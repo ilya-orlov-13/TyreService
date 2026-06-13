@@ -13,8 +13,6 @@ __pycache__/
 *.sqlite3
 
 # Файлы окружения
-appsettings.json
-appsettings.*.json
 secrets.json
 .env
 *.env.local

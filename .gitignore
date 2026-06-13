@@ -1,0 +1,56 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.vs/
+*.suo
+*.user
+*.sln.docstates
+
+# .NET
+bin/
+obj/
+TestResults/
+packages/
+*.nupkg
+
+# Node/Vite
+node_modules/
+dist/
+build/
+coverage/
+
+# Local env and secrets
+.env
+.env.*
+!.env.example
+secrets.json
+sa-key.json
+test.json
+Keys/
+**/Keys/
+TyreServiceApp/TyreServiceApp/appsettings.json
+TyreServiceApp/TyreServiceApp/appsettings.*.json
+!TyreServiceApp/TyreServiceApp/appsettings.example.json
+
+# Local services/data
+minio/data/
+minio/minio.exe
+minio/*.log
+ocr-service/log.txt
+ocr-service/models/
+*.log
+logs/
+venv/
+__pycache__/
+*.pyc
+
+# Build/deploy artifacts
+artifacts/
+publish/
+*.zip
+
+# Temporary files
+*.tmp
+*.temp
+tmp_hash/
