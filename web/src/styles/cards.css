@@ -1,0 +1,60 @@
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--duration-base) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--color-border-strong);
+}
+
+.card-elevated {
+  background-color: var(--color-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.card-eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 4px;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+  color: var(--color-base);
+  margin-bottom: 8px;
+}
+
+.card-body {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.card-accent::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background-color: var(--color-primary);
+  margin: -24px -24px 20px -24px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.card-accent[data-accent="success"]::before { background-color: var(--color-success); }
+.card-accent[data-accent="warning"]::before { background-color: var(--color-warning); }
+.card-accent[data-accent="error"]::before { background-color: var(--color-error); }

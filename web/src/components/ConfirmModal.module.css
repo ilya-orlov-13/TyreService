@@ -1,0 +1,58 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10,11,15,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog {
+  background: #14151C;
+  border: 1px solid #2A2D38;
+  border-radius: 16px;
+  padding: 24px;
+  width: 360px;
+  max-width: 90vw;
+}
+
+.message {
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  color: #F2F4F8;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btnCancel {
+  height: 36px;
+  padding-inline: 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid #3A3D4A;
+  color: #9AA0AE;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btnConfirm {
+  height: 36px;
+  padding-inline: 16px;
+  border-radius: 10px;
+  background: #FF3A5C;
+  border: 1px solid #FF3A5C;
+  color: #fff;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
