@@ -1,0 +1,23 @@
+@model TyreServiceApp.Models.Post
+
+@{
+    ViewData["Title"] = "Удалить пост";
+}
+
+<h2 class="fw-bold mb-3">Удалить пост</h2>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <p class="mb-3">Вы уверены, что хотите удалить пост <strong>@Model.Name</strong>?</p>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="PostId" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
