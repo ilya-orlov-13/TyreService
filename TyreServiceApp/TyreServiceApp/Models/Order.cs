@@ -38,15 +38,23 @@ namespace TyreServiceApp.Models
         public DateTime OrderDate { get; set; }
 
         /// <summary>
-        /// Идентификатор автомобиля, на котором выполняются работы.
+        /// Идентификатор автомобиля, на котором выполняются работы (null для заказов на хранение шин).
         /// </summary>
-        /// <value>
-        /// Целочисленное значение, являющееся внешним ключом к таблице Cars.
-        /// Обязательное поле, так как каждый заказ должен быть привязан к конкретному автомобилю.
-        /// </value>
-        [Required(ErrorMessage = "Выберите автомобиль")]
         [Display(Name = "Автомобиль")] 
-        public int CarId { get; set; }
+        public int? CarId { get; set; }
+
+        /// <summary>
+        /// Идентификатор шины для заказов на хранение (null для обычных заказов).
+        /// </summary>
+        [Display(Name = "Шина")]
+        public int? TireId { get; set; }
+
+        /// <summary>
+        /// Запланированная дата и время визита.
+        /// </summary>
+        [Column(TypeName = "timestamp without time zone")]
+        [Display(Name = "Запланированное время")]
+        public DateTime? ScheduledAt { get; set; }
 
         /// <summary>
         /// Идентификатор мастера, ответственного за выполнение заказа.
@@ -71,15 +79,41 @@ namespace TyreServiceApp.Models
         public DateTime? PaymentDate { get; set; }
 
         /// <summary>
-        /// Навигационное свойство для доступа к автомобилю заказа.
+        /// Статус выполнения заказа.
         /// </summary>
         /// <value>
-        /// Объект <see cref="Car"/>, представляющий автомобиль, на котором выполняются работы.
-        /// Связь устанавливается через свойство <see cref="CarId"/>.
+        /// Одно из значений: "Новый", "В работе", "Готов", "Оплачено".
         /// </value>
+        [StringLength(20)]
+        [Display(Name = "Статус")]
+        public string Status { get; set; } = "Новый";
+
+        /// <summary>
+        /// Время начала выполнения заказа (переход в статус "В работе").
+        /// </summary>
+        [Column(TypeName = "timestamp without time zone")]
+        [Display(Name = "Начало работы")]
+        public DateTime? WorkStartTime { get; set; }
+
+        /// <summary>
+        /// Общее время работы над заказом в минутах, накопленное за все сессии.
+        /// </summary>
+        [Display(Name = "Общее время (мин)")]
+        public int TotalWorkMinutes { get; set; }
+
+        /// <summary>
+        /// Навигационное свойство для доступа к автомобилю заказа.
+        /// </summary>
         [ForeignKey("CarId")]
         [Display(Name = "Автомобиль")] 
         public virtual Car? Car { get; set; }
+
+        /// <summary>
+        /// Навигационное свойство для доступа к шине (для заказов на хранение).
+        /// </summary>
+        [ForeignKey("TireId")]
+        [Display(Name = "Шина")]
+        public virtual Tire? Tire { get; set; }
 
         /// <summary>
         /// Навигационное свойство для доступа к мастеру, ответственному за заказ.
@@ -92,6 +126,41 @@ namespace TyreServiceApp.Models
         [ForeignKey("MasterId")]
         [Display(Name = "Ответственный мастер")]
         public virtual Master? Master { get; set; }
+
+        /// <summary>
+        /// Доля мастеров за работу (сдельная оплата).
+        /// </summary>
+        [Column(TypeName = "decimal(10, 2)")]
+        [Display(Name = "Сдельная оплата")]
+        public decimal? LaborCost { get; set; }
+
+        /// <summary>
+        /// Итоговая сумма для клиента.
+        /// </summary>
+        [Column(TypeName = "decimal(10, 2)")]
+        [Display(Name = "Сумма к оплате")]
+        public decimal? ClientTotal { get; set; }
+
+        /// <summary>
+        /// Себестоимость расходников.
+        /// </summary>
+        [Column(TypeName = "decimal(10, 2)")]
+        [Display(Name = "Себестоимость расходников")]
+        public decimal? ConsumablesCost { get; set; }
+
+        /// <summary>
+        /// Процент скидки.
+        /// </summary>
+        [Range(0, 100)]
+        [Display(Name = "Скидка %")]
+        public decimal? DiscountPercent { get; set; }
+
+        /// <summary>
+        /// Тип скидки: "hard" или "soft".
+        /// </summary>
+        [StringLength(10)]
+        [Display(Name = "Тип скидки")]
+        public string? DiscountType { get; set; }
 
         /// <summary>
         /// Коллекция выполненных работ в рамках данного заказа.
@@ -107,6 +176,21 @@ namespace TyreServiceApp.Models
         /// в течение указанного количества часов.
         /// </remarks>
         public virtual ICollection<CompletedWork>? CompletedWorks { get; set; }
+
+        /// <summary>
+        /// Коллекция выплат по сдельной оплате за данный заказ.
+        /// </summary>
+        public virtual ICollection<CompletedJobsPayout>? CompletedJobsPayouts { get; set; }
+
+        /// <summary>
+        /// Расходники в заказе.
+        /// </summary>
+        public virtual ICollection<OrderConsumable>? OrderConsumables { get; set; }
+
+        /// <summary>
+        /// Коэффициенты сложности, применённые к заказу.
+        /// </summary>
+        public virtual ICollection<OrderComplexity>? OrderComplexities { get; set; }
 
         /// <summary>
         /// Текстовое представление статуса оплаты заказа.

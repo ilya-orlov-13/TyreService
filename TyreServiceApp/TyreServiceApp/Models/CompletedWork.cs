@@ -40,9 +40,8 @@ namespace TyreServiceApp.Models
         /// Идентификатор мастера, выполнившего работу.
         /// </summary>
         /// <value>Внешний ключ, ссылается на <see cref="Master.MasterId"/>.</value>
-        [Required(ErrorMessage = "Мастер обязателен")]
         [Display(Name = "Мастер")] 
-        public int MasterId { get; set; }
+        public int? MasterId { get; set; }
         
         /// <summary>
         /// Количество колес, обработанных в рамках работы.
@@ -54,11 +53,17 @@ namespace TyreServiceApp.Models
         public int WheelCount { get; set; }
 
         /// <summary>
+        /// Время начала работы над услугой (для таймера).
+        /// </summary>
+        [Column(TypeName = "timestamp without time zone")]
+        [Display(Name = "Начало работы")]
+        public DateTime? StartedAt { get; set; }
+
+        /// <summary>
         /// Время выполнения работы в минутах.
         /// </summary>
-        /// <value>Время в минутах, затраченное на выполнение работы.</value>
         [Required(ErrorMessage = "Время выполнения обязательно")]
-        [Range(1, 480, ErrorMessage = "Время выполнения должно быть от 1 до 480 минут (8 часов)")]
+        [Range(0, 480, ErrorMessage = "Время выполнения должно быть от 0 до 480 минут (8 часов)")]
         [Display(Name = "Время выполнения (минут)")] 
         public int CompletionTimeMin { get; set; }
 
@@ -97,6 +102,13 @@ namespace TyreServiceApp.Models
         public virtual Master? Master { get; set; }
 
         /// <summary>
+        /// Сэкономленное время в минутах (FixedDurationMin - CompletionTimeMin).
+        /// Положительное значение - мастер закончил раньше нормы.
+        /// </summary>
+        [Display(Name = "Сэкономлено (мин)")]
+        public int TimeSavedMin { get; set; }
+
+        /// <summary>
         /// Вычисляет стоимость работы за час.
         /// </summary>
         /// <returns>Стоимость одного часа работы в рублях/час.</returns>
@@ -132,5 +144,6 @@ namespace TyreServiceApp.Models
             }
         }
 
+        public virtual ICollection<WorkTimeLog> WorkTimeLogs { get; set; } = new List<WorkTimeLog>();
     }
 }

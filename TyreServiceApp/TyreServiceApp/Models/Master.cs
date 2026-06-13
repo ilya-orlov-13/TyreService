@@ -29,15 +29,16 @@ namespace TyreServiceApp.Models
         public string FullName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Должность мастера в шиномонтаже.
-        /// Обязательное поле. Максимальная длина - 50 символов.
+        /// Идентификатор должности мастера.
         /// </summary>
-        /// <example>Мастер по шиномонтажу</example>
-        /// <example>Старший механик</example>
-        [Required(ErrorMessage = "Должность обязательна")]
-        [StringLength(50, ErrorMessage = "Должность не более 50 символов")]
-        [Display(Name = "Должность")] 
-        public string Position { get; set; } = string.Empty;
+        [Display(Name = "Должность")]
+        public int PositionId { get; set; }
+
+        /// <summary>
+        /// Должность мастера.
+        /// </summary>
+        [Display(Name = "Должность")]
+        public virtual Position? Position { get; set; }
 
         /// <summary>
         /// Разряд мастера (уровень квалификации).
@@ -51,16 +52,11 @@ namespace TyreServiceApp.Models
         public int Rank { get; set; }
 
         /// <summary>
-        /// Почасовая ставка оплаты труда мастера.
-        /// Обязательное поле. Хранится в формате decimal с 2 знаками после запятой.
+        /// Почасовая ставка (не используется в расчётах, сохранена для обратной совместимости).
         /// </summary>
-        /// <value>Положительное число с двумя десятичными знаками</value>
-        /// <example>850.50</example>
-        [Required(ErrorMessage = "Почасовая ставка обязательна")]
         [Column(TypeName = "decimal(10, 2)")]
-        [Range(0, 10000, ErrorMessage = "Ставка должна быть от 0 до 10 000")]
-        [Display(Name = "Почасовая ставка (руб.)")] 
-        public decimal HourlyRate { get; set; }
+        [Display(Name = "Почасовая ставка (руб.)")]
+        public decimal HourlyRate { get; set; } = 0m;
 
         /// <summary>
         /// Коллекция заказов, закрепленных за мастером.
@@ -72,6 +68,21 @@ namespace TyreServiceApp.Models
         [Display(Name = "Заказы")]
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
         
+        /// <summary>
+        /// Активные сессии мастера на постах.
+        /// </summary>
+        public virtual ICollection<PostActiveSession>? PostActiveSessions { get; set; }
+
+        /// <summary>
+        /// Коллекция выплат по сдельной оплате.
+        /// </summary>
+        public virtual ICollection<CompletedJobsPayout>? CompletedJobsPayouts { get; set; }
+
+        /// <summary>
+        /// Записи таймера по работам мастера.
+        /// </summary>
+        public virtual ICollection<WorkTimeLog> WorkTimeLogs { get; set; } = new List<WorkTimeLog>();
+
         /// <summary>
         /// Коллекция выполненных работ мастером.
         /// Навигационное свойство для связи один-ко-многим с сущностью CompletedWork.
@@ -90,7 +101,7 @@ namespace TyreServiceApp.Models
         /// <example>Иванов Иван Иванович (Мастер по шиномонтажу, 4 разряд)</example>
         [NotMapped]
         [Display(Name = "Мастер")]
-        public string MasterInfo => $"{FullName} ({Position}, {Rank} разряд)";
+        public string MasterInfo => $"{FullName} ({Position?.Name}, {Rank} разряд)";
 
         /// <summary>
         /// Форматированная строка почасовой ставки с валютой.
