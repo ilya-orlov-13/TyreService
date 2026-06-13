@@ -1,0 +1,101 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mainPhoto {
+  position: relative;
+  width: 240px;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-border, #2A2D38);
+  background: var(--color-surface, #14151C);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mainPhotoImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.mainPhotoDeleteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,58,92,0.85);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.thumbWrapper {
+  position: relative;
+  width: 72px;
+  height: 54px;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 1px solid var(--color-border, #2A2D38);
+}
+
+.thumbImgFirst {
+  border: 1px solid var(--color-primary, #5B6BFF);
+}
+
+.thumbDeleteBtn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FF3A5C;
+  color: #fff;
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addBtn {
+  width: 72px;
+  height: 54px;
+  border-radius: 8px;
+  border: 1px dashed var(--color-border, #2A2D38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #5C6170;
+  font-size: 18px;
+}
+
+.backBtn {
+  padding: 0;
+  width: 36px;
+}
