@@ -39,7 +39,9 @@ public class CustomerOrdersController : ControllerBase
             .Include(o => o.Master)
             .Include(o => o.CompletedWorks!)
                 .ThenInclude(cw => cw.Service)
-            .Where(o => o.Car != null ? o.Car.ClientId == clientId : o.Tire!.ClientId == clientId)
+            .Where(o =>
+                (o.CarId.HasValue && o.Car != null && o.Car.ClientId == clientId) ||
+                (o.TireId.HasValue && o.Tire != null && o.Tire.ClientId == clientId))
             .OrderByDescending(o => o.OrderDate)
             .ToListAsync();
 
@@ -57,7 +59,9 @@ public class CustomerOrdersController : ControllerBase
             .Include(o => o.Master)
             .Include(o => o.CompletedWorks!)
                 .ThenInclude(cw => cw.Service)
-            .FirstOrDefaultAsync(o => o.OrderNumber == id && (o.Car != null ? o.Car.ClientId == clientId : o.Tire!.ClientId == clientId));
+            .FirstOrDefaultAsync(o => o.OrderNumber == id && (
+                (o.CarId.HasValue && o.Car != null && o.Car.ClientId == clientId) ||
+                (o.TireId.HasValue && o.Tire != null && o.Tire.ClientId == clientId)));
 
         if (order == null)
             return NotFound(ApiResponse<OrderDto>.Fail("Заказ не найден"));
@@ -177,7 +181,11 @@ public class CustomerOrdersController : ControllerBase
         var clientId = GetClientId();
         var order = await _db.Orders
             .Include(o => o.CompletedWorks)
-            .FirstOrDefaultAsync(o => o.OrderNumber == id && (o.Car != null ? o.Car.ClientId == clientId : o.Tire!.ClientId == clientId));
+            .Include(o => o.Car)
+            .Include(o => o.Tire)
+            .FirstOrDefaultAsync(o => o.OrderNumber == id && (
+                (o.CarId.HasValue && o.Car != null && o.Car.ClientId == clientId) ||
+                (o.TireId.HasValue && o.Tire != null && o.Tire.ClientId == clientId)));
 
         if (order == null)
             return NotFound(ApiResponse<OrderDto>.Fail("Заказ не найден"));
@@ -252,7 +260,11 @@ public class CustomerOrdersController : ControllerBase
         var clientId = GetClientId();
         var order = await _db.Orders
             .Include(o => o.CompletedWorks)
-            .FirstOrDefaultAsync(o => o.OrderNumber == id && (o.Car != null ? o.Car.ClientId == clientId : o.Tire!.ClientId == clientId));
+            .Include(o => o.Car)
+            .Include(o => o.Tire)
+            .FirstOrDefaultAsync(o => o.OrderNumber == id && (
+                (o.CarId.HasValue && o.Car != null && o.Car.ClientId == clientId) ||
+                (o.TireId.HasValue && o.Tire != null && o.Tire.ClientId == clientId)));
 
         if (order == null)
             return NotFound(ApiResponse<object>.Fail("Заказ не найден"));
@@ -275,7 +287,7 @@ public class CustomerOrdersController : ControllerBase
         var additionalPhotosJson = order.Car?.AdditionalPhotos;
         if (!string.IsNullOrEmpty(additionalPhotosJson))
         {
-            var keys = JsonSerializer.Deserialize<List<string>>(additionalPhotosJson) ?? [];
+            var keys = DeserializePhotoKeys(additionalPhotosJson);
             var urls = await Task.WhenAll(keys.Select(k => _minio.GetFileUrlAsync(k)));
             additionalPhotosJson = JsonSerializer.Serialize(urls.ToList());
         }
@@ -313,5 +325,20 @@ public class CustomerOrdersController : ControllerBase
                 .ToList() ?? [],
             order.Tire?.FullInfo
         );
+    }
+
+    private static List<string> DeserializePhotoKeys(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(json) ?? [];
+        }
+        catch
+        {
+            return [];
+        }
     }
 }

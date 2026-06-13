@@ -141,7 +141,7 @@ public class CustomerCarsController : ControllerBase
             photoPaths.Add(car.PhotoPath);
         if (!string.IsNullOrEmpty(car.AdditionalPhotos))
         {
-            var oldPhotos = JsonSerializer.Deserialize<List<string>>(car.AdditionalPhotos) ?? [];
+            var oldPhotos = DeserializePhotoKeys(car.AdditionalPhotos);
             photoPaths.AddRange(oldPhotos);
         }
 
@@ -207,7 +207,7 @@ public class CustomerCarsController : ControllerBase
             await _minio.DeleteAsync(car.PhotoPath);
         if (!string.IsNullOrEmpty(car.AdditionalPhotos))
         {
-            var photos = JsonSerializer.Deserialize<List<string>>(car.AdditionalPhotos) ?? [];
+            var photos = DeserializePhotoKeys(car.AdditionalPhotos);
             foreach (var p in photos)
                 await _minio.DeleteAsync(p);
         }
@@ -227,7 +227,7 @@ public class CustomerCarsController : ControllerBase
         var additionalPhotosJson = car.AdditionalPhotos;
         if (!string.IsNullOrEmpty(additionalPhotosJson))
         {
-            var keys = JsonSerializer.Deserialize<List<string>>(additionalPhotosJson) ?? [];
+            var keys = DeserializePhotoKeys(additionalPhotosJson);
             var urls = await Task.WhenAll(keys.Select(k => _minio.GetFileUrlAsync(k)));
             additionalPhotosJson = JsonSerializer.Serialize(urls.ToList());
         }
@@ -243,5 +243,20 @@ public class CustomerCarsController : ControllerBase
             additionalPhotosJson,
             car.FullInfo
         );
+    }
+
+    private static List<string> DeserializePhotoKeys(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(json) ?? [];
+        }
+        catch
+        {
+            return [];
+        }
     }
 }

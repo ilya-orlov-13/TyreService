@@ -23,15 +23,16 @@ public class PublicReviewsController : ControllerBase
         if (limit > 50) limit = 50;
 
         var reviews = await _db.CustomerReviews
+            .AsNoTracking()
             .Where(r => r.IsApproved)
-            .Include(r => r.Customer)
-            .ThenInclude(c => c!.Client)
             .OrderByDescending(r => r.CreatedAt)
             .Take(limit)
             .Select(r => new ReviewDto
             {
                 ReviewId = r.ReviewId,
-                Author = r.Customer!.Client != null ? r.Customer.Client.FullName : r.Customer.Phone,
+                Author = r.Customer != null
+                    ? (r.Customer.Client != null ? r.Customer.Client.FullName : r.Customer.Phone)
+                    : "Клиент",
                 Rating = r.Rating,
                 Text = r.Text,
                 CarModel = r.CarModel,

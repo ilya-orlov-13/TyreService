@@ -5,26 +5,39 @@ namespace TyreServiceApp.Services;
 
 public class MinioService : IMinioService
 {
-    private readonly IMinioClient _minio;
+    private readonly IMinioClient? _minio;
     private readonly string _bucket;
     private readonly string _endpoint;
+    private readonly bool _enabled;
+    private readonly bool _useSsl;
 
     public MinioService(IConfiguration configuration)
     {
-        _endpoint = configuration["Minio:Endpoint"]!;
-        var accessKey = configuration["Minio:AccessKey"]!;
-        var secretKey = configuration["Minio:SecretKey"]!;
-        _bucket = configuration["Minio:Bucket"]!;
+        _endpoint = configuration["Minio:Endpoint"] ?? string.Empty;
+        var accessKey = configuration["Minio:AccessKey"] ?? string.Empty;
+        var secretKey = configuration["Minio:SecretKey"] ?? string.Empty;
+        _bucket = configuration["Minio:Bucket"] ?? string.Empty;
+        _useSsl = configuration.GetValue<bool?>("Minio:UseSSL") ?? false;
+        _enabled = !string.IsNullOrWhiteSpace(_endpoint)
+            && !string.IsNullOrWhiteSpace(accessKey)
+            && !string.IsNullOrWhiteSpace(secretKey)
+            && !string.IsNullOrWhiteSpace(_bucket);
 
-        _minio = new MinioClient()
-            .WithEndpoint(_endpoint)
-            .WithCredentials(accessKey, secretKey)
-            .WithSSL(false)
-            .Build();
+        if (_enabled)
+        {
+            _minio = new MinioClient()
+                .WithEndpoint(_endpoint)
+                .WithCredentials(accessKey, secretKey)
+                .WithSSL(_useSsl)
+                .Build();
+        }
     }
 
     public async Task<string> UploadAsync(IFormFile file, int clientId, string prefix = "cars")
     {
+        if (!_enabled || _minio == null || file.Length == 0)
+            return string.Empty;
+
         var ext = Path.GetExtension(file.FileName);
         var objectName = $"{prefix}/{clientId}/{Guid.NewGuid()}{ext}";
 
@@ -44,7 +57,7 @@ public class MinioService : IMinioService
 
     public async Task DeleteAsync(string objectName)
     {
-        if (string.IsNullOrEmpty(objectName)) return;
+        if (!_enabled || _minio == null || string.IsNullOrEmpty(objectName)) return;
 
         var args = new RemoveObjectArgs()
             .WithBucket(_bucket)
@@ -55,7 +68,7 @@ public class MinioService : IMinioService
 
     public async Task<string> GetFileUrlAsync(string objectName)
     {
-        if (string.IsNullOrEmpty(objectName)) return "";
+        if (!_enabled || _minio == null || string.IsNullOrEmpty(objectName)) return "";
 
         try
         {
@@ -68,7 +81,8 @@ public class MinioService : IMinioService
         }
         catch
         {
-            return $"http://{_endpoint}/{_bucket}/{objectName}";
+            var scheme = _useSsl ? "https" : "http";
+            return $"{scheme}://{_endpoint}/{_bucket}/{objectName}";
         }
     }
 }

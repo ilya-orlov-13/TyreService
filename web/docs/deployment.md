@@ -28,3 +28,15 @@
 VITE_API_URL=https://your-backend.example.com/api/customer
 VITE_YMAPS_API_KEY=...
 ```
+
+Текущий production frontend:
+
+- сайт: [https://tyre-service.vercel.app](https://tyre-service.vercel.app)
+- API: [https://tyreservice-production.up.railway.app/api/customer](https://tyreservice-production.up.railway.app/api/customer)
+
+Для Vercel сейчас нужен минимум такой env:
+
+```text
+VITE_API_URL=https://tyreservice-production.up.railway.app/api/customer
+VITE_YMAPS_API_KEY=...
+```

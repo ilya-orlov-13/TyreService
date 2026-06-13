@@ -12,6 +12,12 @@ TyreService лучше разворачивать раздельно:
 - файлы - во внешнем S3-compatible storage
 - OCR - отдельным сервисом или отключаемой опцией
 
+## Текущий production
+
+- фронтенд: [https://tyre-service.vercel.app](https://tyre-service.vercel.app)
+- бэкенд: [https://tyreservice-production.up.railway.app](https://tyreservice-production.up.railway.app)
+- рекомендуемая связка: Vercel + Railway + Supabase
+
 ## Рекомендуемые варианты
 
 ### Вариант 1: Vercel + RunASP
@@ -43,12 +49,13 @@ TyreService лучше разворачивать раздельно:
 
 - frontend: Vercel
 - backend: Railway
-- database: Railway PostgreSQL или внешний PostgreSQL
+- database: Supabase PostgreSQL или внешний PostgreSQL
 
 Что учесть:
 
 - лимиты бесплатного или пробного тарифа могут меняться
 - локальное файловое хранение не подходит для production
+- для Railway удобнее использовать корневой [`Dockerfile`](../Dockerfile)
 
 ## Таймзона
 
@@ -79,6 +86,12 @@ VITE_API_URL=https://your-backend.example.com/api/customer
 VITE_YMAPS_API_KEY=...
 ```
 
+Для текущего production:
+
+```text
+VITE_API_URL=https://tyreservice-production.up.railway.app/api/customer
+```
+
 После деплоя нужно проверить:
 
 - открывается публичный frontend
@@ -97,17 +110,18 @@ dotnet publish TyreServiceApp\TyreServiceApp\TyreServiceApp.csproj -c Release -o
 
 ```text
 ASPNETCORE_ENVIRONMENT=Production
-ConnectionStrings__DefaultConnection=Host=...;Port=5432;Database=...;Username=...;Password=...
+ConnectionStrings__DefaultConnection=Host=...;Port=5432;Database=...;Username=...;Ssl Mode=Require;Trust Server Certificate=true;
+DbPassword=...
 Jwt__Key=long-production-secret-at-least-32-chars
 Jwt__Issuer=TyreServiceApp
-Jwt__Audience=premium-shinomontazh
-Frontend__Origins__0=https://your-frontend.vercel.app
+Jwt__Audience=web
+Frontend__Origins__0=https://tyre-service.vercel.app
 Ocr__Url=https://your-ocr-service.example.com/ocr
 Minio__Endpoint=...
 Minio__AccessKey=...
 Minio__SecretKey=...
 Minio__Bucket=uploads
-Minio__UseSSL=true
+Minio__UseSSL=false
 App__TimeZone=Asia/Yekaterinburg
 ```
 
@@ -116,6 +130,12 @@ App__TimeZone=Asia/Yekaterinburg
 - base URL клиентского API
 - CORS
 - callback URL для авторизации, если она зависит от домена
+
+Для Railway:
+
+- порт приложения: `8080`
+- переменную `ASPNETCORE_URLS` можно не задавать, она уже есть в [`Dockerfile`](../Dockerfile)
+- после смены env нужен redeploy сервиса
 
 ## OCR и файлы
 

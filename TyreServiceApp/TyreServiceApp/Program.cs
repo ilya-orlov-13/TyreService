@@ -63,7 +63,17 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        var origins = builder.Configuration.GetSection("Frontend:Origins").Get<string[]>() ?? ["http://localhost:5173"];
+        var origins = builder.Configuration.GetSection("Frontend:Origins").Get<string[]>()
+            ?? builder.Configuration["Frontend:Origins"]?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            ?? ["http://localhost:5173"];
+
+        origins = origins
+            .Select(origin => origin.Trim().TrimEnd('/'))
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
         policy.WithOrigins(origins)
               .AllowAnyHeader()
               .AllowAnyMethod()
