@@ -1,0 +1,297 @@
+@{
+    ViewData["Title"] = "Запись на сервис";
+    var services = ViewBag.Services as List<TyreServiceApp.Models.Service> ?? new();
+}
+
+<style>
+    .service-option {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+    .service-option:hover {
+        border-color: #94a3b8;
+    }
+    .service-option.selected {
+        border-color: #000;
+        background: #f8fafc;
+    }
+    .service-option .checkbox-box {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e1;
+        border-radius: 4px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 11px;
+        color: #fff;
+    }
+    .service-option.selected .checkbox-box {
+        border-color: #000;
+        background: #000;
+    }
+    .service-option.selected .checkbox-box::after {
+        content: '✓';
+    }
+    .service-option .service-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #0f172a;
+        flex: 1;
+    }
+    .service-option .service-price {
+        font-weight: 700;
+        font-size: 13px;
+        color: #059669;
+        flex-shrink: 0;
+    }
+    .service-option.other-option {
+        border-style: dashed;
+        border-color: #94a3b8;
+    }
+    .service-option.other-option.selected {
+        border-style: solid;
+        border-color: #000;
+    }
+    .description-box {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, margin 0.3s ease;
+        margin-top: 0;
+    }
+    .description-box.open {
+        max-height: 150px;
+        margin-top: 10px;
+    }
+    .description-box textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 80px;
+        outline: none;
+        transition: border-color 0.2s ease;
+        font-family: inherit;
+    }
+    .description-box textarea:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    }
+</style>
+
+<h3 class="mb-4"><i class="bi bi-calendar-plus me-2"></i>Запись на сервис</h3>
+
+<form asp-action="Book" method="post" id="bookForm">
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label fw-semibold">Автомобиль</label>
+            <select name="carId" id="carSelect" class="form-select" required>
+                <option value="">Выберите автомобиль...</option>
+            </select>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label fw-semibold">Дата визита</label>
+            <input type="date" id="slotDate" class="form-control"
+                   value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")"
+                   min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                   onchange="loadSlots()" />
+        </div>
+
+        <div class="col-12">
+            <label class="form-label fw-semibold">Доступное время</label>
+            <div id="slotContainer" class="d-flex flex-wrap gap-2">
+                <div class="text-muted small py-2">Выберите дату, чтобы увидеть доступные слоты</div>
+            </div>
+            <input type="hidden" name="scheduledAt" id="selectedSlot" value="" />
+            <small id="earlyHint" class="text-muted" style="display:none;">
+                <i class="bi bi-lightning-charge me-1 text-warning"></i>
+                Мастера работают быстрее — освободились ранние слоты!
+            </small>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label fw-semibold">Что нужно сделать?</label>
+            <div class="d-flex flex-column gap-2">
+                @foreach (var s in services)
+                {
+                    <label class="service-option" onclick="toggleCheck(event, this)">
+                        <input type="checkbox" name="serviceCodes" value="@s.ServiceCode" hidden />
+                        <div class="checkbox-box"></div>
+                        <span class="service-name">@s.ServiceName</span>
+                        <span class="service-price">@s.ServiceCost.ToString("N0") ₽</span>
+                    </label>
+                }
+                <label class="service-option other-option" onclick="toggleOther(event, this)">
+                    <input type="checkbox" name="hasOther" value="true" hidden />
+                    <div class="checkbox-box"></div>
+                    <span class="service-name">Прочее</span>
+                    <span class="service-price" style="color:#94a3b8;font-weight:400;">—</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="description-box" id="descriptionBox">
+                <textarea name="description" id="descriptionField" rows="3"
+                          placeholder="Опишите проблему подробнее..."></textarea>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-dark px-4">
+                <i class="bi bi-send me-1"></i>Отправить запись
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <style>
+        .slot-btn {
+            padding: 8px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #1e293b;
+        }
+        .slot-btn:hover {
+            border-color: #94a3b8;
+        }
+        .slot-btn.selected {
+            border-color: #000;
+            background: #000;
+            color: #fff;
+        }
+        .slot-btn.early {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .slot-btn.early.selected {
+            border-color: #f59e0b;
+            background: #f59e0b;
+            color: #fff;
+        }
+        .slot-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .slot-btn .early-badge {
+            font-size: 10px;
+            background: #f59e0b;
+            color: #fff;
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin-left: 4px;
+        }
+        .slot-btn.early.selected .early-badge {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+    <script>
+        fetch('@Url.Action("GetCars", "Cabinet", new { area = "Customer" })')
+            .then(r => r.json())
+            .then(cars => {
+                const sel = document.getElementById('carSelect');
+                cars.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.carId;
+                    opt.textContent = c.fullInfo;
+                    sel.appendChild(opt);
+                });
+            });
+
+        function loadSlots() {
+            var dateInput = document.getElementById('slotDate');
+            var date = dateInput.value;
+            if (!date) return;
+
+            fetch('/api/orders/available-slots?date=' + encodeURIComponent(date))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var container = document.getElementById('slotContainer');
+                    var hint = document.getElementById('earlyHint');
+                    var hidden = document.getElementById('selectedSlot');
+                    hidden.value = '';
+
+                    container.innerHTML = '';
+
+                    if (data.earlyMinutes > 0) {
+                        hint.style.display = '';
+                        hint.innerHTML = '<i class="bi bi-lightning-charge me-1 text-warning"></i> Мастера работают быстрее — освободились ранние слоты! (экономия ' + data.earlyMinutes + ' мин)';
+                    } else {
+                        hint.style.display = 'none';
+                    }
+
+                    var anyFree = false;
+                    data.slots.forEach(function(slot) {
+                        if (!slot.isFree) return;
+                        anyFree = true;
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'slot-btn' + (slot.earlyAvailable ? ' early' : '');
+                        btn.textContent = slot.time;
+
+                        if (slot.earlyAvailable) {
+                            var badge = document.createElement('span');
+                            badge.className = 'early-badge';
+                            badge.textContent = 'раньше';
+                            btn.appendChild(badge);
+                        }
+
+                        btn.onclick = function() {
+                            container.querySelectorAll('.slot-btn').forEach(function(b) { b.classList.remove('selected'); });
+                            btn.classList.add('selected');
+                            var dateStr = dateInput.value;
+                            hidden.value = dateStr + 'T' + slot.time + ':00';
+                        };
+                        container.appendChild(btn);
+                    });
+
+                    if (!anyFree) {
+                        container.innerHTML = '<div class="text-muted small py-2">Нет свободных слотов на эту дату</div>';
+                    }
+                })
+                .catch(function() {
+                    document.getElementById('slotContainer').innerHTML = '<div class="text-danger small py-2">Ошибка загрузки слотов</div>';
+                });
+        }
+
+        document.getElementById('slotDate').addEventListener('change', loadSlots);
+        loadSlots();
+
+        function toggleCheck(e, el) {
+            e.preventDefault();
+            var cb = el.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            el.classList.toggle('selected', cb.checked);
+        }
+
+        function toggleOther(e, el) {
+            e.preventDefault();
+            var cb = el.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            el.classList.toggle('selected', cb.checked);
+            document.getElementById('descriptionBox').classList.toggle('open', cb.checked);
+            if (cb.checked) {
+                document.getElementById('descriptionField').focus();
+            }
+        }
+    </script>
+}

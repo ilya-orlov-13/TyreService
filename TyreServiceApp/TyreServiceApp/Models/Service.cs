@@ -29,13 +29,31 @@ namespace TyreServiceApp.Models
         [Display(Name = "Стоимость услуги")] 
         [Range(0, 1000000, ErrorMessage = "Стоимость должна быть от 0 до 1 000 000 рублей")]
         [DataType(DataType.Currency)]
-        [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
         public decimal ServiceCost { get; set; }
+
+        /// <summary>
+        /// Фиксированное время выполнения услуги в минутах.
+        /// Используется для отслеживания скорости работы и расчёта премий.
+        /// </summary>
+        [Display(Name = "Фикс. время (мин)")]
+        [Range(0, 480, ErrorMessage = "Время должно быть от 0 до 480 минут")]
+        public int? FixedDurationMin { get; set; }
+
+        /// <summary>
+        /// Является ли услуга консультацией (мастер назначит услуги после осмотра).
+        /// </summary>
+        [Display(Name = "Консультация")]
+        public bool IsConsultation { get; set; }
 
         /// <summary>
         /// Навигационное свойство для выполненных работ с этой услугой.
         /// </summary>
         public ICollection<CompletedWork> CompletedWorks { get; set; } = new List<CompletedWork>();
+
+        /// <summary>
+        /// Тарифы по классам автомобилей для этой услуги.
+        /// </summary>
+        public ICollection<ServiceTariff> ServiceTariffs { get; set; } = new List<ServiceTariff>();
 
         /// <summary>
         /// Форматированное отображение услуги с ценой.

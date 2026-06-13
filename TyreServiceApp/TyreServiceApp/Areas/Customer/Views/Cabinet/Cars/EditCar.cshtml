@@ -1,0 +1,833 @@
+@model Car
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Редактировать автомобиль";
+
+    var allPhotos = new List<string>();
+    if (!string.IsNullOrEmpty(Model.PhotoPath))
+        allPhotos.Add(Model.PhotoPath);
+    if (!string.IsNullOrEmpty(Model.AdditionalPhotos))
+    {
+        try
+        {
+            var additional = JsonSerializer.Deserialize<List<string>>(Model.AdditionalPhotos);
+            if (additional != null)
+                allPhotos.AddRange(additional);
+        }
+        catch { }
+    }
+    var photosJson = JsonSerializer.Serialize(allPhotos);
+}
+
+<style>
+    :root {
+        --button_radius: 0.75em;
+        --button_outline_color: #000000;
+        --button_color: #e8e8e8;
+    }
+
+    .main-3d-wrapper {
+        position: relative;
+        background: var(--button_outline_color);
+        border-radius: var(--button_radius);
+        display: block;
+        margin-top: 0rem;
+        cursor: default;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .main-3d-inner {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid var(--button_outline_color);
+        border-radius: var(--button_radius);
+        background: white;
+        padding: 32px 24px;
+        transform: translateY(-0.15em);
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-size: 14px;
+        font-family: inherit;
+        color: #212121;
+    }
+
+    .form-title {
+        text-align: left;
+        font-weight: 600;
+        font-size: 24px;
+        color: #212121;
+        margin-bottom: 30px;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .photo-and-main-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+
+    .photo-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .main-info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #212121;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-family: inherit;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input::placeholder {
+        opacity: 0.5;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #1778f2;
+    }
+
+    .form-submit-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: inherit;
+        color: #000;
+        background-color: #fff;
+        border: 2px solid black;
+        width: fit-content;
+        padding: 12px 24px;
+        font-size: inherit;
+        gap: 8px;
+        margin: 12px 0;
+        cursor: pointer;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+
+    .form-submit-btn:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .form-submit-btn:active {
+        scale: 0.95;
+    }
+
+    .btn-secondary {
+        background-color: #fff;
+        color: #000;
+    }
+
+    .btn-secondary:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .form-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+
+    .existing-photos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+
+    .existing-photo {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .existing-photo:hover {
+        transform: scale(1.03);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .existing-photo img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .edit-photo-viewer {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.92);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .edit-photo-viewer .epv-image {
+        max-width: 90vw;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+    .edit-photo-viewer .epv-nav {
+        position: fixed;
+        top: 50%; transform: translateY(-50%);
+        font-size: 28px;
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        cursor: pointer;
+        padding: 10px 14px;
+        border-radius: 50%;
+        opacity: 0.6;
+        transition: all 0.2s;
+        z-index: 10000;
+        line-height: 1;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .edit-photo-viewer .epv-nav:hover { opacity: 1; background: rgba(255,255,255,0.2); }
+    .edit-photo-viewer .epv-prev { left: 16px; }
+    .edit-photo-viewer .epv-next { right: 16px; }
+    .edit-photo-viewer .epv-counter {
+        position: fixed;
+        bottom: 20px;
+        left: 50%; transform: translateX(-50%);
+        color: rgba(255,255,255,0.6);
+        font-size: 14px;
+        font-family: monospace;
+        z-index: 10000;
+    }
+
+    @@media (max-width: 768px) {
+        .photo-and-main-info {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .form-submit-btn {
+            width: 100%;
+        }
+    }
+    @@media (max-width: 576px) {
+        .edit-photo-viewer .epv-nav { display: none; }
+    }
+</style>
+
+<div class="container-fluid pt-2 pb-4">
+    <div class="main-3d-wrapper">
+        <div class="main-3d-inner">
+            <div class="form-title">
+                <h3 class="fw-bold m-0">
+                    <i class="bi bi-pencil me-2"></i>Редактировать автомобиль
+                </h3>
+            </div>
+
+            <form asp-action="EditCar" method="post" enctype="multipart/form-data" class="form">
+                <input type="hidden" asp-for="CarId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="photo-and-main-info">
+                    <div class="photo-section">
+                        <label class="form-label">
+                            <i class="bi bi-camera text-dark"></i> Фото автомобиля
+                        </label>
+
+                        @if (allPhotos.Count > 0)
+                        {
+                            <div class="existing-photos-grid mb-3">
+                                @for (int i = 0; i < allPhotos.Count; i++)
+                                {
+                                    <div class="existing-photo" onclick="openEditPhotoViewer(@i)" style="cursor:pointer">
+                                        <img src="@allPhotos[i]" alt="Фото @(i+1)" />
+                                    </div>
+                                }
+                            </div>
+                            <div class="form-text mb-2 text-muted">
+                                <i class="bi bi-info-circle"></i> Нажмите на фото для просмотра. Загрузите новые, чтобы заменить текущие
+                            </div>
+                        }
+
+                        <div class="photo-upload-container">
+                            <div class="file-upload-form" id="initialUpload"
+                                 style="@(string.IsNullOrEmpty(Model.PhotoPath) ? "" : "display:none")">
+                                <label for="photoInput" class="file-upload-label">
+                                    <div class="file-upload-design">
+                                        <p>Перетащите фото</p>
+                                        <p>или</p>
+                                        <span class="browse-button">Выберите файлы</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="drop-area" id="dropArea"
+                                 style="@(string.IsNullOrEmpty(Model.PhotoPath) ? "display:none" : "")">
+                                <input name="photos" type="file" class="file-input" id="photoInput"
+                                       accept=".jpg,.jpeg,.png,.gif" multiple />
+
+                                <div class="file-section" id="uploadedSection">
+                                    <div class="file-header">
+                                        <p class="file-title" id="fileCount">Загружено фото (0)</p>
+                                        <button type="button" class="add-button" id="addMoreBtn">
+                                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path d="M4 4v16h16V4H4zm8 1v14m7-7H5"></path>
+                                            </svg>
+                                            Добавить еще
+                                        </button>
+                                    </div>
+                                    <div class="file-grid" id="fileGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-text">Максимальный размер: 5MB на файл. Разрешены: JPG, PNG, GIF.</div>
+                    </div>
+
+                    <div class="main-info-section">
+                        <partial name="_CarBrandsPartial" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="ManufactureYear">
+                            <i class="bi bi-calendar text-dark"></i> Год выпуска
+                        </label>
+                        <input asp-for="ManufactureYear" placeholder="2020" type="number" />
+                        <span asp-validation-for="ManufactureYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LicensePlate">
+                            <i class="bi bi-123 text-dark"></i> Госномер
+                        </label>
+                        <input asp-for="LicensePlate" placeholder="А123БВ777"
+                               pattern="[АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}"
+                               title="Формат: буква + 3 цифры + 2 буквы + код региона, например А123БВ777" />
+                        <span asp-validation-for="LicensePlate" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">Формат: А123БВ777 (буквы А, В, Е, К, М, Н, О, Р, С, Т, У, Х, регион 2-3 цифры)</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Vin">
+                        <i class="bi bi-upc text-dark"></i> VIN номер
+                    </label>
+                    <input asp-for="Vin" placeholder="17 символов" maxlength="17" />
+                    <span asp-validation-for="Vin" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 pt-2">
+                    <button type="submit" class="btn btn-dark px-4">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-lg"></i> Отмена
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Photo Viewer Lightbox (вне 3d-wrapper, чтобы position:fixed работал) -->
+<div id="editPhotoViewer" class="edit-photo-viewer" style="display:none;" onclick="closeEditPhotoViewer(event)">
+    <button type="button" class="epv-nav epv-prev" onclick="epvChange(-1)">&#10094;</button>
+    <button type="button" class="epv-nav epv-next" onclick="epvChange(1)">&#10095;</button>
+    <div class="epv-counter" id="epvCounter"></div>
+    <img class="epv-image" id="epvImage" src="" alt="Фото автомобиля" />
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .photo-upload-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .drop-area.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-upload-form {
+            width: fit-content;
+            height: fit-content;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-upload-label {
+            cursor: pointer;
+            background-color: #fff;
+            padding: 30px 70px;
+            border-radius: 12px;
+            border: 2px dashed #ccc;
+            color: #666;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-upload-label:hover {
+            background-color: #f8f9fa;
+            border-color: #eee;
+        }
+
+        .file-upload-label input {
+            display: none;
+        }
+
+        .file-upload-design {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .browse-button {
+            background-color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: #000;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .file-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+
+        .add-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            font-size: 14px;
+            color: #000;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background-color: transparent;
+            border-color: #000;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.8;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+        }
+
+        .file-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border-radius: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666;
+            overflow: hidden;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+        }
+
+        .remove-button {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #dc3545;
+            color: white;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-button:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
+
+        .remove-button .icon {
+            width: 14px;
+            height: 14px;
+            opacity: 1;
+        }
+    </style>
+
+    <script>
+        // Photo upload
+        $(document).ready(function() {
+            let selectedFiles = [];
+            const dropArea = document.getElementById('dropArea');
+            const photoInput = document.getElementById('photoInput');
+            const initialUpload = document.getElementById('initialUpload');
+            const uploadedSection = document.getElementById('uploadedSection');
+            const fileGrid = document.getElementById('fileGrid');
+            const fileCount = document.getElementById('fileCount');
+            const addMoreBtn = document.getElementById('addMoreBtn');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                initialUpload.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                initialUpload.addEventListener(eventName, highlightInitial, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                initialUpload.addEventListener(eventName, unhighlightInitial, false);
+            });
+
+            dropArea.addEventListener('drop', handleDrop, false);
+            initialUpload.addEventListener('drop', handleDrop, false);
+
+            photoInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+
+            addMoreBtn.addEventListener('click', function() {
+                photoInput.click();
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                dropArea.classList.add('dragover');
+            }
+
+            function unhighlight(e) {
+                dropArea.classList.remove('dragover');
+            }
+
+            function highlightInitial(e) {
+                initialUpload.querySelector('.file-upload-label').style.borderColor = '#007bff';
+                initialUpload.querySelector('.file-upload-label').style.backgroundColor = '#e3f2fd';
+            }
+
+            function unhighlightInitial(e) {
+                initialUpload.querySelector('.file-upload-label').style.borderColor = '#ccc';
+                initialUpload.querySelector('.file-upload-label').style.backgroundColor = '#fff';
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+
+            function handleFiles(files) {
+                const newFiles = Array.from(files);
+
+                for (const file of newFiles) {
+                    if (!file.type.startsWith('image/')) {
+                        alert(`Файл "${file.name}" не является изображением`);
+                        continue;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`Файл "${file.name}" превышает максимальный размер 5MB`);
+                        continue;
+                    }
+
+                    const isDuplicate = selectedFiles.some(existingFile =>
+                        existingFile.name === file.name && existingFile.size === file.size
+                    );
+
+                    if (!isDuplicate) {
+                        selectedFiles.push(file);
+                    }
+                }
+
+                updateFileInput();
+                displayFiles();
+            }
+
+            function updateFileInput() {
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => {
+                    dt.items.add(file);
+                });
+                photoInput.files = dt.files;
+            }
+
+            function displayFiles() {
+                if (selectedFiles.length === 0) {
+                    initialUpload.style.display = 'flex';
+                    dropArea.style.display = 'none';
+                    return;
+                }
+
+                initialUpload.style.display = 'none';
+                dropArea.style.display = 'block';
+
+                fileCount.textContent = `Загружено фото (${selectedFiles.length})`;
+                fileGrid.innerHTML = '';
+
+                selectedFiles.forEach((file, index) => {
+                    const fileBox = document.createElement('div');
+                    fileBox.className = 'file-box';
+
+                    const previewBox = document.createElement('div');
+                    previewBox.className = 'preview-box';
+
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.alt = 'Превью фото';
+                    previewBox.appendChild(img);
+
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'remove-button';
+                    removeButton.setAttribute('aria-label', 'Удалить изображение');
+                    removeButton.innerHTML = `
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    `;
+
+                    removeButton.addEventListener('click', function() {
+                        removeFile(index);
+                    });
+
+                    fileBox.appendChild(previewBox);
+                    fileBox.appendChild(removeButton);
+                    fileGrid.appendChild(fileBox);
+                });
+            }
+
+            function removeFile(index) {
+                selectedFiles.splice(index, 1);
+                updateFileInput();
+                displayFiles();
+            }
+        });
+
+        var epvPhotos = @Html.Raw(photosJson);
+        var epvIndex = 0;
+
+        function openEditPhotoViewer(index) {
+            if (!epvPhotos.length) return;
+            epvIndex = index;
+            var viewer = document.getElementById('editPhotoViewer');
+            var img = document.getElementById('epvImage');
+            var counter = document.getElementById('epvCounter');
+            img.src = epvPhotos[epvIndex];
+            counter.textContent = (epvIndex + 1) + ' / ' + epvPhotos.length;
+            viewer.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditPhotoViewer() {
+            document.getElementById('editPhotoViewer').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function epvChange(delta) {
+            if (!epvPhotos.length) return;
+            epvIndex = (epvIndex + delta + epvPhotos.length) % epvPhotos.length;
+            var img = document.getElementById('epvImage');
+            var counter = document.getElementById('epvCounter');
+            img.src = epvPhotos[epvIndex];
+            counter.textContent = (epvIndex + 1) + ' / ' + epvPhotos.length;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            var viewer = document.getElementById('editPhotoViewer');
+            if (viewer.style.display !== 'flex') return;
+            if (e.key === 'Escape') closeEditPhotoViewer();
+            if (e.key === 'ArrowLeft') epvChange(-1);
+            if (e.key === 'ArrowRight') epvChange(1);
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const plateInput = document.getElementById('LicensePlate');
+            if (plateInput) {
+                const rusLetters = 'АВЕКМНОРСТУХ';
+                const engToRus = { 'A':'А','B':'В','E':'Е','K':'К','M':'М','H':'Н','O':'О','P':'Р','C':'С','T':'Т','Y':'У','X':'Х' };
+                plateInput.addEventListener('input', function () {
+                    let s = this.value.toUpperCase().split('').map(function (ch) { return engToRus[ch] || ch; }).join('');
+                    var result = '';
+                    for (var i = 0; i < s.length; i++) {
+                        var ch = s[i];
+                        if (result.length === 0 && rusLetters.indexOf(ch) !== -1) result += ch;
+                        else if (result.length >= 1 && result.length <= 3 && ch >= '0' && ch <= '9') result += ch;
+                        else if ((result.length === 4 || result.length === 5) && rusLetters.indexOf(ch) !== -1) result += ch;
+                        else if (result.length >= 6 && result.length < 9 && ch >= '0' && ch <= '9') result += ch;
+                        if (result.length >= 9) break;
+                    }
+                    this.value = result;
+                });
+            }
+        });
+    </script>
+}

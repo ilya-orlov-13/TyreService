@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TyreServiceApp.Models
 {
@@ -10,14 +11,12 @@ namespace TyreServiceApp.Models
     /// Клиент является владельцем одного или нескольких автомобилей,
     /// для которых выполняются заказы на обслуживание.
     /// </remarks>
-    public class Client
+    [Index(nameof(Phone), IsUnique = true)]
+    public class Client : IValidatableObject
     {
         /// <summary>
         /// Уникальный идентификатор клиента в системе.
         /// </summary>
-        /// <value>
-        /// Целочисленное значение, автоматически генерируемое базой данных.
-        /// </value>
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ClientId { get; set; }
@@ -25,11 +24,6 @@ namespace TyreServiceApp.Models
         /// <summary>
         /// Полное имя клиента.
         /// </summary>
-        /// <value>
-        /// Строка, содержащая фамилию, имя и отчество клиента.
-        /// Максимальная длина: 100 символов.
-        /// </value>
-        /// <example>Иванов Иван Иванович</example>
         [Required(ErrorMessage = "ФИО обязательно")]
         [StringLength(100, ErrorMessage = "ФИО не должно превышать 100 символов")]
         [Display(Name = "ФИО")]
@@ -38,35 +32,32 @@ namespace TyreServiceApp.Models
         /// <summary>
         /// Контактный телефон клиента.
         /// </summary>
-        /// <value>
-        /// Строка, содержащая номер телефона в международном или местном формате.
-        /// Максимальная длина: 20 символов.
-        /// </value>
-        /// <example>+7 (999) 123-45-67</example>
-        [Required(ErrorMessage = "Телефон обязателен")]
-        [StringLength(20, ErrorMessage = "Телефон не должен превышать 20 символов")]
+        [StringLength(100, ErrorMessage = "Телефон не должен превышать 100 символов")]
         [Phone(ErrorMessage = "Неверный формат телефона")]
         [Display(Name = "Телефон")]
-        public string Phone { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+
+        /// <summary>
+        /// Адрес электронной почты клиента.
+        /// </summary>
+        [StringLength(100, ErrorMessage = "Email не должен превышать 100 символов")]
+        [EmailAddress(ErrorMessage = "Неверный формат email")]
+        [Display(Name = "Email")]
+        public string? Email { get; set; }
 
         /// <summary>
         /// Коллекция автомобилей, принадлежащих клиенту.
         /// </summary>
-        /// <value>
-        /// Навигационное свойство для доступа к списку автомобилей клиента.
-        /// Реализует связь "один ко многим" между клиентом и автомобилями.
-        /// </value>
-        /// <remarks>
-        /// Связь реализована через внешний ключ <see cref="Car.ClientId"/> в таблице Cars.
-        /// </remarks>
         public virtual ICollection<Car> Cars { get; set; } = new List<Car>();
+
+        /// <summary>
+        /// Коллекция шин на хранении, принадлежащих клиенту.
+        /// </summary>
+        public virtual ICollection<Tire> Tires { get; set; } = new List<Tire>();
 
         /// <summary>
         /// Получает количество автомобилей, принадлежащих клиенту.
         /// </summary>
-        /// <value>
-        /// Количество автомобилей в коллекции <see cref="Cars"/>.
-        /// </value>
         [NotMapped]
         [Display(Name = "Количество автомобилей")]
         public int CarCount => Cars?.Count ?? 0;
@@ -74,7 +65,6 @@ namespace TyreServiceApp.Models
         /// <summary>
         /// Возвращает строковое представление клиента.
         /// </summary>
-        /// <returns>Строка, содержащая ФИО клиента и его идентификатор.</returns>
         public override string ToString()
         {
             return $"{FullName} (ID: {ClientId})";
@@ -83,9 +73,6 @@ namespace TyreServiceApp.Models
         /// <summary>
         /// Проверяет, имеет ли клиент хотя бы один автомобиль.
         /// </summary>
-        /// <returns>
-        /// <c>true</c>, если у клиента есть хотя бы один автомобиль; иначе <c>false</c>.
-        /// </returns>
         public bool HasCars()
         {
             return Cars != null && Cars.Any();
@@ -94,9 +81,6 @@ namespace TyreServiceApp.Models
         /// <summary>
         /// Получает форматированный номер телефона для отображения.
         /// </summary>
-        /// <returns>
-        /// Отформатированная строка с номером телефона или "Не указан", если телефон отсутствует.
-        /// </returns>
         public string GetFormattedPhone()
         {
             if (string.IsNullOrWhiteSpace(Phone))
@@ -108,6 +92,16 @@ namespace TyreServiceApp.Models
             }
 
             return Phone;
+        }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (string.IsNullOrWhiteSpace(Phone) && string.IsNullOrWhiteSpace(Email))
+            {
+                yield return new ValidationResult(
+                    "Необходимо указать хотя бы телефон или email",
+                    new[] { nameof(Phone), nameof(Email) });
+            }
         }
     }
 }

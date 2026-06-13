@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TyreServiceApp.Models
 {
@@ -11,6 +12,8 @@ namespace TyreServiceApp.Models
     /// Этот класс используется для хранения данных об автомобилях в базе данных
     /// и взаимодействия с ними через Entity Framework Core.
     /// </remarks>
+    [Index(nameof(Vin), IsUnique = true)]
+    [Index(nameof(LicensePlate), IsUnique = true)]
     public class Car
     {
         /// <summary>
@@ -166,6 +169,12 @@ namespace TyreServiceApp.Models
         [ForeignKey("ClientId")]
         [Display(Name = "Владелец")] 
         public virtual Client? Client { get; set; }
+
+        [Display(Name = "Класс автомобиля")]
+        public int? CarClassId { get; set; }
+
+        [ForeignKey("CarClassId")]
+        public virtual CarClass? CarClass { get; set; }
 
         /// <summary>
         /// Коллекция заказов, связанных с данным автомобилем.

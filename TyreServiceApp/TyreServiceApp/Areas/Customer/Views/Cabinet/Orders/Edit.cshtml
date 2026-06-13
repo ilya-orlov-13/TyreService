@@ -1,0 +1,206 @@
+@model Order
+@{
+    ViewData["Title"] = "Редактировать заказ";
+    var services = ViewBag.Services as List<TyreServiceApp.Models.Service> ?? new();
+    var selectedCodes = Model.CompletedWorks?.Select(cw => cw.ServiceCode).ToHashSet() ?? new();
+    var hasOther = Model.CompletedWorks?.Any(cw => cw.Service?.IsConsultation == true) == true;
+}
+
+<style>
+    .service-option {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+    .service-option:hover {
+        border-color: #94a3b8;
+    }
+    .service-option.selected {
+        border-color: #000;
+        background: #f8fafc;
+    }
+    .service-option .checkbox-box {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e1;
+        border-radius: 4px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 11px;
+        color: #fff;
+    }
+    .service-option.selected .checkbox-box {
+        border-color: #000;
+        background: #000;
+    }
+    .service-option.selected .checkbox-box::after {
+        content: '✓';
+    }
+    .service-option .service-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #0f172a;
+        flex: 1;
+    }
+    .service-option .service-price {
+        font-weight: 700;
+        font-size: 13px;
+        color: #059669;
+        flex-shrink: 0;
+    }
+    .service-option.other-option {
+        border-style: dashed;
+        border-color: #94a3b8;
+    }
+    .service-option.other-option.selected {
+        border-style: solid;
+        border-color: #000;
+    }
+    .description-box {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, margin 0.3s ease;
+        margin-top: 0;
+    }
+    .description-box.open {
+        max-height: 150px;
+        margin-top: 10px;
+    }
+    .description-box textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 80px;
+        outline: none;
+        transition: border-color 0.2s ease;
+        font-family: inherit;
+    }
+    .description-box textarea:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    }
+</style>
+
+<h3 class="mb-4"><i class="bi bi-pencil me-2"></i>Редактировать заказ #@Model.OrderNumber</h3>
+
+<form asp-action="EditOrder" method="post">
+    <input type="hidden" name="id" value="@Model.OrderNumber" />
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label fw-semibold">Автомобиль</label>
+            <p class="mb-0 fw-medium">@Model.Car?.FullInfo</p>
+            <small class="text-muted">Для смены автомобиля создайте новый заказ</small>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label fw-semibold">Желаемое время визита</label>
+            <input type="datetime-local" name="scheduledAt" class="form-control"
+                   value="@(Model.ScheduledAt?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddDays(1).ToString("yyyy-MM-ddTHH:mm"))"
+                   min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+            <small class="text-muted">Выберите удобные дату и время</small>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label fw-semibold">Что нужно сделать?</label>
+            <div class="d-flex flex-column gap-2">
+                @foreach (var s in services)
+                {
+                    var isSelected = selectedCodes.Contains(s.ServiceCode);
+                    <label class="service-option @(isSelected ? "selected" : "")" onclick="toggleCheck(event, this)">
+                        <input type="checkbox" name="serviceCodes" value="@s.ServiceCode" @(isSelected ? "checked" : "") hidden />
+                        <div class="checkbox-box"></div>
+                        <span class="service-name">@s.ServiceName</span>
+                        <span class="service-price">@s.ServiceCost.ToString("N0") ₽</span>
+                    </label>
+                }
+                <label class="service-option other-option @(hasOther ? "selected" : "")" onclick="toggleOther(event, this)">
+                    <input type="checkbox" name="hasOther" value="true" @(hasOther ? "checked" : "") hidden />
+                    <div class="checkbox-box"></div>
+                    <span class="service-name">Прочее</span>
+                    <span class="service-price" style="color:#94a3b8;font-weight:400;">—</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="description-box @(hasOther ? "open" : "")" id="descriptionBox">
+                <textarea name="description" id="descriptionField" rows="3"
+                          placeholder="Опишите проблему подробнее...">@(hasOther ? Model.CompletedWorks?.FirstOrDefault(cw => cw.Service?.IsConsultation == true)?.Service?.ServiceName ?? "" : "")</textarea>
+            </div>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-dark px-4">
+                <i class="bi bi-check-lg me-1"></i>Сохранить
+            </button>
+            <a asp-action="Orders" class="btn btn-outline-secondary px-4">
+                Отмена
+            </a>
+            <button type="button" class="btn btn-outline-danger px-4" onclick="cancelOrder(@Model.OrderNumber)">
+                <i class="bi bi-x-lg me-1"></i>Отменить заказ
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function toggleCheck(e, el) {
+            e.preventDefault();
+            var cb = el.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            el.classList.toggle('selected', cb.checked);
+        }
+
+        function toggleOther(e, el) {
+            e.preventDefault();
+            var cb = el.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            el.classList.toggle('selected', cb.checked);
+            document.getElementById('descriptionBox').classList.toggle('open', cb.checked);
+            if (cb.checked) {
+                document.getElementById('descriptionField').focus();
+            }
+        }
+
+        function cancelOrder(orderId) {
+            if (!confirm('Вы уверены, что хотите отменить заказ? Это действие невозможно отменить.')) {
+                return;
+            }
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/Customer/Cabinet/CancelOrder/' + orderId, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = '@Url.Action("Orders")';
+                } else {
+                    alert(data.error || 'Ошибка при отмене заказа');
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+    </script>
+}
