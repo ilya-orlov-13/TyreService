@@ -1,0 +1,89 @@
+@model Order
+<style>
+    .time-slot-badge {
+        background: #000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        margin-left: 6px;
+        letter-spacing: 0.5px;
+    }
+    .time-slot-badge.fallback {
+        background: #e2e8f0;
+        color: #64748b;
+    }
+</style>
+
+<div class="modal-header">
+    <h5 class="modal-title">Заказ #@Model.OrderNumber</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Дата</dt>
+        <dd class="col-sm-8">@(Model.ScheduledAt?.ToString("dd.MM.yyyy") ?? Model.OrderDate.ToString("dd.MM.yyyy")) <span class="time-slot-badge @(Model.ScheduledAt.HasValue ? "" : "fallback")">@(Model.ScheduledAt?.ToString("HH:mm") ?? Model.OrderDate.ToString("HH:mm"))</span></dd>
+
+        <dt class="col-sm-4">Автомобиль</dt>
+        <dd class="col-sm-8">@Model.Car?.FullInfo</dd>
+
+        @if (Model.Master != null)
+        {
+            <dt class="col-sm-4">Мастер</dt>
+            <dd class="col-sm-8">@Model.Master.FullName</dd>
+        }
+
+        <dt class="col-sm-4">Статус</dt>
+        <dd class="col-sm-8">
+            <span class="badge @(Model.IsCompleted() ? "bg-success" : "bg-warning")">
+                @Model.PaymentStatus
+            </span>
+        </dd>
+    </dl>
+
+    @if (Model.CompletedWorks?.Any() == true)
+    {
+        <hr />
+        <h6>Заказанные услуги</h6>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Услуга</th>
+                    <th>Кол-во</th>
+                    <th>Статус</th>
+                    <th>Стоимость</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cw in Model.CompletedWorks)
+                {
+                    <tr>
+                        <td>@cw.Service?.ServiceName</td>
+                        <td>@cw.WheelCount</td>
+                        <td>
+                            @if (cw.CompletionTimeMin > 0)
+                            {
+                                <span class="badge bg-success">Выполнено</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Ожидает</span>
+                            }
+                        </td>
+                        <td>@cw.WorkTotal.ToString("C2")</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="3">Итого:</td>
+                    <td>@Model.CompletedWorks.Sum(cw => cw.WorkTotal).ToString("C2")</td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+</div>

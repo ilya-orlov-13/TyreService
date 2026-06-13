@@ -1,0 +1,56 @@
+@model IEnumerable<Order>
+
+@if (Model.Any())
+{
+    <div class="orders-grid">
+        @foreach (var order in Model)
+        {
+            <div class="order-card">
+                <div class="order-card-header">
+                    <span class="order-number">#@order.OrderNumber</span>
+                    <span class="order-date">@(order.ScheduledAt?.ToString("dd.MM.yyyy") ?? order.OrderDate.ToString("dd.MM.yyyy")) <span class="time-slot-badge @(order.ScheduledAt.HasValue ? "" : "fallback")">@(order.ScheduledAt?.ToString("HH:mm") ?? order.OrderDate.ToString("HH:mm"))</span></span>
+                </div>
+                <div class="order-card-body">
+                    <span class="car-info">@order.Car?.FullInfo</span>
+                    @if (order.CompletedWorks?.Any() == true)
+                    {
+                        <ul class="service-list">
+                            @foreach (var cw in order.CompletedWorks)
+                            {
+                                <li>@cw.Service?.ServiceName</li>
+                            }
+                        </ul>
+                    }
+                </div>
+                <div class="order-card-footer">
+                    <div class="badge-wrap">
+                        <span class="badge @(order.IsCompleted() ? "bg-success" : "bg-warning")">@order.PaymentStatus</span>
+                        @if (order.Master != null)
+                        {
+                            <span class="badge bg-secondary">@order.Master.FullName</span>
+                        }
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        @if (order.ClientTotal.HasValue && order.ClientTotal > 0)
+                        {
+                            <span class="total-price">@order.ClientTotal.Value.ToString("C2")</span>
+                        }
+                        @if (order.Status == "Новый")
+                        {
+                            <a asp-action="EditOrder" asp-route-id="@order.OrderNumber" class="edit-btn" title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+        У вас пока нет заказов
+    </div>
+}

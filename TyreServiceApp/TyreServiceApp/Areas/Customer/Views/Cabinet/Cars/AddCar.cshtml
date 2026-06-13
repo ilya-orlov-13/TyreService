@@ -1,0 +1,776 @@
+@model Car
+@{
+    ViewData["Title"] = "Добавить автомобиль";
+}
+
+<style>
+    :root {
+        --button_radius: 0.75em;
+        --button_outline_color: #000000;
+        --button_color: #e8e8e8;
+    }
+
+    .main-3d-wrapper {
+        position: relative;
+        background: var(--button_outline_color);
+        border-radius: var(--button_radius);
+        display: block;
+        margin-top: 0rem;
+        cursor: default;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .main-3d-inner {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid var(--button_outline_color);
+        border-radius: var(--button_radius);
+        background: white;
+        padding: 32px 24px;
+        transform: translateY(-0.15em);
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-size: 14px;
+        font-family: inherit;
+        color: #212121;
+    }
+
+    .form-title {
+        text-align: left;
+        font-weight: 600;
+        font-size: 24px;
+        color: #212121;
+        margin-bottom: 30px;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .photo-and-main-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+
+    .photo-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .main-info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #212121;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-family: inherit;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input::placeholder {
+        opacity: 0.5;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #1778f2;
+    }
+
+    .form-submit-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: inherit;
+        color: #000;
+        background-color: #fff;
+        border: 2px solid black;
+        width: fit-content;
+        padding: 12px 24px;
+        font-size: inherit;
+        gap: 8px;
+        margin: 12px 0;
+        cursor: pointer;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+
+    .form-submit-btn:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .form-submit-btn:active {
+        scale: 0.95;
+    }
+
+    .btn-secondary {
+        background-color: #fff;
+        color: #000;
+    }
+
+    .btn-secondary:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .form-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+
+    .ocr-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    .ocr-card-title {
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    @@media (max-width: 768px) {
+        .photo-and-main-info {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .form-submit-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container-fluid pt-2 pb-4">
+    <div class="main-3d-wrapper">
+        <div class="main-3d-inner">
+            <div class="form-title">
+                <h3 class="fw-bold m-0">
+                    <i class="bi bi-car-front me-2"></i>Добавить автомобиль
+                </h3>
+            </div>
+
+            <!-- OCR секция -->
+            <div class="ocr-card mb-4">
+                <div class="ocr-card-title">
+                    <i class="bi bi-camera"></i> Или загрузите фото СТС/ПТС
+                    <span class="text-muted fw-normal small ms-2">Нейросеть сама распознает данные и заполнит форму</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <input type="file" id="docPhoto" accept="image/*" capture="environment" class="form-control" style="max-width:280px;padding:8px 12px;font-size:13px;">
+                    <button type="button" id="scanBtn" class="btn btn-dark btn-sm" disabled>
+                        <span id="scanSpinner" class="spinner-border spinner-border-sm d-none me-1"></span>
+                        <i class="bi bi-magic me-1"></i>Распознать
+                    </button>
+                    <span id="scanProgress" class="small text-muted ms-2"></span>
+                </div>
+                <div id="scanError" class="text-danger small mt-2 d-none"></div>
+                <img id="preview" class="mt-2 d-none" style="max-height:120px;border-radius:6px" />
+            </div>
+
+            <form asp-action="AddCar" method="post" enctype="multipart/form-data" class="form">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="photo-and-main-info">
+                    <!-- Секция загрузки фото -->
+                    <div class="photo-section">
+                        <label class="form-label">
+                            <i class="bi bi-camera text-dark"></i> Фото автомобиля
+                        </label>
+
+                        <div class="photo-upload-container">
+                            <div class="file-upload-form" id="initialUpload">
+                                <label for="photoInput" class="file-upload-label">
+                                    <div class="file-upload-design">
+                                        <p>Перетащите фото</p>
+                                        <p>или</p>
+                                        <span class="browse-button">Выберите файлы</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="drop-area" id="dropArea" style="display: none;">
+                                <input name="photos" type="file" class="file-input" id="photoInput"
+                                       accept=".jpg,.jpeg,.png,.gif" multiple />
+
+                                <div class="file-section" id="uploadedSection">
+                                    <div class="file-header">
+                                        <p class="file-title" id="fileCount">Загружено фото (0)</p>
+                                        <button type="button" class="add-button" id="addMoreBtn">
+                                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path d="M4 4v16h16V4H4zm8 1v14m7-7H5"></path>
+                                            </svg>
+                                            Добавить еще
+                                        </button>
+                                    </div>
+                                    <div class="file-grid" id="fileGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-text">Максимальный размер: 5MB на файл. Разрешены: JPG, PNG, GIF.</div>
+                    </div>
+
+                    <!-- Секция основной информации -->
+                    <div class="main-info-section">
+                        <partial name="_CarBrandsPartial" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="ManufactureYear">
+                            <i class="bi bi-calendar text-dark"></i> Год выпуска
+                        </label>
+                        <input asp-for="ManufactureYear" placeholder="2020" type="number" />
+                        <span asp-validation-for="ManufactureYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LicensePlate">
+                            <i class="bi bi-123 text-dark"></i> Госномер
+                        </label>
+                        <input asp-for="LicensePlate" placeholder="А123БВ777"
+                               pattern="[АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}"
+                               title="Формат: буква + 3 цифры + 2 буквы + код региона, например А123БВ777" />
+                        <span asp-validation-for="LicensePlate" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">Формат: А123БВ777 (буквы А, В, Е, К, М, Н, О, Р, С, Т, У, Х, регион 2-3 цифры)</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Vin">
+                        <i class="bi bi-upc text-dark"></i> VIN номер
+                    </label>
+                    <input asp-for="Vin" placeholder="17 символов" maxlength="17" />
+                    <span asp-validation-for="Vin" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 pt-2">
+                    <button type="submit" class="btn btn-dark px-4">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-lg"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .photo-upload-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .drop-area.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-upload-form {
+            width: fit-content;
+            height: fit-content;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-upload-label {
+            cursor: pointer;
+            background-color: #fff;
+            padding: 30px 70px;
+            border-radius: 12px;
+            border: 2px dashed #ccc;
+            color: #666;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-upload-label:hover {
+            background-color: #f8f9fa;
+            border-color: #eee;
+        }
+
+        .file-upload-label input {
+            display: none;
+        }
+
+        .file-upload-design {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .browse-button {
+            background-color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: #000;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .file-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+
+        .add-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            font-size: 14px;
+            color: #000;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background-color: transparent;
+            border-color: #000;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.8;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+        }
+
+        .file-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border-radius: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666;
+            overflow: hidden;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+        }
+
+        .remove-button {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #dc3545;
+            color: white;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-button:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
+
+        .remove-button .icon {
+            width: 14px;
+            height: 14px;
+            opacity: 1;
+        }
+    </style>
+
+    <script>
+        // OCR scan
+        const fileInput = document.getElementById('docPhoto');
+        const scanBtn = document.getElementById('scanBtn');
+        const preview = document.getElementById('preview');
+        const scanError = document.getElementById('scanError');
+        const spinner = document.getElementById('scanSpinner');
+        const scanProgress = document.getElementById('scanProgress');
+
+        fileInput.addEventListener('change', function () {
+            scanBtn.disabled = !this.files.length;
+            scanError.classList.add('d-none');
+            if (this.files.length) {
+                const reader = new FileReader();
+                reader.onload = e => { preview.src = e.target.result; preview.classList.remove('d-none'); };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                preview.classList.add('d-none');
+            }
+        });
+
+        scanBtn.addEventListener('click', async function () {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            scanBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            scanError.classList.add('d-none');
+            scanProgress.textContent = 'Распознаю...';
+            scanBtn.querySelector('.bi-magic').classList.add('d-none');
+
+            try {
+                const formData = new FormData();
+                formData.append('photo', file);
+
+                const res = await fetch('/customer/cabinet/ScanDocument', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (data.error) {
+                    scanError.textContent = data.error + (data.details ? ' (' + data.details + ')' : '');
+                    scanError.classList.remove('d-none');
+                    return;
+                }
+
+                if (data.brand) document.querySelector('[name="Brand"]').value = data.brand;
+                if (data.model) document.querySelector('[name="Model"]').value = data.model;
+                if (data.year) document.querySelector('[name="ManufactureYear"]').value = data.year;
+                if (data.licensePlate) document.querySelector('[name="LicensePlate"]').value = data.licensePlate;
+                if (data.vin) document.querySelector('[name="Vin"]').value = data.vin;
+
+                scanProgress.textContent = 'Готово';
+                setTimeout(() => { scanProgress.textContent = ''; }, 3000);
+
+            } catch (err) {
+                console.error(err);
+                scanError.textContent = 'Ошибка распознавания. Попробуйте ещё раз.';
+                scanError.classList.remove('d-none');
+                scanProgress.textContent = '';
+            } finally {
+                scanBtn.disabled = false;
+                spinner.classList.add('d-none');
+                scanBtn.querySelector('.bi-magic').classList.remove('d-none');
+            }
+        });
+
+        // Photo upload (from admin)
+        $(document).ready(function() {
+            let selectedFiles = [];
+            const dropArea = document.getElementById('dropArea');
+            const photoInput = document.getElementById('photoInput');
+            const initialUpload = document.getElementById('initialUpload');
+            const uploadedSection = document.getElementById('uploadedSection');
+            const fileGrid = document.getElementById('fileGrid');
+            const fileCount = document.getElementById('fileCount');
+            const addMoreBtn = document.getElementById('addMoreBtn');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                initialUpload.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                initialUpload.addEventListener(eventName, highlightInitial, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                initialUpload.addEventListener(eventName, unhighlightInitial, false);
+            });
+
+            dropArea.addEventListener('drop', handleDrop, false);
+            initialUpload.addEventListener('drop', handleDrop, false);
+
+            photoInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+
+            addMoreBtn.addEventListener('click', function() {
+                photoInput.click();
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                dropArea.classList.add('dragover');
+            }
+
+            function unhighlight(e) {
+                dropArea.classList.remove('dragover');
+            }
+
+            function highlightInitial(e) {
+                initialUpload.querySelector('.file-upload-label').style.borderColor = '#007bff';
+                initialUpload.querySelector('.file-upload-label').style.backgroundColor = '#e3f2fd';
+            }
+
+            function unhighlightInitial(e) {
+                initialUpload.querySelector('.file-upload-label').style.borderColor = '#ccc';
+                initialUpload.querySelector('.file-upload-label').style.backgroundColor = '#fff';
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+
+            function handleFiles(files) {
+                const newFiles = Array.from(files);
+
+                for (const file of newFiles) {
+                    if (!file.type.startsWith('image/')) {
+                        alert(`Файл "${file.name}" не является изображением`);
+                        continue;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`Файл "${file.name}" превышает максимальный размер 5MB`);
+                        continue;
+                    }
+
+                    const isDuplicate = selectedFiles.some(existingFile =>
+                        existingFile.name === file.name && existingFile.size === file.size
+                    );
+
+                    if (!isDuplicate) {
+                        selectedFiles.push(file);
+                    }
+                }
+
+                updateFileInput();
+                displayFiles();
+            }
+
+            function updateFileInput() {
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => {
+                    dt.items.add(file);
+                });
+                photoInput.files = dt.files;
+            }
+
+            function displayFiles() {
+                if (selectedFiles.length === 0) {
+                    initialUpload.style.display = 'flex';
+                    dropArea.style.display = 'none';
+                    return;
+                }
+
+                initialUpload.style.display = 'none';
+                dropArea.style.display = 'block';
+
+                fileCount.textContent = `Загружено фото (${selectedFiles.length})`;
+                fileGrid.innerHTML = '';
+
+                selectedFiles.forEach((file, index) => {
+                    const fileBox = document.createElement('div');
+                    fileBox.className = 'file-box';
+
+                    const previewBox = document.createElement('div');
+                    previewBox.className = 'preview-box';
+
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.alt = 'Превью фото';
+                    previewBox.appendChild(img);
+
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'remove-button';
+                    removeButton.setAttribute('aria-label', 'Удалить изображение');
+                    removeButton.innerHTML = `
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    `;
+
+                    removeButton.addEventListener('click', function() {
+                        removeFile(index);
+                    });
+
+                    fileBox.appendChild(previewBox);
+                    fileBox.appendChild(removeButton);
+                    fileGrid.appendChild(fileBox);
+                });
+            }
+
+            function removeFile(index) {
+                selectedFiles.splice(index, 1);
+                updateFileInput();
+                displayFiles();
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const plateInput = document.getElementById('LicensePlate');
+            if (plateInput) {
+                const rusLetters = 'АВЕКМНОРСТУХ';
+                const engToRus = { 'A':'А','B':'В','E':'Е','K':'К','M':'М','H':'Н','O':'О','P':'Р','C':'С','T':'Т','Y':'У','X':'Х' };
+                plateInput.addEventListener('input', function () {
+                    let s = this.value.toUpperCase().split('').map(function (ch) { return engToRus[ch] || ch; }).join('');
+                    var result = '';
+                    for (var i = 0; i < s.length; i++) {
+                        var ch = s[i];
+                        if (result.length === 0 && rusLetters.indexOf(ch) !== -1) result += ch;
+                        else if (result.length >= 1 && result.length <= 3 && ch >= '0' && ch <= '9') result += ch;
+                        else if ((result.length === 4 || result.length === 5) && rusLetters.indexOf(ch) !== -1) result += ch;
+                        else if (result.length >= 6 && result.length < 9 && ch >= '0' && ch <= '9') result += ch;
+                        if (result.length >= 9) break;
+                    }
+                    this.value = result;
+                });
+            }
+        });
+    </script>
+}
