@@ -1,0 +1,302 @@
+@model IEnumerable<TyreServiceApp.Models.Post>
+
+@{
+    ViewData["Title"] = "Выбор поста";
+}
+
+<style>
+    .post-card {
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+        border: 2px solid transparent;
+    }
+    .post-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+    }
+    .post-card.free {
+        border-color: #10b981;
+    }
+    .post-card.occupied {
+        border-color: #f59e0b;
+    }
+    .post-card.locked {
+        border-color: #6b7280;
+        opacity: 0.7;
+        cursor: default;
+    }
+    .post-card .status-badge {
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .post-card .masters-list {
+        font-size: 13px;
+        color: #64748b;
+    }
+    .post-card .card-title {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .simple-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .simple-overlay.show {
+        display: flex;
+    }
+    .simple-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 400px;
+        width: 90%;
+        padding: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: simpleFadeIn 0.2s ease;
+    }
+    @@keyframes simpleFadeIn {
+        from { opacity: 0; transform: translateY(16px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .simple-modal h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 8px;
+    }
+    .simple-modal p {
+        color: #64748b;
+        margin: 0 0 20px;
+        font-size: 14px;
+    }
+    .simple-modal .btn-row {
+        display: flex;
+        gap: 8px;
+    }
+    .simple-modal .btn-row button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1.5px solid #e2e8f0;
+        background: #fff;
+        color: #1e293b;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .simple-modal .btn-row button:hover {
+        border-color: #000;
+        background: #f8fafc;
+    }
+    .simple-modal .btn-row button.primary {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+    }
+    .simple-modal .btn-row button.primary:hover {
+        background: #333;
+    }
+
+    @@media (max-width: 576px) {
+        h2.fw-bold {
+            font-size: 1.3rem;
+        }
+        .post-card .card-title {
+            font-size: 1rem;
+        }
+        .post-card .status-badge {
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+        .post-card .masters-list {
+            font-size: 14px;
+        }
+        .post-card .badge.w-100 {
+            font-size: 14px !important;
+            padding: 12px !important;
+        }
+        .simple-modal {
+            padding: 20px;
+            width: 92%;
+        }
+        .simple-modal h3 {
+            font-size: 17px;
+        }
+        .simple-modal p {
+            font-size: 14px;
+        }
+        .simple-modal .btn-row button {
+            font-size: 14px;
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Выберите пост для работы</h2>
+
+    <div class="row g-3">
+        @foreach (var post in Model)
+        {
+            var activeMasters = post.ActiveSessions?
+                .Where(s => s.EndedAt == null)
+                .Select(s => s.Master?.FullName)
+                .Where(n => n != null)
+                .ToList() ?? new List<string?>();
+
+            var isFree = !activeMasters.Any();
+            var isLocked = post.IsLocked;
+            var cssClass = isFree ? "free" : (isLocked ? "locked" : "occupied");
+            var canSelect = isFree || (!isLocked && activeMasters.Any());
+
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="card post-card @cssClass border-0 shadow-sm h-100"
+                     data-post-id="@post.PostId"
+                     data-free="@(isFree ? "true" : "false")"
+                     data-locked="@(isLocked ? "true" : "false")"
+                     data-can-select="@(canSelect ? "true" : "false")"
+                     onclick="selectPost(this)">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@post.Name</h5>
+                            @if (isFree)
+                            {
+                                <span class="badge bg-success status-badge">Свободен</span>
+                            }
+                            else if (isLocked)
+                            {
+                                <span class="badge bg-secondary status-badge">Состав набран</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark status-badge">Занят</span>
+                            }
+                        </div>
+                        @if (!isFree && activeMasters.Any())
+                        {
+                            <div class="masters-list">
+                                <i class="bi bi-person-badge me-1"></i>
+                                @string.Join(", ", activeMasters)
+                            </div>
+                            @if (!isLocked)
+                            {
+                                <div class="mt-2">
+                                    <span class="badge bg-warning text-dark w-100 py-2" style="font-weight:600;font-size:13px">
+                                        <i class="bi bi-person-plus me-1"></i>Работать вместе
+                                    </span>
+                                </div>
+                            }
+                        }
+                        @if (isFree)
+                        {
+                            <div class="masters-list text-success mt-1">
+                                <i class="bi bi-check-circle me-1"></i>Пост свободен
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success w-100 py-2" style="font-weight:600;font-size:13px">
+                                    <i class="bi bi-hand-index me-1"></i>Занять пост
+                                </span>
+                            </div>
+                        }
+                        @if (isLocked)
+                        {
+                            <div class="masters-list mt-1">
+                                <i class="bi bi-lock me-1"></i>Состав набран
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Overlay: Работать один? -->
+<div class="simple-overlay" id="workAloneOverlay">
+    <div class="simple-modal">
+        <h3>Режим работы</h3>
+        <p>Вы будете работать один?</p>
+        <div class="btn-row">
+            <button onclick="checkIn(false)">Нет, с напарником</button>
+            <button class="primary" onclick="checkIn(true)">Да</button>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        var selectedPostId = null;
+
+        function selectPost(el) {
+            var canSelect = el.getAttribute('data-can-select') === 'true';
+            if (!canSelect) return;
+
+            selectedPostId = el.getAttribute('data-post-id');
+            var isFree = el.getAttribute('data-free') === 'true';
+
+            if (isFree) {
+                document.getElementById('workAloneOverlay').classList.add('show');
+            } else {
+                joinPost(selectedPostId);
+            }
+        }
+
+        function checkIn(isLocked) {
+            document.getElementById('workAloneOverlay').classList.remove('show');
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + selectedPostId + '/check-in', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                },
+                body: JSON.stringify({ isLocked: isLocked })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = '/Worker/Board';
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+
+        function joinPost(postId) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = '/Worker/Board';
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+    </script>
+}

@@ -1,0 +1,208 @@
+@model TyreServiceApp.Services.DistributionResult
+
+@{
+    ViewData["Title"] = "Распределение заказов";
+    var targetDate = ViewBag.TargetDate as DateTime? ?? DateTime.Today;
+    var bonuses = ViewBag.MonthlyBonuses as List<TyreServiceApp.Models.SpeedBonus> ?? new();
+}
+
+<style>
+    .dist-post-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        height: 100%;
+    }
+    .dist-post-card h5 {
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .layer-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+    .layer-1 { background: #dbeafe; color: #1e40af; }
+    .layer-2 { background: #fef3c7; color: #92400e; }
+    .layer-3 { background: #d1fae5; color: #065f46; }
+    .order-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 6px;
+    }
+    .order-chip .time {
+        color: #64748b;
+        font-weight: 500;
+    }
+    .bonus-card {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .bonus-card .amount {
+        font-size: 20px;
+        font-weight: 800;
+        color: #92400e;
+    }
+
+    @@media (max-width: 576px) {
+        .dist-post-card {
+            padding: 14px;
+        }
+        .order-chip {
+            font-size: 13px;
+            padding: 8px 14px;
+        }
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold mb-0">
+        <i class="bi bi-diagram-3 me-2"></i>Распределение заказов
+    </h3>
+    <form method="get" class="d-flex align-items-center gap-2">
+        <input type="date" name="date" class="form-control form-control-sm"
+               value="@targetDate.ToString("yyyy-MM-dd")" style="max-width:180px;" />
+        <button type="submit" class="btn btn-dark btn-sm">Показать</button>
+    </form>
+</div>
+
+@if (bonuses.Any())
+{
+    <div class="mb-4">
+        <h5 class="fw-bold mb-2">
+            <i class="bi bi-stars me-1 text-warning"></i>
+            Премии за скорость — @targetDate.ToString("MMMM yyyy")
+        </h5>
+        @foreach (var b in bonuses)
+        {
+            <div class="bonus-card d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>@(b.Master?.FullName ?? "Мастер #" + b.MasterId)</strong>
+                    <small class="d-block text-muted">Сэкономлено @b.TimeSavedMin мин</small>
+                </div>
+                <div class="amount">@b.BonusAmount.ToString("N2") ₽</div>
+            </div>
+        }
+    </div>
+}
+
+@if (!Model.Posts.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+        Нет свободных постов для распределения
+    </div>
+}
+else if (!Model.UnassignedOrders.Any() && Model.Posts.Sum(p => p.TotalOrders) == 0)
+{
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+        Нет заказов на @targetDate.ToString("dd.MM.yyyy")
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var post in Model.Posts)
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="dist-post-card">
+                    <h5><i class="bi bi-pin me-1"></i>@post.PostName</h5>
+
+                    @if (post.OrdersLayer1.Any())
+                    {
+                        <div class="mb-2">
+                            <span class="layer-badge layer-1">Слой 1</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            @foreach (var o in post.OrdersLayer1)
+                            {
+                                <span class="order-chip">
+                                    <span class="time">@(o.ScheduledAt?.ToString("HH:mm"))</span>
+                                    #@o.OrderNumber
+                                    @o.Car?.Brand
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (post.OrdersLayer2.Any())
+                    {
+                        <div class="mb-2">
+                            <span class="layer-badge layer-2">Слой 2</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            @foreach (var o in post.OrdersLayer2)
+                            {
+                                <span class="order-chip">
+                                    <span class="time">@(o.ScheduledAt?.ToString("HH:mm"))</span>
+                                    #@o.OrderNumber
+                                    @o.Car?.Brand
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (post.OrdersLayer3.Any())
+                    {
+                        <div class="mb-2">
+                            <span class="layer-badge layer-3">Слой 3</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var o in post.OrdersLayer3)
+                            {
+                                <span class="order-chip">
+                                    <span class="time">@(o.ScheduledAt?.ToString("HH:mm"))</span>
+                                    #@o.OrderNumber
+                                    @o.Car?.Brand
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (post.TotalOrders == 0)
+                    {
+                        <div class="text-muted small">Нет заказов</div>
+                    }
+                    else
+                    {
+                        <div class="mt-2 pt-2 border-top text-muted small">
+                            Всего: <strong>@post.TotalOrders</strong> заказов
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.UnassignedOrders.Any())
+    {
+        <div class="mt-4">
+            <h5 class="fw-bold mb-2">Нераспределённые заказы</h5>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var o in Model.UnassignedOrders)
+                {
+                    <span class="order-chip">
+                        <span class="time">@(o.ScheduledAt?.ToString("HH:mm"))</span>
+                        #@o.OrderNumber @o.Car?.Brand @o.Car?.Model
+                    </span>
+                }
+            </div>
+        </div>
+    }
+}

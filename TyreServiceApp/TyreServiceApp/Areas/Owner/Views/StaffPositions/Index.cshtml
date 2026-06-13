@@ -1,0 +1,147 @@
+@model IEnumerable<TyreServiceApp.Models.StaffPosition>
+
+@{
+    ViewData["Title"] = "Должности персонала";
+}
+
+<style>
+    :root {
+        --button_radius: 0.75em;
+        --button_outline_color: #000000;
+        --button_color: #e8e8e8;
+    }
+
+    .main-3d-wrapper {
+        position: relative;
+        background: var(--button_outline_color);
+        border-radius: var(--button_radius);
+        display: block;
+        margin-top: 0rem;
+        cursor: default;
+    }
+
+    .main-3d-inner {
+        display: block;
+        box-sizing: border-box;
+        border: 2px solid var(--button_outline_color);
+        border-radius: var(--button_radius);
+        background: white;
+        padding: 20px;
+        transform: translateY(-0.15em);
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .uiverse-table {
+        width: 100%;
+        background: white;
+        border: 1px solid rgb(203, 203, 203);
+        border-radius: 8px;
+        overflow: hidden;
+        display: block;
+        margin-top: 15px;
+    }
+
+    .uiverse-table__header {
+        display: flex;
+        background: rgb(60, 60, 60);
+        color: white;
+        border-bottom: 1px solid rgb(203, 203, 203);
+    }
+
+    .uiverse-table__row {
+        display: flex;
+        border-bottom: 1px solid rgb(203, 203, 203);
+        background: white;
+    }
+
+    .uiverse-table__row:nth-child(even) {
+        background: rgb(234, 235, 234);
+    }
+
+    .uiverse-table__row:last-child {
+        border-bottom: none;
+    }
+
+    .uiverse-table__cell {
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        min-height: 60px;
+    }
+
+    .col-name { width: 80%; border-right: 1px solid rgb(203, 203, 203); }
+    .col-actions { width: 20%; justify-content: center; }
+
+    .uiverse-table__header .uiverse-table__cell {
+        font-weight: bold;
+        font-size: 0.9rem;
+        justify-content: center;
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+        .uiverse-table__header { display: none !important; }
+        .uiverse-table__row { flex-direction: column !important; padding: 10px 0; }
+        .col-name, .col-actions {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid rgba(203, 203, 203, 0.5);
+            justify-content: flex-start !important;
+        }
+        .uiverse-table__cell { min-height: auto !important; padding: 8px 15px !important; }
+        .col-actions { border-bottom: none; }
+    }
+</style>
+
+<div class="container-fluid pt-2 pb-4">
+    <div class="main-3d-wrapper">
+        <div class="main-3d-inner">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold m-0">
+                    <i class="bi bi-people-fill me-2"></i> Должности персонала
+                </h3>
+                <a asp-action="Create" class="btn btn-dark">
+                    <i class="bi bi-plus-circle me-1"></i> Добавить должность
+                </a>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="uiverse-table">
+                    <div class="uiverse-table__header">
+                        <div class="uiverse-table__cell col-name">Название</div>
+                        <div class="uiverse-table__cell col-actions">Действия</div>
+                    </div>
+
+                    @foreach (var item in Model)
+                    {
+                        <div class="uiverse-table__row">
+                            <div class="uiverse-table__cell col-name">
+                                <i class="bi bi-person-badge text-dark me-2"></i>
+                                <span class="fw-bold">@item.Name</span>
+                            </div>
+                            <div class="uiverse-table__cell col-actions">
+                                <div class="d-flex justify-content-center gap-2 w-100">
+                                    <a asp-action="Edit" asp-route-id="@item.StaffPositionId" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.StaffPositionId" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 border rounded bg-light">
+                    <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Должности не найдены</h4>
+                    <p class="text-muted">Добавьте первую должность для персонала.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

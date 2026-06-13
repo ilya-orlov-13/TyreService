@@ -1,0 +1,80 @@
+@model List<TyreServiceApp.Services.RevenueReportRow>
+
+@{
+    ViewData["Title"] = "Отчёт по выручке";
+}
+
+<style>
+    .table th { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .table td { font-size: 13px; vertical-align: middle; }
+    .net-profit { font-weight: 700; color: #059669; }
+    .net-profit.negative { color: #dc2626; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="fw-bold m-0"><i class="bi bi-graph-up me-2"></i>Отчёт по выручке</h3>
+    <form method="get" class="d-flex gap-2 align-items-center">
+        <label class="form-label m-0 small">с</label>
+        <input type="date" name="dateFrom" class="form-control form-control-sm" style="width:150px;" value="@ViewBag.DateFrom" />
+        <label class="form-label m-0 small">по</label>
+        <input type="date" name="dateTo" class="form-control form-control-sm" style="width:150px;" value="@ViewBag.DateTo" />
+        <button type="submit" class="btn btn-dark btn-sm">Показать</button>
+    </form>
+</div>
+
+@if (Model.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Заказ</th>
+                        <th>Клиент</th>
+                        <th>Автомобиль</th>
+                        <th class="text-end">Сумма клиента</th>
+                        <th class="text-end">ФОТ</th>
+                        <th class="text-end">Расходники</th>
+                        <th class="text-end">Эквайринг</th>
+                        <th class="text-end">Налоги</th>
+                        <th class="text-end">Чистая прибыль</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">#@row.OrderNumber</td>
+                            <td>@row.ClientName</td>
+                            <td>@row.CarInfo</td>
+                            <td class="text-end">@row.ClientTotal.ToString("N2")</td>
+                            <td class="text-end">@row.MasterShare.ToString("N2")</td>
+                            <td class="text-end">@row.ConsumablesCost.ToString("N2")</td>
+                            <td class="text-end">@row.AcquiringFee.ToString("N2")</td>
+                            <td class="text-end">@row.Taxes.ToString("N2")</td>
+                            <td class="text-end net-profit @(row.NetProfit < 0 ? "negative" : "")">@row.NetProfit.ToString("N2") ₽</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td colspan="3">ИТОГО:</td>
+                        <td class="text-end">@Model.Sum(r => r.ClientTotal).ToString("N2")</td>
+                        <td class="text-end">@Model.Sum(r => r.MasterShare).ToString("N2")</td>
+                        <td class="text-end">@Model.Sum(r => r.ConsumablesCost).ToString("N2")</td>
+                        <td class="text-end">@Model.Sum(r => r.AcquiringFee).ToString("N2")</td>
+                        <td class="text-end">@Model.Sum(r => r.Taxes).ToString("N2")</td>
+                        <td class="text-end net-profit @(Model.Sum(r => r.NetProfit) < 0 ? "negative" : "")">@Model.Sum(r => r.NetProfit).ToString("N2") ₽</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm p-5 text-center text-muted">
+        <i class="bi bi-inbox" style="font-size:48px;"></i>
+        <p class="mt-2">Нет заказов за выбранный период</p>
+    </div>
+}

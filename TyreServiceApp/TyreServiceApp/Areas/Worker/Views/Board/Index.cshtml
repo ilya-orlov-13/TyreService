@@ -1,0 +1,1140 @@
+@model IEnumerable<TyreServiceApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Доска заказов";
+    var columns = new[] { "Новый", "В работе", "Готов", "Оплачено" };
+    var columnIcons = new Dictionary<string, string>
+    {
+        ["Новый"] = "bi-inbox",
+        ["В работе"] = "bi-gear",
+        ["Готов"] = "bi-check2-circle",
+        ["Оплачено"] = "bi-credit-card"
+    };
+    var columnColors = new Dictionary<string, string>
+    {
+        ["Новый"] = "#6366f1",
+        ["В работе"] = "#f59e0b",
+        ["Готов"] = "#10b981",
+        ["Оплачено"] = "#6b7280"
+    };
+}
+
+<style>
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding-bottom: 16px;
+        min-height: calc(100vh - 100px);
+        align-items: flex-start;
+    }
+
+    .kanban-column {
+        flex: 1;
+        min-width: 280px;
+        max-width: 380px;
+        background: #e8ecf1;
+        border-radius: 14px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kanban-column-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        color: #1e293b;
+        padding: 4px 8px 12px;
+        border-bottom: 2px solid rgba(0,0,0,0.06);
+        margin-bottom: 10px;
+    }
+
+    .kanban-column-header .count {
+        margin-left: auto;
+        background: rgba(0,0,0,0.08);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .kanban-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 60px;
+        flex: 1;
+    }
+
+    .kanban-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 12px 14px;
+        cursor: grab;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        transition: box-shadow 0.15s, transform 0.15s;
+        user-select: none;
+    }
+
+    .kanban-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    }
+
+    .kanban-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .kanban-car-name {
+        font-weight: 700;
+        font-size: 13px;
+        color: #0f172a;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .kanban-order-num {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
+
+    .kanban-card-body {
+        font-size: 11px;
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .kanban-card-body .row-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .kanban-card-body .row-item i {
+        width: 14px;
+        text-align: center;
+        font-size: 10px;
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    .kanban-plate {
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .kanban-client {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .time-slot-badge {
+        background: #000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        margin-left: 6px;
+        letter-spacing: 0.5px;
+    }
+    .time-slot-badge.fallback {
+        background: #e2e8f0;
+        color: #64748b;
+    }
+
+    .kanban-empty {
+        text-align: center;
+        padding: 20px 10px;
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .board-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .board-header .post-info {
+        font-weight: 700;
+        font-size: 18px;
+        color: #0f172a;
+    }
+    .board-header .post-info small {
+        font-weight: 400;
+        font-size: 13px;
+        color: #64748b;
+    }
+    .action-btn {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+    }
+    .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .action-btn.start {
+        background: #6366f1;
+        color: #fff;
+    }
+    .action-btn.complete {
+        background: #10b981;
+        color: #fff;
+    }
+    .action-btn.cancel {
+        background: #ef4444;
+        color: #fff;
+    }
+    .action-btn.consult {
+        background: #f59e0b;
+        color: #fff;
+        width: 100%;
+    }
+    .action-btn:hover:not(:disabled) {
+        opacity: 0.85;
+    }
+    .card-actions {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 4px;
+    }
+    @@media (max-width: 900px) {
+        .kanban-board {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .kanban-column {
+            max-width: none;
+            min-width: 0;
+        }
+        .kanban-card {
+            padding: 16px 18px;
+        }
+        .kanban-car-name {
+            font-size: 16px;
+        }
+        .kanban-order-num {
+            font-size: 14px;
+        }
+        .kanban-card-body {
+            font-size: 14px;
+            gap: 4px;
+        }
+        .kanban-card-body .row-item i {
+            font-size: 14px;
+            width: 18px;
+        }
+        .action-btn {
+            font-size: 14px;
+            padding: 8px 14px;
+        }
+        .kanban-card-body [style*="font-size:11px"] {
+            font-size: 13px !important;
+        }
+        .kanban-column-header {
+            font-size: 16px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .board-header {
+            flex-direction: column;
+            gap: 8px;
+        }
+        .board-header .d-flex {
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .board-header .d-flex {
+            justify-content: flex-end;
+        }
+        .board-header .d-flex .btn {
+            flex: 0 1 auto;
+            min-width: 0;
+            font-size: 13px;
+            padding: 10px 8px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        .board-header .d-flex .btn:first-child {
+            margin-right: auto;
+        }
+        .board-header .post-info {
+            font-size: 16px;
+        }
+        .kanban-column {
+            padding: 8px;
+            border-radius: 10px;
+        }
+        .kanban-card {
+            padding: 12px 14px;
+        }
+        .kanban-card-body .card-actions .action-btn {
+            font-size: 13px;
+            padding: 10px 8px;
+        }
+        .kanban-empty {
+            font-size: 13px;
+        }
+    }
+
+    .confirm-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .confirm-overlay.show {
+        display: flex;
+    }
+    .confirm-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 380px;
+        width: 90%;
+        padding: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: confirmFadeIn 0.2s ease;
+    }
+    @@keyframes confirmFadeIn {
+        from { opacity: 0; transform: translateY(16px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .confirm-modal h4 {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 6px;
+    }
+    .confirm-modal p {
+        color: #64748b;
+        margin: 0 0 20px;
+        font-size: 14px;
+    }
+    .confirm-modal .btn-row {
+        display: flex;
+        gap: 8px;
+    }
+    .confirm-modal .btn-row button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1.5px solid #e2e8f0;
+        background: #fff;
+        color: #1e293b;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .confirm-modal .btn-row button:hover {
+        border-color: #000;
+        background: #f8fafc;
+    }
+    .confirm-modal .btn-row button.danger {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+    }
+    .confirm-modal .btn-row button.danger:hover {
+        background: #333;
+    }
+
+    /* Assign modal */
+    .assign-modal {
+        max-width: 500px !important;
+        width: 95% !important;
+    }
+    .assign-form-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+    .custom-select {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+    }
+    .custom-select-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #94a3b8;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .custom-select-trigger:focus,
+    .custom-select-trigger:focus-visible {
+        border-color: #000;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+        outline: none;
+    }
+    .custom-select-trigger.has-value {
+        color: #0f172a;
+    }
+    .custom-select-trigger i {
+        font-size: 12px;
+        color: #94a3b8;
+        transition: transform 0.2s;
+    }
+    .custom-select.open .custom-select-trigger i {
+        transform: rotate(180deg);
+    }
+    .custom-select-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e1e5e9;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 4px;
+    }
+    .custom-select.open .custom-select-dropdown {
+        display: block;
+    }
+    .custom-select-option {
+        display: block;
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        background: none;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0f172a;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.1s;
+    }
+    .custom-select-option:hover {
+        background: #f1f5f9;
+    }
+    .custom-select-option.selected {
+        background: #eef2ff;
+        color: #000;
+        font-weight: 600;
+    }
+    .assign-wheel-input {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1;
+        min-width: 30px;
+        text-align: center;
+    }
+    .assign-wheel-selector {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .assign-wheel-selector .wheel-label {
+        font-size: 10px;
+        color: #94a3b8;
+        text-align: center;
+        margin-top: 2px;
+    }
+    .assign-wheel-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .assign-wheel-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid #e1e5e9;
+        background: #fff;
+        color: #0f172a;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+        user-select: none;
+    }
+    .assign-wheel-btn:hover {
+        border-color: #000;
+        background: #f8fafc;
+    }
+    .assign-wheel-btn:active {
+        transform: scale(0.95);
+    }
+    .assign-add-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background: #000;
+        color: #fff;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+    .assign-add-btn:hover {
+        background: #333;
+    }
+    .assign-list-wrap {
+        max-height: 180px;
+        overflow-y: auto;
+        margin-bottom: 12px;
+    }
+    .assign-table {
+        font-size: 12px;
+    }
+    .assign-table th {
+        font-weight: 600;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 6px 8px;
+    }
+    .assign-table td {
+        padding: 6px 8px;
+        vertical-align: middle;
+    }
+    .assign-remove-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1.5px solid #dc2626;
+        background: none;
+        color: #dc2626;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+    .assign-remove-btn:hover {
+        background: #fee2e2;
+    }
+    @@media (max-width: 480px) {
+        .assign-form-row {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .assign-select {
+            flex: 1 1 100%;
+            order: 1;
+        }
+        .assign-wheel-selector {
+            order: 2;
+            margin-top: 6px;
+        }
+        .assign-add-btn {
+            order: 3;
+        }
+    }
+</style>
+
+<div class="board-header">
+    <div class="post-info">
+        @ViewBag.PostName
+        <small>
+            <i class="bi bi-people ms-2 me-1"></i>
+            @string.Join(", ", (IEnumerable<string>)ViewBag.PostMasters)
+        </small>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        @if (!ViewBag.PostIsLocked)
+        {
+            <button class="btn btn-dark btn-sm" onclick="lockPost()">
+                <i class="bi bi-lock me-1"></i>Работать в текущем составе
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-outline-dark btn-sm" onclick="unlockAndChangeComposition()">
+                <i class="bi bi-people me-1"></i>Изменить состав
+            </button>
+        }
+        <button class="btn btn-outline-dark btn-sm" onclick="leavePost()">
+            <i class="bi bi-box-arrow-left me-1"></i>
+            Выйти с поста
+        </button>
+    </div>
+</div>
+
+<div class="kanban-board">
+    @foreach (var col in columns)
+    {
+        var colOrders = Model.Where(o => o.Status == col).ToList();
+
+        <div class="kanban-column" data-status="@col">
+            <div class="kanban-column-header">
+                <i class="bi @columnIcons[col]" style="color:@columnColors[col]"></i>
+                @col
+                <span class="count">@colOrders.Count</span>
+            </div>
+            <div class="kanban-cards">
+                @foreach (var item in colOrders)
+                {
+                    var hasConsultation = item.CompletedWorks?.Any(cw => cw.Service?.IsConsultation == true) == true;
+                    var regServices = item.CompletedWorks?.Where(cw => cw.Service?.IsConsultation != true).ToList();
+
+                    <div class="kanban-card">
+                        <div class="kanban-card-header">
+                            <span class="kanban-car-name">@item.Car?.Brand @item.Car?.Model</span>
+                            <span class="kanban-order-num">#@item.OrderNumber</span>
+                        </div>
+                        <div class="kanban-card-body">
+                            <div class="row-item">
+                                <i class="bi bi-tag"></i>
+                                <span class="kanban-plate">@item.Car?.LicensePlate</span>
+                            </div>
+                            @if (item.Car?.Client != null)
+                            {
+                                <div class="row-item">
+                                    <i class="bi bi-person"></i>
+                                    <span class="kanban-client">@item.Car.Client.FullName</span>
+                                </div>
+                            }
+                            @if (item.Master != null)
+                            {
+                                <div class="row-item">
+                                    <i class="bi bi-person-badge"></i>
+                                    <span>@item.Master.FullName</span>
+                                </div>
+                            }
+                            <div class="row-item">
+                                <i class="bi bi-calendar3"></i>
+                                <span>@(item.ScheduledAt?.ToString("dd.MM.yyyy") ?? item.OrderDate.ToString("dd.MM.yyyy"))</span>
+                                <span class="time-slot-badge @(item.ScheduledAt.HasValue ? "" : "fallback")">@(item.ScheduledAt?.ToString("HH:mm") ?? item.OrderDate.ToString("HH:mm"))</span>
+                            </div>
+                            @if (item.Master == null)
+                            {
+                                <div class="row-item" style="color:#f59e0b;font-style:italic">
+                                    <i class="bi bi-hand-index"></i>
+                                    <span>Нет мастера (возьмите в работу)</span>
+                                </div>
+                            }
+
+                            @if (col == "Новый")
+                            {
+                                <div class="card-actions">
+                                    <a href="@Url.Action("Work", new { id = item.OrderNumber })" class="action-btn start" style="text-decoration:none;display:inline-flex;align-items:center;">
+                                        <i class="bi bi-play-fill me-1"></i>Начать работу
+                                    </a>
+                                </div>
+                            }
+
+                            @if (col == "В работе")
+                            {
+                                <div class="card-actions" style="display:flex;gap:4px;flex-wrap:wrap;">
+                                    <a href="@Url.Action("Work", new { id = item.OrderNumber })" class="action-btn" style="flex:1;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;background:#6366f1;color:#fff;">
+                                        <i class="bi bi-list-check me-1"></i>Подробнее
+                                    </a>
+                                    <button class="action-btn complete" onclick="completeWork(@item.OrderNumber, this)" style="flex:1;">
+                                        <i class="bi bi-check-lg me-1"></i>Завершить
+                                    </button>
+                                    <button class="action-btn cancel" onclick="showCancelModal(@item.OrderNumber, this)" style="flex:1;">
+                                        <i class="bi bi-x-lg me-1"></i>Отменить
+                                    </button>
+                                </div>
+                            }
+                            @if (col == "Готов")
+                            {
+                                <div class="card-actions">
+                                    <button class="action-btn start" onclick="revertToWork(@item.OrderNumber, this)" style="width:100%;">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i>В работе
+                                    </button>
+                                </div>
+                            }
+
+                            @if (col != "Готов" && col != "Оплачено")
+                            {
+                                if (hasConsultation)
+                                {
+                                    <div class="row-item" style="color:#f59e0b;">
+                                        <i class="bi bi-chat-dots"></i>
+                                        <span>Консультация</span>
+                                    </div>
+                                }
+                                var assignLabel = hasConsultation ? "Назначить услуги" : "Изменить услуги";
+                                var assignIcon = hasConsultation ? "plus-circle" : "pencil";
+                                <div class="card-actions" style="margin-top:4px;">
+                                    <button class="action-btn consult" type="button"
+                                            data-existing='@Html.Raw(Json.Serialize(regServices?.Select(r => new { r.ServiceCode, ServiceName = r.Service?.ServiceName ?? "Услуга #" + r.ServiceCode, r.WheelCount })))'
+                                            onclick="openAssignModal(@item.OrderNumber, this)">
+                                        <i class="bi bi-@assignIcon me-1"></i>@assignLabel
+                                    </button>
+                                </div>
+                            }
+
+                            @if (regServices != null && regServices.Any())
+                            {
+                                <div style="font-size:11px;color:#64748b;padding-top:4px;border-top:1px solid #e2e8f0;margin-top:4px;">
+                                    @foreach (var w in regServices)
+                                    {
+                                        <div style="display:flex;justify-content:space-between;padding:2px 0;">
+                                            <span>@(w.Service?.ServiceName ?? "Услуга #" + w.ServiceCode)</span>
+                                            <span style="color:#94a3b8;">@w.WheelCount кол.</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (!colOrders.Any())
+                {
+                    <div class="kanban-empty">Нет заказов</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+
+<!-- Confirm overlay: выход с поста -->
+<div class="confirm-overlay" id="leaveOverlay">
+    <div class="confirm-modal">
+        <h4>Выход с поста</h4>
+        <p>Вы уверены, что хотите выйти с поста?</p>
+        <div class="btn-row">
+            <button onclick="closeLeaveModal()">Отмена</button>
+            <button class="danger" onclick="doLeavePost()">Выйти</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: назначение услуг после консультации -->
+<div class="confirm-overlay" id="assignModal">
+    <div class="confirm-modal assign-modal">
+        <h4><i class="bi bi-tools me-2"></i>Назначить услуги</h4>
+        <p style="margin-bottom:12px;">Выберите услуги для заказа <strong id="assignOrderNum"></strong></p>
+        <input type="hidden" id="assignOrderId" value="" />
+        <div class="assign-form-row">
+            <div class="custom-select" id="assignServiceSelect">
+                <button type="button" class="custom-select-trigger" onclick="toggleServiceDropdown()">
+                    <span id="assignServiceName">Выберите услугу</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <div class="custom-select-dropdown">
+                    @foreach (var s in (List<TyreServiceApp.Models.Service>)ViewBag.Services)
+                    {
+                        <button type="button" class="custom-select-option" data-value="@s.ServiceCode" onclick="selectService(this, @s.ServiceCode, '@s.ServiceName')">
+                            @s.ServiceName
+                        </button>
+                    }
+                </div>
+                <input type="hidden" id="assignServiceCode" value="" />
+            </div>
+            <div class="assign-wheel-selector">
+                <button type="button" class="assign-wheel-btn" onclick="decrementWheelCount()">−</button>
+                <div class="assign-wheel-col">
+                    <span id="assignWheelCount" class="assign-wheel-input">4</span>
+                    <span class="wheel-label">колёса</span>
+                </div>
+                <button type="button" class="assign-wheel-btn" onclick="incrementWheelCount()">+</button>
+            </div>
+        </div>
+        <div class="text-center mb-3">
+            <button type="button" class="btn btn-dark w-100 py-2" style="border-radius: 10px; font-weight: 600;" onclick="addAssignService()">
+                <i class="bi bi-plus-circle me-1"></i> Добавить услугу
+            </button>
+        </div>
+        <div class="assign-list-wrap">
+            <table class="table table-sm mb-0 assign-table">
+                <thead><tr><th>Услуга</th><th>Колёс</th><th></th></tr></thead>
+                <tbody id="assignServicesList"></tbody>
+            </table>
+            <div id="assignEmpty" class="text-center py-3 text-muted small">Услуги не добавлены</div>
+        </div>
+        <div class="btn-row" style="margin-top:8px;">
+            <button onclick="closeAssignModal()">Отмена</button>
+            <button class="danger" onclick="submitAssignServices()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel confirmation modal -->
+<div class="confirm-overlay" id="cancelOverlay">
+    <div class="confirm-modal">
+        <div class="modal-icon" style="color:#ef4444;font-size:36px;text-align:center;margin-bottom:8px;">&#9888;</div>
+        <h4>Отменить заказ?</h4>
+        <p>Все таймеры будут сброшены, а записанное время удалено. Заказ вернётся в статус «Новый».</p>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="closeCancelModal()">Отмена</button>
+            <button class="btn-primary" id="cancelConfirmBtn" style="background:#ef4444;color:#fff;">Сбросить</button>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        var postId = @ViewBag.PostId;
+        var cancelOrderId = null;
+        var cancelBtnRef = null;
+
+        function showCancelModal(orderId, btn) {
+            cancelOrderId = orderId;
+            cancelBtnRef = btn;
+            document.getElementById('cancelOverlay').classList.add('show');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelOverlay').classList.remove('show');
+        }
+
+        document.getElementById('cancelConfirmBtn').addEventListener('click', function() {
+            if (cancelOrderId) doCancel(cancelOrderId);
+        });
+
+        function doCancel(orderId) {
+            closeCancelModal();
+            if (cancelBtnRef) {
+                cancelBtnRef.disabled = true;
+                cancelBtnRef.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+            }
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/bookings/' + orderId + '/cancel', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) location.reload();
+                else { alert(data.error || 'Ошибка'); if (cancelBtnRef) { cancelBtnRef.disabled = false; cancelBtnRef.innerHTML = '<i class="bi bi-x-lg me-1"></i>Отменить'; } }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+                if (cancelBtnRef) { cancelBtnRef.disabled = false; cancelBtnRef.innerHTML = '<i class="bi bi-x-lg me-1"></i>Отменить'; }
+            });
+        }
+
+        function revertToWork(orderId, btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/Worker/Board/UpdateStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': tokenValue
+                },
+                body: 'id=' + encodeURIComponent(orderId) + '&status=' + encodeURIComponent('В работе') + '&__RequestVerificationToken=' + encodeURIComponent(tokenValue)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) location.reload();
+                else { alert(data.error || 'Ошибка'); btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i>В работе'; }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i>В работе';
+            });
+        }
+
+        function completeWork(orderId, btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/bookings/' + orderId + '/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) location.reload();
+                else { alert(data.error || 'Ошибка'); btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Завершить'; }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Завершить';
+            });
+        }
+
+        function lockPost() {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/lock', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) location.reload();
+                else { alert(data.error || 'Ошибка'); }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+
+        function leavePost() {
+            document.getElementById('leaveOverlay').classList.add('show');
+        }
+        function closeLeaveModal() {
+            document.getElementById('leaveOverlay').classList.remove('show');
+        }
+        function doLeavePost() {
+            closeLeaveModal();
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) window.location.href = '/Worker/Post';
+            });
+        }
+
+        function unlockAndChangeComposition() {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/posts/' + postId + '/unlock', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    window.location.href = '/Worker/Post';
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+
+        // Custom dropdown
+        function toggleServiceDropdown() {
+            var el = document.getElementById('assignServiceSelect');
+            el.classList.toggle('open');
+        }
+
+        function selectService(btn, code, name) {
+            document.getElementById('assignServiceCode').value = code;
+            document.getElementById('assignServiceName').textContent = name;
+            var trigger = document.querySelector('.custom-select-trigger');
+            trigger.classList.add('has-value');
+            document.querySelectorAll('.custom-select-option').forEach(function(o) {
+                o.classList.remove('selected');
+            });
+            btn.classList.add('selected');
+            document.getElementById('assignServiceSelect').classList.remove('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            var sel = document.getElementById('assignServiceSelect');
+            if (sel && !sel.contains(e.target)) {
+                sel.classList.remove('open');
+            }
+        });
+
+        // Assign services modal
+        var assignServices = [];
+        var currentAssignOrderId = null;
+        var currentWheelCount = 4;
+
+        function updateWheelLabel(count) {
+            var label = document.querySelector('.wheel-label');
+            if (label) {
+                label.textContent = count === 0 ? 'колёс' : count === 1 ? 'колесо' : 'колеса';
+            }
+        }
+
+        function incrementWheelCount() {
+            if (currentWheelCount < 4) {
+                currentWheelCount++;
+                document.getElementById('assignWheelCount').textContent = currentWheelCount;
+                updateWheelLabel(currentWheelCount);
+            }
+        }
+
+        function decrementWheelCount() {
+            if (currentWheelCount > 0) {
+                currentWheelCount--;
+                document.getElementById('assignWheelCount').textContent = currentWheelCount;
+                updateWheelLabel(currentWheelCount);
+            }
+        }
+
+        function openAssignModal(orderId, btn) {
+            currentAssignOrderId = orderId;
+            document.getElementById('assignOrderId').value = orderId;
+            document.getElementById('assignOrderNum').textContent = '#' + orderId;
+            currentWheelCount = 4;
+            document.getElementById('assignWheelCount').textContent = '4';
+            updateWheelLabel(4);
+            document.getElementById('assignServiceCode').value = '';
+            document.getElementById('assignServiceName').textContent = 'Выберите услугу';
+            document.querySelector('.custom-select-trigger').classList.remove('has-value');
+            document.querySelectorAll('.custom-select-option').forEach(function(o) {
+                o.classList.remove('selected');
+            });
+            assignServices = [];
+            var existing = btn.getAttribute('data-existing');
+            if (existing && existing !== 'null') {
+                try {
+                    assignServices = JSON.parse(existing);
+                } catch(e) {}
+            }
+            renderAssignServices();
+            document.getElementById('assignModal').classList.add('show');
+        }
+
+        function closeAssignModal() {
+            document.getElementById('assignModal').classList.remove('show');
+            currentAssignOrderId = null;
+        }
+
+        function addAssignService() {
+            var codeInput = document.getElementById('assignServiceCode');
+            var wheelEl = document.getElementById('assignWheelCount');
+            var serviceCode = parseInt(codeInput.value);
+            if (!serviceCode) return;
+            if (assignServices.some(function(s) { return s.serviceCode === serviceCode; })) {
+                alert('Эта услуга уже добавлена');
+                return;
+            }
+            var serviceName = document.getElementById('assignServiceName').textContent;
+            var wheelCount = parseInt(wheelEl.textContent) || 1;
+            assignServices.push({ serviceCode: serviceCode, serviceName: serviceName, wheelCount: wheelCount });
+            renderAssignServices();
+            document.getElementById('assignServiceCode').value = '';
+            document.getElementById('assignServiceName').textContent = 'Выберите услугу';
+            document.querySelector('.custom-select-trigger').classList.remove('has-value');
+            document.querySelectorAll('.custom-select-option').forEach(function(o) {
+                o.classList.remove('selected');
+            });
+            wheelEl.textContent = '4';
+            currentWheelCount = 4;
+            updateWheelLabel(4);
+        }
+
+        function renderAssignServices() {
+            var tbody = document.getElementById('assignServicesList');
+            var empty = document.getElementById('assignEmpty');
+            tbody.innerHTML = '';
+            if (assignServices.length === 0) {
+                empty.style.display = '';
+                return;
+            }
+            empty.style.display = 'none';
+            assignServices.forEach(function(s, i) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + s.serviceName + '</td><td>' + s.wheelCount + '</td>' +
+                    '<td><button type="button" class="assign-remove-btn" onclick="assignServices.splice(' + i + ',1);renderAssignServices();">✕</button></td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function submitAssignServices() {
+            if (!currentAssignOrderId) return;
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var tokenValue = token ? token.value : '';
+
+            fetch('/api/orders/' + currentAssignOrderId + '/assign-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenValue
+                },
+                body: JSON.stringify({
+                    services: assignServices.map(function(s) {
+                        return { serviceCode: s.serviceCode, wheelCount: s.wheelCount };
+                    })
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    closeAssignModal();
+                    location.reload();
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            })
+            .catch(function() {
+                alert('Ошибка соединения');
+            });
+        }
+    </script>
+}
