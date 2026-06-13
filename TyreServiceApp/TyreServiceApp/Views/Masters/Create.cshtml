@@ -4,122 +4,7 @@
     ViewData["Title"] = "Добавить мастера";
 }
 
-<style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
-    }
-
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
-        display: block;
-        margin-top: 0rem;
-        cursor: default;
-        transition: max-width 0.3s ease;
-    }
-
-    @@media (min-width: 992px) {
-        .main-3d-wrapper {
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    .main-3d-inner {
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 30px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    /* Стили для форм */
-    .modern-form-group {
-        margin-bottom: 20px;
-    }
-
-    .modern-form-label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #333;
-        font-size: 14px;
-    }
-
-    .modern-form-input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        background-color: #fff;
-    }
-
-    .modern-form-input:focus {
-        outline: none;
-        border-color: #000000;
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .modern-btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-
-    .modern-btn-primary {
-        background-color: #000000;
-        color: white;
-    }
-
-    .modern-btn-primary:hover {
-        background-color: #333333;
-        transform: translateY(-1px);
-    }
-
-    .modern-btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-
-    .modern-btn-secondary:hover {
-        background-color: #545b62;
-        transform: translateY(-1px);
-        color: white;
-        text-decoration: none;
-    }
-
-    .validation-error {
-        color: #dc3545;
-        font-size: 12px;
-        margin-top: 4px;
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-</style>
+<partial name="_FormStyles" />
 
 <div class="container-fluid pt-2 pb-4">
     <div class="main-3d-wrapper">
@@ -147,11 +32,13 @@
                     </div>
                     <div class="col-md-6">
                         <div class="modern-form-group">
-                            <label asp-for="Position" class="modern-form-label">
+                            <label asp-for="PositionId" class="modern-form-label">
                                 <i class="bi bi-briefcase me-1"></i> Должность
                             </label>
-                            <input asp-for="Position" class="modern-form-input" placeholder="Например: Мастер-шиномонтажник" />
-                            <span asp-validation-for="Position" class="validation-error"></span>
+                            <select asp-for="PositionId" class="modern-form-input" asp-items="ViewBag.PositionId">
+                                <option value="">Выберите должность...</option>
+                            </select>
+                            <span asp-validation-for="PositionId" class="validation-error"></span>
                         </div>
                     </div>
                 </div>
@@ -164,15 +51,6 @@
                             </label>
                             <input asp-for="Rank" class="modern-form-input" type="number" placeholder="1-6" />
                             <span asp-validation-for="Rank" class="validation-error"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="modern-form-group">
-                            <label asp-for="HourlyRate" class="modern-form-label">
-                                <i class="bi bi-currency-exchange me-1"></i> Почасовая ставка
-                            </label>
-                            <input asp-for="HourlyRate" class="modern-form-input" type="number" step="0.01" placeholder="0.00" />
-                            <span asp-validation-for="HourlyRate" class="validation-error"></span>
                         </div>
                     </div>
                 </div>

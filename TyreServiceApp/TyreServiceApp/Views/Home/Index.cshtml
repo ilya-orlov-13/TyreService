@@ -1,969 +1,169 @@
 ﻿@{
-    ViewData["Title"] = "Главная";
+    ViewData["Title"] = "Шиномонтаж у Бориса";
+    Layout = null;
 }
 
-<style>
-    .main-content {
-        padding-top: 10px;
-    }
-
-    /* Стили для таблицы */
-    .uiverse-table {
-        width: 100%;
-        background: rgb(44, 44, 44);
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 1rem;
-    }
-
-    .uiverse-table__title {
-        color: white;
-        font-weight: bold;
-        padding: 8px 12px;
-        border-bottom: 1px solid rgb(167, 159, 159);
-        font-size: 0.95rem;
-        background: rgb(44, 44, 44);
-    }
-
-    .uiverse-table__data {
-        font-size: 0.8rem;
-        display: flex;
-        justify-content: space-between;
-        border-right: 1px solid rgb(203, 203, 203);
-        border-left: 1px solid rgb(203, 203, 203);
-        border-bottom: 1px solid rgb(203, 203, 203);
-        background: white;
-    }
-
-    .uiverse-table__right {
-        width: 70%;
-        border-right: 1px solid rgb(203, 203, 203);
-    }
-
-    .uiverse-table__left {
-        width: 30%;
-        text-align: end;
-    }
-
-    .uiverse-table__item {
-        padding: 8px 0;
-        background-color: white;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-    }
-
-    .uiverse-table__right .uiverse-table__item {
-        padding-left: 0.8em;
-    }
-
-    .uiverse-table__left .uiverse-table__item {
-        padding-right: 0.8em;
-        justify-content: flex-end;
-    }
-
-    .uiverse-table__item:nth-child(even) {
-        background: rgb(234, 235, 234);
-    }
-
-    .uiverse-table__header .uiverse-table__item {
-        background: rgb(60, 60, 60);
-        color: white;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
-    /* Стили для ссылок в таблице */
-    .table-link {
-        color: #0d6efd;
-        text-decoration: none;
-        font-weight: bold;
-    }
-
-    .table-link:hover {
-        text-decoration: underline;
-    }
-
-    /* Стили для бейджей в таблице */
-    .table-badge {
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: bold;
-        display: inline-block;
-    }
-
-    .badge-paid {
-        background: #198754;
-        color: white;
-    }
-
-    .badge-unpaid {
-        background: #ffc107;
-        color: rgb(231, 231, 231);
-    }
-
-    .badge-master {
-        background: #6c757d;
-        color: white;
-    }
-
-    .badge-no-master {
-        background: #ffc107;
-        color: white;
-    }
-
-    /* Стили для таблицы с тремя колонками */
-.uiverse-table__header {
-    display: flex;
-    border-bottom: 1px solid rgb(203, 203, 203);
-    background: rgb(60, 60, 60);
-    color: white;
-}
-
-.uiverse-table__col-60 {
-    width: 60%;
-    border-right: 1px solid rgb(203, 203, 203);
-}
-
-.uiverse-table__col-20 {
-    width: 20%;
-    border-right: 1px solid rgb(203, 203, 203);
-    text-align: center;
-}
-
-.uiverse-table__col-20:last-child {
-    border-right: none;
-}
-
-.uiverse-table__row {
-    display: flex;
-    border-bottom: 1px solid rgb(203, 203, 203);
-    background: white;
-}
-
-.uiverse-table__row:nth-child(even) {
-    background: rgb(234, 235, 234);
-}
-
-.uiverse-table__cell {
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    min-height: 60px;
-}
-
-/* Для заголовка таблицы */
-.uiverse-table__header .uiverse-table__cell {
-    font-weight: bold;
-    font-size: 0.9rem;
-    justify-content: center;
-}
-
-/* Для ячеек с информацией о заказе */
-.order-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.order-number {
-    font-weight: bold;
-    font-size: 1rem;
-    color: #212529;
-}
-
-.order-date {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-.car-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.car-photo-small {
-    width: 40px;
-    height: 30px;
-    object-fit: cover;
-    border-radius: 3px;
-}
-
-.car-details {
-    display: flex;
-    flex-direction: column;
-}
-
-.car-model {
-    font-weight: 500;
-}
-
-.car-license {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-.client-info {
-    font-size: 0.85rem;
-    color: #495057;
-}
-
-/* Стили для столбца мастера */
-.master-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-
-/* Стили для столбца статуса */
-.status-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-
-    .chart-container-sm {
-        position: relative;
-        height: 120px;
-        width: 100%;
-    }
-
-    .chart-tooltip-arrow {
-        position: absolute;
-        background: #333;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: bold;
-        pointer-events: none;
-        z-index: 1000;
-        transform: translate(-50%, -100%);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    .chart-tooltip-arrow:after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 6px solid transparent;
-        border-top-color: #333;
-    }
-
-</style>
-
-<div class="main-content">
-<div class="row g-4 mb-4">
-    <!-- Карточка клиентов -->
-    <div class="col-md-6 col-lg-3">
-        <a asp-controller="Clients" asp-action="Index" class="animated-card card-clients text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-people-fill card-icon" style="color: #212529;"></i>
-                    </div>
-                    <h3 class="fw-bold text-dark">@ViewBag.ClientsCount</h3>
-                    <p class="text-muted mb-0">Клиентов</p>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
-                </small>
-            </div>
-        </a>
-    </div>
-    
-    <!-- Карточка автомобилей -->
-    <div class="col-md-6 col-lg-3">
-        <a asp-controller="Cars" asp-action="Index" class="animated-card card-cars text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-car-front-fill card-icon" style="color: #212529;"></i>
-                    </div>
-                    <h3 class="fw-bold text-success">@ViewBag.CarsCount</h3>
-                    <p class="text-muted mb-0">Автомобилей</p>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
-                </small>
-            </div>
-        </a>
-    </div>
-    
-    <!-- Карточка заказов -->
-    <div class="col-md-6 col-lg-3">
-        <a asp-controller="Orders" asp-action="Index" class="animated-card card-orders text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-receipt-cutoff card-icon" style="color: #212529;"></i>
-                    </div>
-                    <h3 class="fw-bold text-info">@ViewBag.OrdersCount</h3>
-                    <p class="text-muted mb-0">Всего заказов</p>
-                    <small class="text-muted">
-                        <i class="bi bi-activity"></i> Активных: @ViewBag.ActiveOrdersCount
-                    </small>
-                    <br />
-                    <small class="text-muted">
-                        <i class="bi bi-calendar"></i> Сегодня: @ViewBag.TodayOrdersCount
-                    </small>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
-                </small>
-            </div>
-        </a>
-    </div>
-    
-    <!-- Карточка услуг -->
-    <div class="col-md-6 col-lg-3">
-        <a asp-controller="Services" asp-action="Index" class="animated-card card-services text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-gear-fill card-icon" style="color: #212529;"></i>
-                    </div>
-                    <h3 class="fw-bold text-warning">@ViewBag.ServicesCount</h3>
-                    <p class="text-muted mb-0">Услуг</p>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Нажмите для просмотра
-                </small>
-            </div>
-        </a>
-    </div>
-</div>
-
-<div class="row g-4">
-    <!-- Карточка мастеров -->
-    <div class="col-md-4">
-        <a asp-controller="Masters" asp-action="Index" class="animated-card card-masters text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-person-badge card-icon" style="color: #6c757d;"></i>
-                    </div>
-                    <h2 class="fw-bold">@ViewBag.MastersCount</h2>
-                    <p class="text-muted">Работающих мастеров</p>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Управление мастерами
-                </small>
-            </div>
-        </a>
-    </div>
-    
-    <!-- Карточка шин -->
-    <div class="col-md-4">
-        <a asp-controller="Tires" asp-action="Index" class="animated-card card-tires text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-circle card-icon" style="color: #6c757d;"></i>
-                    </div>
-                    <h2 class="fw-bold">@ViewBag.TiresCount</h2>
-                    <p class="text-muted">Зарегистрированных шин</p>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Управление шинами
-                </small>
-            </div>
-        </a>
-    </div>
-    
-    <!-- Карточка работ -->
-    <div class="col-md-4">
-        <a asp-controller="CompletedWorks" asp-action="Index" class="animated-card card-works text-decoration-none">
-            <div class="animated-card-inner text-center d-flex flex-column justify-content-between">
-                <div>
-                    <div class="mb-3">
-                        <i class="bi bi-check-circle card-icon"></i>
-                    </div>
-                    <h2 class="fw-bold">@ViewBag.CompletedWorksCount</h2>
-                    <p class="text-muted">Выполненных работ</p>
-                </div>
-                <small class="text-muted mt-2">
-                    <i class="bi bi-arrow-right-circle"></i> Управление работами
-                </small>
-            </div>
-        </a>
-    </div>
-</div>
-
-
-<style>
-    .table-3d-wrapper {
-        background: #000000; 
-        border-radius: 0.75em;
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .table-3d-content {
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid #000000;
-        border-radius: 0.75em;
-        background: #ffffff;
-        transform: translateY(-0.3em);
-        transition: transform 0.1s ease;
-        overflow: hidden;
-    }
-
-    @@media (max-width: 992px) {
-        .uiverse-table__header {
-            display: none !important;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Шиномонтаж у Бориса — Система управления шиномонтажем</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-
-        .uiverse-table__row {
-            flex-direction: column !important;
-            padding: 10px 0;
-            border-bottom: 2px solid #000000 !important;
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 600px 400px at 50% 40%, rgba(99,102,241,0.12), transparent 70%);
+            pointer-events: none;
         }
-
-        /* Колонки занимают 100% ширины */
-        .uiverse-table__col-60, 
-        .uiverse-table__col-20 {
-            width: 100% !important;
-            border-right: none !important;
-            border-bottom: 1px solid rgb(203, 203, 203);
-            justify-content: flex-start !important;
-            padding-left: 15px;
+        .container {
+            position: relative;
+            text-align: center;
+            z-index: 1;
         }
-
-        .uiverse-table__col-20:last-child {
-            border-bottom: none;
+        .logo-icon {
+            font-size: 56px;
+            margin-bottom: 8px;
+            display: block;
         }
-
-        .uiverse-table__cell {
-            min-height: auto !important;
-            padding: 8px 15px !important;
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
         }
-
-        .master-cell, .status-cell {
-            align-items: flex-start !important;
-            text-align: left !important;
+        .subtitle {
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 400;
+            margin-bottom: 48px;
         }
-    }
-</style>
-
-
-<style>
-    .uiverse-table {
-        width: 100%;
-        background: white;
-        border: 1px solid rgb(203, 203, 203);
-        border-radius: 12px;
-        overflow: hidden;
-        display: block;
-        margin-bottom: 1rem;
-    }
-
-    /* Адаптивность */
-    @@media (max-width: 992px) {
-        .uiverse-table__header {
-            display: none !important;
+        .buttons {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
-
-        .uiverse-table__row {
-            flex-direction: column !important;
-            padding: 10px 0;
-            border-bottom: 1px solid rgb(203, 203, 203) !important;
+        .btn-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.08);
+            background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            gap: 8px;
+            position: relative;
         }
-
-        .uiverse-table__col-60, 
-        .uiverse-table__col-20 {
-            width: 100% !important;
-            border-right: none !important;
-            border-bottom: 1px solid rgba(203, 203, 203, 0.5);
-            justify-content: flex-start !important;
+        .btn-circle:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 0 40px rgba(99,102,241,0.15);
         }
-
-        .uiverse-table__col-20:last-child {
-            border-bottom: none;
+        .btn-circle svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.8;
         }
-
-        .uiverse-table__cell {
-            min-height: auto !important;
-            padding: 8px 15px !important;
+        .btn-circle .label {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.7);
         }
-
-        .master-cell, .status-cell {
-            align-items: flex-start !important;
-            text-align: left !important;
+        .btn-circle .sub {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
         }
-    }
-</style>
+        .btn-client:hover {
+            border-color: #22c55e;
+            box-shadow: 0 0 40px rgba(34,197,94,0.15);
+        }
+        .btn-client svg { color: #22c55e; }
+        .btn-master:hover {
+            border-color: #6366f1;
+            box-shadow: 0 0 40px rgba(99,102,241,0.15);
+        }
+        .btn-master svg { color: #6366f1; }
+        .btn-admin:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 0 40px rgba(245,158,11,0.15);
+        }
+        .btn-admin svg { color: #f59e0b; }
+        footer {
+            position: fixed;
+            bottom: 24px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255,255,255,0.2);
+            font-size: 12px;
+            z-index: 1;
+        }
+        @@media (max-width: 700px) {
+            .buttons { gap: 24px; }
+            .btn-circle { width: 150px; height: 150px; }
+            .btn-circle svg { width: 36px; height: 36px; }
+            h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="container">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;display:inline-block;">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+        </svg>
+        <h1>Шиномонтаж у Бориса</h1>
+        <p class="subtitle">Система управления шиномонтажем</p>
 
-<!-- Последние заказы -->
-@if (ViewBag.RecentOrders != null && ViewBag.RecentOrders.Count > 0)
-{
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="animated-card card-recent">
-                <div class="animated-card-inner">
-                    <h3 class="card-title mb-3">
-                        <i class="bi bi-clock-history me-2"></i> Последние заказы
-                    </h3>
-                    
-                    <div class="uiverse-table">
-                        
-                        <!-- Заголовок таблицы -->
-                        <div class="uiverse-table__header">
-                            <div class="uiverse-table__col-60">
-                                <div class="uiverse-table__cell">Информация о заказе</div>
-                            </div>
-                            <div class="uiverse-table__col-20">
-                                <div class="uiverse-table__cell">Мастер</div>
-                            </div>
-                            <div class="uiverse-table__col-20">
-                                <div class="uiverse-table__cell">Статус оплаты</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Строки с данными -->
-                        @foreach (var order in ViewBag.RecentOrders)
-                        {
-                            <div class="uiverse-table__row">
-                                <!-- Колонка 1: Информация о заказе -->
-                                <div class="uiverse-table__col-60">
-                                    <div class="uiverse-table__cell">
-                                        <div class="order-info">
-                                            <div class="d-flex align-items-center gap-2 mb-1">
-                                                <a asp-controller="Orders" 
-                                                   asp-action="Details" 
-                                                   asp-route-id="@order.OrderNumber"
-                                                   class="order-number text-decoration-none">
-                                                    @order.OrderNumber
-                                                </a>
-                                                <span class="order-date">
-                                                    <i class="bi bi-calendar me-1"></i>
-                                                    @order.OrderDate.ToString("dd.MM.yyyy HH:mm")
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="car-info">
-                                                @if (!string.IsNullOrEmpty(order.Car?.PhotoPath))
-                                                {
-                                                    <img src="@order.Car.PhotoPath" 
-                                                         class="car-photo-small" 
-                                                         alt="@order.Car?.Brand @order.Car?.Model"
-                                                         title="@order.Car?.Brand @order.Car?.Model (@order.Car?.LicensePlate)" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="text-muted d-flex align-items-center justify-content-center" 
-                                                         style="width: 40px; height: 30px;">
-                                                        <i class="bi bi-car-front"></i>
-                                                    </div>
-                                                }
-                                                
-                                                <div class="car-details">
-                                                    <span class="car-model">
-                                                        @if (order.Car != null)
-                                                        {
-                                                            <span>@order.Car.Brand @order.Car.Model</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="text-muted">Авто не найдено</span>
-                                                        }
-                                                    </span>
-                                                    <span class="car-license">
-                                                        @if (order.Car != null)
-                                                        {
-                                                            <span>@order.Car.LicensePlate</span>
-                                                        }
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            
-                                            @if (order.Car?.Client != null)
-                                            {
-                                                <div class="client-info mt-1">
-                                                    <i class="bi bi-person me-1"></i>
-                                                    @order.Car.Client.FullName
-                                                    @if (!string.IsNullOrEmpty(order.Car.Client.Phone))
-                                                    {
-                                                        <span class="ms-2">
-                                                            <i class="bi bi-telephone me-1"></i>
-                                                            @order.Car.Client.Phone
-                                                        </span>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Колонка 2: Мастер -->
-                                <div class="uiverse-table__col-20">
-                                    <div class="uiverse-table__cell">
-                                        <div class="master-cell">
-                                            @if (order.Master != null)
-                                            {
-                                                <a asp-controller="Masters" 
-                                                   asp-action="Details" 
-                                                   asp-route-id="@order.Master.MasterId"
-                                                   class="text-decoration-none text-center">
-                                                    <div class="d-flex flex-column">
-                                                        <span class="badge bg-dark mb-1 px-3 py-1">
-                                                            <i class="bi bi-person-badge me-1"></i>
-                                                            @order.Master.FullName
-                                                        </span>
-                                                        <small class="text-muted">
-                                                            @order.Master.Position
-                                                            <br />
-                                                            @order.Master.Rank разряд
-                                                        </small>
-                                                    </div>
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-warning text-dark px-3 py-1">
-                                                    <i class="bi bi-person-x me-1"></i>
-                                                    Не назначен
-                                                </span>
-                                                <small class="text-muted mt-1">
-                                                    Назначьте мастера
-                                                </small>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Колонка 3: Статус оплаты -->
-                                <div class="uiverse-table__col-20">
-                                    <div class="uiverse-table__cell">
-                                        <div class="status-cell">
-                                            @if (order.PaymentDate != null)
-                                            {
-                                                var paymentDate = order.PaymentDate as DateTime?;
-                                                <span class="badge bg-success px-3 py-2 mb-1">
-                                                    <i class="bi bi-check-circle me-1"></i>
-                                                    Оплачено
-                                                </span>
-                                                <small class="text-success">
-                                                    @paymentDate?.ToString("dd.MM.yyyy")
-                                                    <br />
-                                                    @paymentDate?.ToString("HH:mm")
-                                                </small>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-warning text-dark px-3 py-2 mb-1">
-                                                    <i class="bi bi-clock me-1"></i>
-                                                    Не оплачено
-                                                </span>
-                                                <small class="text-muted">
-                                                    Ожидает оплаты
-                                                </small>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    
-                    <!-- Кнопка -->
-                    <div class="text-center mt-3">
-                        <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-list-ul me-1"></i> Показать все заказы
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
+        <div class="buttons">
+            <a href="@Url.Action("Login", "Auth", new { area = "Worker" })" class="btn-circle btn-master">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                <span class="label">Мастер</span>
+                <span class="sub">Рабочее место</span>
+            </a>
 
+            <a href="@Url.Action("Login", "Auth", new { area = "Owner" })" class="btn-circle" style="border-color:rgba(168,85,247,0.3);" onmouseover="this.style.borderColor='rgba(168,85,247,0.6)';this.style.boxShadow='0 0 40px rgba(168,85,247,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow='none'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s-8-4-8-10V5l8-3 8 3v7c0 6-8 10-8 10z"/>
+                </svg>
+                <span class="label">Владелец</span>
+                <span class="sub">Управление</span>
+            </a>
 
-<!-- Статистика заказов + Быстрые действия -->
-<div class="row mt-3">
-    <!-- Левая часть: Статистика заказов -->
-    <div class="col-lg-8 mb-3">
-        <div class="animated-card card-stats h-100">
-            <div class="animated-card-inner h-100 p-2">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="fw-bold mb-0 text-uppercase small">
-                        <i class="bi bi-pie-chart me-1"></i> Статистика заказов
-                    </h6>
-                    <span class="badge bg-dark">Всего: @(ViewBag.OrdersCount ?? 0)</span>
-                </div>
-                
-                <div class="row g-1 align-items-center">
-                    <!-- Диаграмма -->
-                    <div class="col-md-7">
-                        <div class="chart-container-sm">
-                            <canvas id="ordersChart" height="110"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Легенда -->
-                    <div class="col-md-5">
-                        <!-- Активные -->
-                        <div class="d-flex align-items-center mb-1">
-                            <div class="color-box me-1" style="width: 12px; height: 12px; background-color: #6c757d;"></div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between small">
-                                    <span class="fw-medium">Активные</span>
-                                    <span class="text-muted">@(ViewBag.ActiveOrdersCount ?? 0)</span>
-                                </div>
-                                <div class="progress" style="height: 3px;">
-                                    <div class="progress-bar bg-secondary" style="width: @((ViewBag.ActiveOrdersCount * 100.0 / ViewBag.OrdersCount) ?? 0)%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Завершенные -->
-                        <div class="d-flex align-items-center mb-1">
-                            <div class="color-box me-1" style="width: 12px; height: 12px; background-color: #198754;"></div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between small">
-                                    <span class="fw-medium">Завершенные</span>
-                                    <span class="text-muted">@(ViewBag.CompletedOrdersCount ?? 0)</span>
-                                </div>
-                                <div class="progress" style="height: 3px;">
-                                    <div class="progress-bar bg-success" style="width: @((ViewBag.CompletedOrdersCount * 100.0 / ViewBag.OrdersCount) ?? 0)%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Неоплаченные -->
-                        <div class="d-flex align-items-center mb-1">
-                            <div class="color-box me-1" style="width: 12px; height: 12px; background-color: #ffc107;"></div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between small">
-                                    <span class="fw-medium">Неоплаченные</span>
-                                    <span class="text-muted">@(ViewBag.UnpaidOrdersCount ?? 0)</span>
-                                </div>
-                                <div class="progress" style="height: 3px;">
-                                    <div class="progress-bar bg-warning" style="width: @((ViewBag.UnpaidOrdersCount * 100.0 / ViewBag.OrdersCount) ?? 0)%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Дополнительные метрики -->
-                        <div class="row mt-2 g-1">
-                            <div class="col-6">
-                                <div class="text-center border rounded py-1 bg-dark">
-                                    <div class="small text-white">Сегодня</div>
-                                    <div class="fw-bold text-white">@(ViewBag.TodayOrdersCount ?? 0)</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-center border rounded py-1 bg-dark">
-                                    <div class="small text-white">За месяц</div>
-                                    <div class="fw-bold text-white">@(ViewBag.MonthOrdersCount ?? 0)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <a href="@Url.Content("~/Auth/Login")" class="btn-circle btn-admin">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span class="label">Админ</span>
+                <span class="sub">Панель управления</span>
+            </a>
         </div>
     </div>
 
-    <!-- Правая часть: Быстрые действия -->
-    <div class="col-lg-4 mb-3">
-        <div class="animated-card card-quick h-100">
-            <div class="animated-card-inner h-100 p-2">
-                <h6 class="fw-bold mb-2 text-uppercase small">
-                    <i class="bi bi-lightning-charge me-1"></i> Быстрые действия
-                </h6>
-                <div class="row g-1">
-                    <div class="col-6 mb-1">
-                        <a asp-controller="Orders" asp-action="Create" class="quick-action-btn text-decoration-none">
-                            <div class="quick-action-btn-inner text-center py-2 px-1">
-                                <i class="bi bi-plus-circle fs-5 text-success"></i>
-                                <div class="small fw-medium mt-1">Новый заказ</div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-6 mb-1">
-                        <a asp-controller="Clients" asp-action="Create" class="quick-action-btn text-decoration-none">
-                            <div class="quick-action-btn-inner text-center py-2 px-1">
-                                <i class="bi bi-person-plus fs-5 text-success"></i>
-                                <div class="small fw-medium mt-1">Новый клиент</div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-6 mb-1">
-                        <a asp-controller="Cars" asp-action="Create" class="quick-action-btn text-decoration-none">
-                            <div class="quick-action-btn-inner text-center py-2 px-1">
-                                <i class="bi bi-car-front fs-5 text-info"></i>
-                                <div class="small fw-medium mt-1">Новое авто</div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-6 mb-1">
-                        <a asp-controller="CompletedWorks" asp-action="Create" class="quick-action-btn text-decoration-none">
-                            <div class="quick-action-btn-inner text-center py-2 px-1">
-                                <i class="bi bi-check-square fs-5 text-warning"></i>
-                                <div class="small fw-medium mt-1">Новая работа</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ArrowTooltipPlugin = {
-            id: 'arrowTooltip',
-            afterDraw: (chart) => {
-                const { ctx } = chart;
-                const activeElements = chart.getActiveElements();
-                
-                if (activeElements.length > 0) {
-                    const activeElement = activeElements[0];
-                    const datasetIndex = activeElement.datasetIndex;
-                    const index = activeElement.index;
-                    
-                    const meta = chart.getDatasetMeta(datasetIndex);
-                    const arc = meta.data[index];
-                    
-                    const { x, y, startAngle, endAngle, outerRadius } = arc;
-
-                    const midAngle = startAngle + (endAngle - startAngle) / 2;
-                    
-                    const color = chart.data.datasets[datasetIndex].backgroundColor[index];
-                    const value = chart.data.datasets[datasetIndex].data[index];
-
-                    const lineStartDist = outerRadius;
-                    const lineEndDist = outerRadius + 25;
-                    
-                    const startX = x + Math.cos(midAngle) * lineStartDist;
-                    const startY = y + Math.sin(midAngle) * lineStartDist;
-                    const endX = x + Math.cos(midAngle) * lineEndDist;
-                    const endY = y + Math.sin(midAngle) * lineEndDist;
-
-                    ctx.save();
-
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(endX, endY);
-                    ctx.lineWidth = 3;
-                    ctx.strokeStyle = color;
-                    ctx.lineCap = 'round';
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.fillStyle = color;
-                    ctx.moveTo(endX, endY);
-                    const arrowSize = 8;
-                    ctx.lineTo(
-                        endX - arrowSize * Math.cos(midAngle - Math.PI / 8),
-                        endY - arrowSize * Math.sin(midAngle - Math.PI / 8)
-                    );
-                    ctx.lineTo(
-                        endX - arrowSize * Math.cos(midAngle + Math.PI / 8),
-                        endY - arrowSize * Math.sin(midAngle + Math.PI / 8)
-                    );
-                    ctx.closePath();
-                    ctx.fill();
-
-                    const badgeWidth = 50;
-                    const badgeHeight = 28;
-                    const badgeX = endX + (Math.cos(midAngle) >= 0 ? 5 : -badgeWidth - 5);
-                    const badgeY = endY - badgeHeight / 2;
-
-                    ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                    ctx.shadowBlur = 6;
-                    ctx.shadowOffsetY = 3;
-
-                    ctx.fillStyle = '#212529';
-                    if (ctx.roundRect) {
-                        ctx.beginPath();
-                        ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 5);
-                        ctx.fill();
-                    } else {
-                        ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
-                    }
-                    
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetY = 0;
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = color;
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 14px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(value, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
-
-                    ctx.restore();
-                }
-            }
-        };
-
-        // Регистрация
-        Chart.register(ArrowTooltipPlugin);
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('ordersChart');
-            if (!canvas) return;
-
-            new Chart(canvas.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Активные', 'Завершенные', 'Неоплаченные'],
-                    datasets: [{
-                        data: [
-                            @(ViewBag.ActiveOrdersCount ?? 0), 
-                            @(ViewBag.CompletedOrdersCount ?? 0), 
-                            @(ViewBag.UnpaidOrdersCount ?? 0)
-                        ],
-                        backgroundColor: ['#6c757d', '#198754', '#ffc107'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff',
-                        hoverOffset: 12 
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            top: 20,
-                            bottom: 20,
-                            left: 50,
-                            right: 50
-                        }
-                    },
-                    cutout: '70%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    },
-                    onHover: (event, chartElement, chart) => {
-                        if (chartElement.length) {
-                            event.native.target.style.cursor = 'pointer';
-                        } else {
-                            event.native.target.style.cursor = 'default';
-                        }
-                        chart.draw(); 
-                    }
-                }
-            });
-        });
-    </script>
-}
+    <footer>&copy; 2026 Шиномонтаж у Бориса — Система управления шиномонтажем</footer>
+</body>
+</html>

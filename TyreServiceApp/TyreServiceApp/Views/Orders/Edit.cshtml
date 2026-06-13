@@ -4,42 +4,8 @@
     ViewData["Title"] = "Редактировать заказ";
 }
 
+<partial name="_FormStyles" />
 <style>
-    :root {
-        --button_radius: 0.75em;
-        --button_outline_color: #000000;
-        --button_color: #e8e8e8;
-    }
-
-    .main-3d-wrapper {
-        position: relative;
-        background: var(--button_outline_color);
-        border-radius: var(--button_radius);
-        display: block;
-        margin-top: 0rem;
-        cursor: default;
-        transition: max-width 0.3s ease;
-    }
-
-    @@media (min-width: 992px) {
-        .main-3d-wrapper {
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    .main-3d-inner {
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid var(--button_outline_color);
-        border-radius: var(--button_radius);
-        background: white;
-        padding: 30px;
-        transform: translateY(-0.15em);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
     .car-selector-container {
         margin-bottom: 20px;
         max-width: 320px;
@@ -525,7 +491,7 @@
 </style>
 
 <div class="container-fluid pt-2 pb-4">
-    <div class="main-3d-wrapper">
+    <div class="main-3d-wrapper" style="--mw: 700px">
         <div class="main-3d-inner">
             
             <!-- Заголовок -->
@@ -924,8 +890,9 @@
                 const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                 input.value = `${formattedDate} ${formattedTime}`;
 
-                const isoDate = selectedDate.toISOString().slice(0, 16);
-                input.setAttribute('data-value', isoDate);
+                const pad = (n) => String(n).padStart(2, '0');
+                const localIso = `${selectedDate.getFullYear()}-${pad(selectedDate.getMonth()+1)}-${pad(selectedDate.getDate())}T${pad(selectedDate.getHours())}:${pad(selectedDate.getMinutes())}`;
+                input.setAttribute('data-value', localIso);
 
                 renderCalendar();
                 calendar.classList.remove('active');
@@ -962,8 +929,9 @@
                         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                         input.value = `${formattedDate} ${formattedTime}`;
 
-                        const isoDate = selectedDate.toISOString().slice(0, 16);
-                        input.setAttribute('data-value', isoDate);
+                        const pad = (n) => String(n).padStart(2, '0');
+                        const localIso = `${selectedDate.getFullYear()}-${pad(selectedDate.getMonth()+1)}-${pad(selectedDate.getDate())}T${pad(selectedDate.getHours())}:${pad(selectedDate.getMinutes())}`;
+                        input.setAttribute('data-value', localIso);
                     }
                 }
             }

@@ -11,7 +11,7 @@ namespace TyreServiceApp.Controllers
     /// Контроллер для управления шинами в системе шиномонтажа.
     /// Обеспечивает CRUD-операции для сущности Tire.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class TiresController : Controller
     {
         private readonly ApplicationDbContext _context;

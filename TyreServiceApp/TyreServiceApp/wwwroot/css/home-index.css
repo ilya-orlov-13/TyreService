@@ -36,10 +36,6 @@
         transform: translateY(-0.33em);
     }
 
-    .animated-card:active .animated-card-inner {
-        transform: translateY(0);
-    }
-
     .card-clients { --card_outline_color: #212529; --card_color: #f8f9fa; }
     .card-cars { --card_outline_color: #212529; --card_color: #f8f9fa; }
     .card-orders { --card_outline_color: #212529; --card_color: #f8f9fa; }

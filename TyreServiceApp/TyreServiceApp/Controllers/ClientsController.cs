@@ -14,7 +14,7 @@ namespace TyreServiceApp.Controllers
     /// Этот контроллер обрабатывает все HTTP-запросы, связанные с клиентами:
     /// просмотр списка, создание, редактирование, просмотр деталей и удаление.
     /// </remarks>
-    [Authorize]
+    [Authorize(Roles = "Admin,Owner")]
     public class ClientsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -118,7 +118,7 @@ namespace TyreServiceApp.Controllers
         // POST: Clients/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FullName,Phone")] Client client)
+        public async Task<IActionResult> Create([Bind("FullName,Phone,Email")] Client client)
         {
             if (ModelState.IsValid)
             {
@@ -178,7 +178,7 @@ namespace TyreServiceApp.Controllers
         // POST: Clients/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ClientId,FullName,Phone")] Client client)
+        public async Task<IActionResult> Edit(int id, [Bind("ClientId,FullName,Phone,Email")] Client client)
         {
             if (id != client.ClientId)
             {
@@ -257,12 +257,26 @@ namespace TyreServiceApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _context.Clients
+                .Include(c => c.Cars)
+                .FirstOrDefaultAsync(m => m.ClientId == id);
             if (client != null)
             {
+                if (client.Cars != null && client.Cars.Any())
+                {
+                    ModelState.AddModelError("", "Невозможно удалить клиента, у которого есть автомобили. Сначала удалите все автомобили клиента.");
+                    return View(client);
+                }
+                var customerUsers = await _context.CustomerUsers
+                    .Where(u => u.ClientId == id)
+                    .ToListAsync();
+                foreach (var user in customerUsers)
+                {
+                    user.ClientId = null;
+                }
                 _context.Clients.Remove(client);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
