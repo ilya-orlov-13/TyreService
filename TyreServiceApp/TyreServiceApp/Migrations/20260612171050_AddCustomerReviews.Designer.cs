@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TyreServiceApp.Data;
@@ -11,9 +12,11 @@ using TyreServiceApp.Data;
 namespace TyreServiceApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612171050_AddCustomerReviews")]
+    partial class AddCustomerReviews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -382,12 +385,6 @@ namespace TyreServiceApp.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("OrderNumber")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
@@ -401,9 +398,8 @@ namespace TyreServiceApp.Migrations
 
                     b.HasKey("ReviewId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("OrderNumber");
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
 
                     b.ToTable("CustomerReviews");
                 });
@@ -983,13 +979,7 @@ namespace TyreServiceApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TyreServiceApp.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderNumber");
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>

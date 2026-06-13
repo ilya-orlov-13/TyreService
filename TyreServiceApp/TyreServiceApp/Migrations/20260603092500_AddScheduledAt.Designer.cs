@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TyreServiceApp.Data;
@@ -11,9 +12,11 @@ using TyreServiceApp.Data;
 namespace TyreServiceApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603092500_AddScheduledAt")]
+    partial class AddScheduledAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace TyreServiceApp.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -64,7 +67,7 @@ namespace TyreServiceApp.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MasterUserId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -101,7 +104,7 @@ namespace TyreServiceApp.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AdminUserId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -120,15 +123,10 @@ namespace TyreServiceApp.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("StaffPositionId")
-                        .HasColumnType("integer");
-
                     b.HasKey("AdminUserId");
 
                     b.HasIndex("Login")
                         .IsUnique();
-
-                    b.HasIndex("StaffPositionId");
 
                     b.ToTable("AdminUsers");
                 });
@@ -296,9 +294,6 @@ namespace TyreServiceApp.Migrations
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("TimeSavedMin")
-                        .HasColumnType("integer");
-
                     b.Property<int>("WheelCount")
                         .HasColumnType("integer");
 
@@ -364,50 +359,6 @@ namespace TyreServiceApp.Migrations
                     b.ToTable("Consumables");
                 });
 
-            modelBuilder.Entity("TyreServiceApp.Models.CustomerReview", b =>
-                {
-                    b.Property<int>("ReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewId"));
-
-                    b.Property<string>("CarModel")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("OrderNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("ReviewId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("OrderNumber");
-
-                    b.ToTable("CustomerReviews");
-                });
-
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
                 {
                     b.Property<int>("MasterId")
@@ -445,7 +396,7 @@ namespace TyreServiceApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderNumber"));
 
-                    b.Property<int?>("CarId")
+                    b.Property<int>("CarId")
                         .HasColumnType("integer");
 
                     b.Property<decimal?>("ClientTotal")
@@ -481,9 +432,6 @@ namespace TyreServiceApp.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<int?>("TireId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("TotalWorkMinutes")
                         .HasColumnType("integer");
 
@@ -495,8 +443,6 @@ namespace TyreServiceApp.Migrations
                     b.HasIndex("CarId");
 
                     b.HasIndex("MasterId");
-
-                    b.HasIndex("TireId");
 
                     b.ToTable("Orders");
                 });
@@ -584,7 +530,7 @@ namespace TyreServiceApp.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OwnerUserId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -690,9 +636,6 @@ namespace TyreServiceApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ServiceCode"));
 
-                    b.Property<int?>("FixedDurationMin")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsConsultation")
                         .HasColumnType("boolean");
 
@@ -739,59 +682,6 @@ namespace TyreServiceApp.Migrations
                     b.ToTable("ServiceTariffs");
                 });
 
-            modelBuilder.Entity("TyreServiceApp.Models.SpeedBonus", b =>
-                {
-                    b.Property<int>("SpeedBonusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SpeedBonusId"));
-
-                    b.Property<decimal>("BonusAmount")
-                        .HasColumnType("decimal(10, 2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("MasterId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrderNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TimeSavedMin")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WorkId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("SpeedBonusId");
-
-                    b.HasIndex("MasterId");
-
-                    b.HasIndex("OrderNumber");
-
-                    b.ToTable("SpeedBonuses");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.StaffPosition", b =>
-                {
-                    b.Property<int>("StaffPositionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StaffPositionId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("StaffPositionId");
-
-                    b.ToTable("StaffPositions");
-                });
-
             modelBuilder.Entity("TyreServiceApp.Models.Tire", b =>
                 {
                     b.Property<int>("TireId")
@@ -800,10 +690,7 @@ namespace TyreServiceApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TireId"));
 
-                    b.Property<int?>("CarId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("CarId")
                         .HasColumnType("integer");
 
                     b.Property<int>("LoadIndex")
@@ -844,49 +731,14 @@ namespace TyreServiceApp.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.HasIndex("ClientId");
-
                     b.ToTable("Tires");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.WorkTimeLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DurationMinutes")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("MasterId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("WorkId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MasterId");
-
-                    b.HasIndex("WorkId");
-
-                    b.ToTable("WorkTimeLogs");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Areas.Customer.Models.CustomerUser", b =>
                 {
                     b.HasOne("TyreServiceApp.Models.Client", "Client")
                         .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ClientId");
 
                     b.Navigation("Client");
                 });
@@ -900,16 +752,6 @@ namespace TyreServiceApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Master");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.AdminUser", b =>
-                {
-                    b.HasOne("TyreServiceApp.Models.StaffPosition", "StaffPosition")
-                        .WithMany("AdminUsers")
-                        .HasForeignKey("StaffPositionId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("StaffPosition");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Car", b =>
@@ -975,23 +817,6 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("TyreServiceApp.Models.CustomerReview", b =>
-                {
-                    b.HasOne("TyreServiceApp.Areas.Customer.Models.CustomerUser", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TyreServiceApp.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderNumber");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
                 {
                     b.HasOne("TyreServiceApp.Models.Position", "Position")
@@ -1008,23 +833,17 @@ namespace TyreServiceApp.Migrations
                     b.HasOne("TyreServiceApp.Models.Car", "Car")
                         .WithMany("Orders")
                         .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TyreServiceApp.Models.Master", "Master")
                         .WithMany("Orders")
                         .HasForeignKey("MasterId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("TyreServiceApp.Models.Tire", "Tire")
-                        .WithMany()
-                        .HasForeignKey("TireId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Car");
 
                     b.Navigation("Master");
-
-                    b.Navigation("Tire");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.OrderComplexity", b =>
@@ -1103,59 +922,15 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("TyreServiceApp.Models.SpeedBonus", b =>
-                {
-                    b.HasOne("TyreServiceApp.Models.Master", "Master")
-                        .WithMany()
-                        .HasForeignKey("MasterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TyreServiceApp.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderNumber")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Master");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("TyreServiceApp.Models.Tire", b =>
                 {
                     b.HasOne("TyreServiceApp.Models.Car", "Car")
                         .WithMany("Tires")
                         .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("TyreServiceApp.Models.Client", "Client")
-                        .WithMany("Tires")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Car");
-
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.WorkTimeLog", b =>
-                {
-                    b.HasOne("TyreServiceApp.Models.Master", "Master")
-                        .WithMany("WorkTimeLogs")
-                        .HasForeignKey("MasterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TyreServiceApp.Models.CompletedWork", "CompletedWork")
-                        .WithMany("WorkTimeLogs")
-                        .HasForeignKey("WorkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CompletedWork");
-
-                    b.Navigation("Master");
+                    b.Navigation("Car");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Car", b =>
@@ -1175,13 +950,6 @@ namespace TyreServiceApp.Migrations
             modelBuilder.Entity("TyreServiceApp.Models.Client", b =>
                 {
                     b.Navigation("Cars");
-
-                    b.Navigation("Tires");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.CompletedWork", b =>
-                {
-                    b.Navigation("WorkTimeLogs");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.ComplexityCoefficient", b =>
@@ -1203,8 +971,6 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("PostActiveSessions");
-
-                    b.Navigation("WorkTimeLogs");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Order", b =>
@@ -1233,11 +999,6 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("CompletedWorks");
 
                     b.Navigation("ServiceTariffs");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.StaffPosition", b =>
-                {
-                    b.Navigation("AdminUsers");
                 });
 #pragma warning restore 612, 618
         }

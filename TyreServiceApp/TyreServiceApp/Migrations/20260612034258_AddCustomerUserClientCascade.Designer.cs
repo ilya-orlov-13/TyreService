@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TyreServiceApp.Data;
@@ -11,9 +12,11 @@ using TyreServiceApp.Data;
 namespace TyreServiceApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612034258_AddCustomerUserClientCascade")]
+    partial class AddCustomerUserClientCascade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -362,50 +365,6 @@ namespace TyreServiceApp.Migrations
                     b.HasKey("ConsumableId");
 
                     b.ToTable("Consumables");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.CustomerReview", b =>
-                {
-                    b.Property<int>("ReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewId"));
-
-                    b.Property<string>("CarModel")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("OrderNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("ReviewId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("OrderNumber");
-
-                    b.ToTable("CustomerReviews");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
@@ -973,23 +932,6 @@ namespace TyreServiceApp.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Service");
-                });
-
-            modelBuilder.Entity("TyreServiceApp.Models.CustomerReview", b =>
-                {
-                    b.HasOne("TyreServiceApp.Areas.Customer.Models.CustomerUser", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TyreServiceApp.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderNumber");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("TyreServiceApp.Models.Master", b =>
