@@ -1,0 +1,243 @@
+@model TyreServiceApp.Models.Post
+
+@{
+    ViewData["Title"] = $"Пост #{Model.PostId} — {Model.Name}";
+}
+
+<partial name="_CardGridStyles" />
+<style>
+    .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .detail-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .post-status-badge {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+    }
+
+    .post-status-badge.free {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .post-status-badge.locked {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .masters-section {
+        background: #fff;
+        border: 1.5px solid #a1a1a5;
+        border-radius: 16px;
+        padding: 20px 24px;
+    }
+
+    .masters-section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 16px 0;
+        color: #333;
+    }
+
+    .master-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .master-row:last-child {
+        border-bottom: none;
+    }
+
+    .master-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #1a1a2e;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .master-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .master-name {
+        font-weight: 600;
+        font-size: 15px;
+        color: #111;
+    }
+
+    .master-since {
+        font-size: 12px;
+        color: #888;
+        margin-top: 2px;
+    }
+
+    .master-rank {
+        font-size: 12px;
+        color: #666;
+        background: #f0f0f0;
+        padding: 2px 8px;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .empty-state svg {
+        margin-bottom: 12px;
+        opacity: 0.4;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+
+    .back-link:hover {
+        color: #000;
+    }
+
+    .session-count {
+        font-size: 13px;
+        color: #666;
+        margin-top: 4px;
+    }
+</style>
+
+<div class="container-fluid pt-2 pb-4">
+    <a href="/Posts" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Назад к постам
+    </a>
+
+    <div class="detail-header">
+        <h2>#@Model.PostId @Model.Name</h2>
+        <span class="post-status-badge @(Model.IsLocked ? "locked" : "free")" id="statusBadge">
+            @(Model.IsLocked ? "Заблокирован" : "Свободен")
+        </span>
+    </div>
+
+    <div class="masters-section" id="mastersSection">
+        <h3>
+            Мастера на посту
+            <span class="session-count" id="sessionCount">
+                (@Model.ActiveSessions?.Count(s => s.EndedAt == null) ?? 0)
+            </span>
+        </h3>
+        <div id="mastersList">
+            @if (Model.ActiveSessions != null && Model.ActiveSessions.Any(s => s.EndedAt == null))
+            {
+                var active = Model.ActiveSessions.Where(s => s.EndedAt == null).ToList();
+                foreach (var session in active)
+                {
+                    <div class="master-row" data-session-id="@session.SessionId">
+                        <div class="master-avatar">@(session.Master?.FullName?.FirstOrDefault() ?? '?')</div>
+                        <div class="master-info">
+                            <div class="master-name">@session.Master?.FullName</div>
+                            <div class="master-since">Зашёл: @session.StartedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                        </div>
+                        <span class="master-rank">@(session.Master?.Rank ?? 0) разряд</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>На этом посту нет активных мастеров</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const postId = @Model.PostId;
+
+        async function refreshPost() {
+            try {
+                const res = await fetch('/api/posts/' + postId);
+                if (!res.ok) return;
+                const data = await res.json();
+
+                const badge = document.getElementById('statusBadge');
+                if (data.isLocked) {
+                    badge.textContent = 'Заблокирован';
+                    badge.className = 'post-status-badge locked';
+                } else {
+                    badge.textContent = 'Свободен';
+                    badge.className = 'post-status-badge free';
+                }
+
+                const active = (data.activeSessions || []).filter(s => s.sessionId);
+                document.getElementById('sessionCount').textContent = '(' + active.length + ')';
+
+                const list = document.getElementById('mastersList');
+                if (active.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><p>На этом посту нет активных мастеров</p></div>';
+                    return;
+                }
+
+                list.innerHTML = active.map(s => {
+                    const initial = (s.masterName || '?')[0];
+                    return '<div class="master-row">' +
+                        '<div class="master-avatar">' + initial + '</div>' +
+                        '<div class="master-info">' +
+                            '<div class="master-name">' + escapeHtml(s.masterName || 'Мастер') + '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        setInterval(refreshPost, 5000);
+    </script>
+}

@@ -21,6 +21,18 @@ namespace TyreServiceApp.Controllers
             return View(await _context.Posts.OrderBy(p => p.PostId).ToListAsync());
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            var post = await _context.Posts
+                .Include(p => p.ActiveSessions!)
+                    .ThenInclude(s => s.Master)
+                .FirstOrDefaultAsync(p => p.PostId == id);
+
+            if (post == null) return NotFound();
+
+            return View(post);
+        }
+
         public IActionResult Create()
         {
             return View();
