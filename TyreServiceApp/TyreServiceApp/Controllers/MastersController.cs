@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TyreServiceApp.Areas.Worker.Models;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
 
@@ -103,12 +104,27 @@ namespace TyreServiceApp.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FullName,PositionId,Rank")] Master master)
+        public async Task<IActionResult> Create([Bind("FullName,PositionId,Rank")] Master master,
+            string? login, string? password)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(master);
                 await _context.SaveChangesAsync();
+
+                if (!string.IsNullOrWhiteSpace(login) && !string.IsNullOrWhiteSpace(password))
+                {
+                    var masterUser = new MasterUser
+                    {
+                        Login = login,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                        MasterId = master.MasterId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.Add(masterUser);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.PositionId = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "PositionId", "Name", master.PositionId);
@@ -136,6 +152,9 @@ namespace TyreServiceApp.Controllers
             {
                 return NotFound();
             }
+
+            var masterUser = await _context.MasterUsers.FirstOrDefaultAsync(u => u.MasterId == id);
+            ViewBag.MasterLogin = masterUser?.Login ?? "";
             ViewBag.PositionId = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "PositionId", "Name", master.PositionId);
             return View(master);
         }
@@ -153,7 +172,8 @@ namespace TyreServiceApp.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MasterId,FullName,PositionId,Rank")] Master master)
+        public async Task<IActionResult> Edit(int id, [Bind("MasterId,FullName,PositionId,Rank")] Master master,
+            string? login, string? password)
         {
             if (id != master.MasterId)
             {
@@ -166,6 +186,28 @@ namespace TyreServiceApp.Controllers
                 {
                     _context.Update(master);
                     await _context.SaveChangesAsync();
+
+                    var masterUser = await _context.MasterUsers.FirstOrDefaultAsync(u => u.MasterId == id);
+                    if (masterUser != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(login))
+                            masterUser.Login = login;
+                        if (!string.IsNullOrWhiteSpace(password))
+                            masterUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+                        await _context.SaveChangesAsync();
+                    }
+                    else if (!string.IsNullOrWhiteSpace(login) && !string.IsNullOrWhiteSpace(password))
+                    {
+                        masterUser = new MasterUser
+                        {
+                            Login = login,
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                            MasterId = id,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        _context.Add(masterUser);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
