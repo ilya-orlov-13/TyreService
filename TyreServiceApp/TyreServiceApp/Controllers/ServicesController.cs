@@ -84,8 +84,13 @@ namespace TyreServiceApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ServiceName,ServiceCost,IsConsultation,FixedDurationMin")] Service service)
         {
+            ModelState.Remove(nameof(Service.ServiceCode));
+
             if (ModelState.IsValid)
             {
+                var maxCode = await _context.Services.MaxAsync(s => (int?)s.ServiceCode) ?? 0;
+                service.ServiceCode = maxCode + 1;
+
                 _context.Add(service);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
