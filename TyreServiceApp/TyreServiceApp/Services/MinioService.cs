@@ -47,32 +47,47 @@ public class MinioService : IMinioService
         var ext = Path.GetExtension(file.FileName);
         var key = $"{prefix}/{clientId}/{Guid.NewGuid()}{ext}";
 
-        await using var stream = file.OpenReadStream();
-
-        var request = new PutObjectRequest
+        try
         {
-            BucketName = _bucket,
-            Key = key,
-            InputStream = stream,
-            ContentType = file.ContentType ?? "application/octet-stream",
-            AutoCloseStream = true
-        };
+            await using var stream = file.OpenReadStream();
 
-        await _s3.PutObjectAsync(request);
-        return key;
+            var request = new PutObjectRequest
+            {
+                BucketName = _bucket,
+                Key = key,
+                InputStream = stream,
+                ContentType = file.ContentType ?? "application/octet-stream",
+                AutoCloseStream = true
+            };
+
+            await _s3.PutObjectAsync(request);
+            return key;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[S3] Upload failed: {ex.Message}");
+            return string.Empty;
+        }
     }
 
     public async Task DeleteAsync(string objectName)
     {
         if (!_enabled || _s3 == null || string.IsNullOrEmpty(objectName)) return;
 
-        var request = new DeleteObjectRequest
+        try
         {
-            BucketName = _bucket,
-            Key = objectName
-        };
+            var request = new DeleteObjectRequest
+            {
+                BucketName = _bucket,
+                Key = objectName
+            };
 
-        await _s3.DeleteObjectAsync(request);
+            await _s3.DeleteObjectAsync(request);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[S3] Delete failed: {ex.Message}");
+        }
     }
 
     public Task<string> GetFileUrlAsync(string objectName)
