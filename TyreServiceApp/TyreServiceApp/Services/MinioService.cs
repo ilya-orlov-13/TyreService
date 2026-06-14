@@ -18,6 +18,7 @@ public class MinioService : IMinioService
         var secretKey = configuration["Minio:SecretKey"] ?? string.Empty;
         _bucket = configuration["Minio:Bucket"] ?? string.Empty;
         _useSsl = configuration.GetValue<bool?>("Minio:UseSSL") ?? false;
+        var region = configuration["Minio:Region"] ?? string.Empty;
         _enabled = !string.IsNullOrWhiteSpace(_endpoint)
             && !string.IsNullOrWhiteSpace(accessKey)
             && !string.IsNullOrWhiteSpace(secretKey)
@@ -25,11 +26,15 @@ public class MinioService : IMinioService
 
         if (_enabled)
         {
-            _minio = new MinioClient()
+            var client = new MinioClient()
                 .WithEndpoint(_endpoint)
                 .WithCredentials(accessKey, secretKey)
-                .WithSSL(_useSsl)
-                .Build();
+                .WithSSL(_useSsl);
+
+            if (!string.IsNullOrWhiteSpace(region))
+                client = client.WithRegion(region);
+
+            _minio = client.Build();
         }
     }
 
