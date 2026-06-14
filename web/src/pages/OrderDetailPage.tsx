@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { apiGet, apiDelete, apiPost } from '../api/client';
 import type { OrderDto, ReviewDto, CreateReviewRequest } from '../types';
 import { ArrowLeft, Trash2, Star } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ export default function OrderDetailPage() {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -47,13 +49,16 @@ export default function OrderDetailPage() {
     }
   };
 
-  const handleCancel = async () => {
-    if (!confirm('Отменить заказ?')) return;
+  const handleCancel = () => setShowCancelModal(true);
+
+  const confirmCancel = async () => {
     try {
       await apiDelete(`/orders/${id}`);
       navigate('/orders');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка');
+    } finally {
+      setShowCancelModal(false);
     }
   };
 
@@ -221,6 +226,14 @@ export default function OrderDetailPage() {
           <p className="text-green-400 text-lg font-medium">Спасибо! Отзыв отправлен.</p>
           <p className="text-sm text-muted mt-1">После проверки он появится на сайте.</p>
         </div>
+      )}
+      {showCancelModal && (
+        <ConfirmModal
+          message="Отменить заказ?"
+          confirmLabel="Отменить"
+          onConfirm={confirmCancel}
+          onCancel={() => setShowCancelModal(false)}
+        />
       )}
     </div>
   );

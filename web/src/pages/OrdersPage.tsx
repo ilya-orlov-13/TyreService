@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiGet, apiDelete } from '../api/client';
 import type { OrderDto } from '../types';
 import { ClipboardList, Plus, X } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancelTarget, setCancelTarget] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,13 +17,17 @@ export default function OrdersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleCancel = async (id: number) => {
-    if (!confirm('Отменить заказ?')) return;
+  const handleCancel = (id: number) => setCancelTarget(id);
+
+  const confirmCancel = async () => {
+    if (cancelTarget === null) return;
     try {
-      await apiDelete(`/orders/${id}`);
-      setOrders((prev) => prev.filter((o) => o.orderNumber !== id));
+      await apiDelete(`/orders/${cancelTarget}`);
+      setOrders((prev) => prev.filter((o) => o.orderNumber !== cancelTarget));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка');
+    } finally {
+      setCancelTarget(null);
     }
   };
 
@@ -117,6 +123,14 @@ export default function OrdersPage() {
             </div>
           ))}
         </div>
+      )}
+      {cancelTarget !== null && (
+        <ConfirmModal
+          message="Отменить заказ?"
+          confirmLabel="Отменить"
+          onConfirm={confirmCancel}
+          onCancel={() => setCancelTarget(null)}
+        />
       )}
     </div>
   );
