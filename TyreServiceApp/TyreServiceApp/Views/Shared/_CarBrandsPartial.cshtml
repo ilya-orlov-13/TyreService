@@ -1,19 +1,82 @@
+@model TyreServiceApp.Models.Car
+
+@{
+    var brandModels = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["LADA (ВАЗ)"] = new() { "Granta", "Vesta", "Niva", "Niva Travel", "Largus", "XRAY", "Kalina", "Priora", "2107", "2114", "2110", "2109", "2121", "2131" },
+        ["Toyota"] = new() { "Camry", "Corolla", "RAV4", "Land Cruiser", "Land Cruiser Prado", "Highlander", "Fortuner", "Hilux", "Yaris", "C-HR", "Avensis", "Verso", "Alphard", "Crown", "Mark X", "Supra" },
+        ["Hyundai"] = new() { "Solaris", "Elantra", "Tucson", "Santa Fe", "Creta", "Sonata", "ix35", "Getz", "Accent", "Palisade", "Kona", "Staria", "Porter" },
+        ["Kia"] = new() { "Rio", "Sportage", "Sorento", "Optima", "Ceed", "Cerato", "Soul", "Mohave", "Stinger", "Picanto", "Carnival", "K5", "Seltos" },
+        ["Renault"] = new() { "Logan", "Sandero", "Duster", "Kaptur", "Arkana", "Megan", "Fluence", "Koleos", "Laguna", "Scenic", "Master" },
+        ["Nissan"] = new() { "Qashqai", "X-Trail", "Murano", "Juke", "Pathfinder", "Patrol", "Navara", "Teana", "Almera", "Note", "Micra", "Leaf", "GT-R" },
+        ["Volkswagen"] = new() { "Polo", "Passat", "Tiguan", "Touareg", "Golf", "Jetta", "Teramont", "Caddy", "Transporter", "Amarok", "ID.4", "Taos" },
+        ["BMW"] = new() { "X3", "X5", "X1", "X6", "3 Series", "5 Series", "7 Series", "X4", "X7", "M5", "M3", "1 Series", "iX", "i4" },
+        ["Mercedes-Benz"] = new() { "E-Class", "C-Class", "S-Class", "GLC", "GLE", "GLS", "A-Class", "GLK", "ML", "G-Class", "Sprinter", "Vito", "EQS", "EQE" },
+        ["Audi"] = new() { "Q5", "Q7", "A4", "A6", "Q3", "A3", "A8", "Q8", "TT", "R8", "e-tron", "Q2", "A5", "A7" },
+        ["Ford"] = new() { "Focus", "Kuga", "Explorer", "Escape", "Mondeo", "Fiesta", "Fusion", "Ranger", "Transit", "Mustang", "Edge", "Everest" },
+        ["Chevrolet"] = new() { "Cruze", "Lacetti", "Aveo", "Niva", "Captiva", "Tahoe", "Malibu", "Spark", "TrailBlazer", "Camaro", "Suburban", "Traverse" },
+        ["Mazda"] = new() { "CX-5", "CX-7", "3", "6", "CX-9", "CX-30", "MX-5", "RX-8", "CX-3", "2", "CX-60" },
+        ["Mitsubishi"] = new() { "Outlander", "Pajero", "L200", "ASX", "Lancer", "Eclipse Cross", "Montero", "i-MiEV", "Mirage", "Delica" },
+        ["Subaru"] = new() { "Forester", "Outback", "Impreza", "Legacy", "XV", "WRX", "Tribeca", "BRZ", "Ascent", "Leone" },
+        ["Skoda"] = new() { "Octavia", "Rapid", "Kodiaq", "Fabia", "Yeti", "Superb", "Karoq", "Kamiq", "Enyaq", "Scala" },
+        ["Volvo"] = new() { "XC60", "XC90", "XC40", "S60", "S90", "V60", "V90", "S40", "C40", "EX30", "EX90" },
+        ["Lexus"] = new() { "RX", "NX", "LX", "ES", "IS", "GX", "UX", "LS", "RC", "LC" },
+        ["Chery"] = new() { "Tiggo 7", "Tiggo 8", "Tiggo 4", "Arrizo 8", "Tiggo 5", "Arrizo 5", "Tiggo 9", "eQ1" },
+        ["Geely"] = new() { "Coolray", "Atlas", "Monjaro", "Tugella", "Emgrand", "Preface", "Okavango", "Geometry C" },
+        ["Haval"] = new() { "Jolion", "F7", "H6", "F7x", "Dargo", "H9", "M6", "H2" },
+        ["BYD"] = new() { "Tang", "Han", "Atto 3", "Seal", "Dolphin", "Song Plus", "Yuan Plus", "Qin Plus" },
+        ["Changan"] = new() { "CS35", "CS55", "CS75", "UNI-K", "UNI-T", "Eado", "Alsvin", "Raeton" }
+    };
+}
+
 <div class="form-group">
-    <label for="Brand">
+    <label asp-for="Brand" class="form-label fw-semibold">
         <i class="bi bi-tag text-dark"></i> Марка
     </label>
-    <input type="text" name="Brand" id="Brand" list="brandList" placeholder="Выберите или введите марку" autocomplete="off"
-           data-val="true" data-val-required="Поле 'Марка' обязательно." data-val-length-max="50" />
-    <span class="text-danger field-validation-valid" data-valmsg-for="Brand" data-valmsg-replace="true"></span>
+    <select asp-for="Brand" class="form-control" id="BrandSelect">
+        <option value="">— Выберите марку —</option>
+        @foreach (var brand in brandModels.Keys)
+        {
+            <option value="@brand">@brand</option>
+        }
+    </select>
+    <span asp-validation-for="Brand" class="text-danger"></span>
 </div>
 
 <div class="form-group">
-    <label for="Model">
+    <label asp-for="Model" class="form-label fw-semibold">
         <i class="bi bi-tag text-dark"></i> Модель
     </label>
-    <input type="text" name="Model" id="Model" list="modelList" placeholder="Выберите или введите модель" autocomplete="off"
-           data-val="true" data-val-required="Поле 'Модель' обязательно." data-val-length-max="50" />
-    <span class="text-danger field-validation-valid" data-valmsg-for="Model" data-valmsg-replace="true"></span>
+    <select asp-for="Model" class="form-control" id="ModelSelect">
+        <option value="">— Выберите модель —</option>
+        @foreach (var kvp in brandModels)
+        {
+            foreach (var model in kvp.Value)
+            {
+                <option value="@(model)" data-brand="@kvp.Key">@(model)</option>
+            }
+        }
+    </select>
+    <span asp-validation-for="Model" class="text-danger"></span>
 </div>
 
-<script src="~/js/carBrands.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var brandSelect = document.getElementById('BrandSelect');
+        var modelSelect = document.getElementById('ModelSelect');
+        if (!brandSelect || !modelSelect) return;
+        var options = Array.from(modelSelect.querySelectorAll('option[data-brand]'));
+        function filter(brand) {
+            options.forEach(function (o) {
+                o.style.display = (o.getAttribute('data-brand') === brand) ? '' : 'none';
+            });
+            if (brand) {
+                var cur = modelSelect.value;
+                var valid = cur && options.some(function (o) { return o.value === cur && o.getAttribute('data-brand') === brand; });
+                if (!valid) modelSelect.value = '';
+            }
+        }
+        brandSelect.addEventListener('change', function () { filter(this.value); });
+        filter(brandSelect.value);
+    });
+</script>
