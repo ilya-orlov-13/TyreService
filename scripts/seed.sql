@@ -2,31 +2,95 @@
 
 BEGIN;
 
--- Скрипт заполнения базы данных TyreService для текущей схемы ветки main.
--- Предназначен для PostgreSQL и может безопасно запускаться повторно:
--- данные очищаются через TRUNCATE ... RESTART IDENTITY CASCADE.
-
-TRUNCATE TABLE
-  "CompletedWorks",
-  "Tires",
-  "Orders",
-  "Cars",
-  "Clients",
-  "Masters",
-  "Services"
-RESTART IDENTITY CASCADE;
+-- Скрипт заполнения базы данных TyreService для текущей схемы.
+-- Использует DELETE (вместо TRUNCATE), чтобы работать через Supabase pooler.
+-- Безопасно запускается повторно.
 
 -- ============================================================
--- 1. Клиенты
+-- 0. Справочники (миграции создают их, но гарантируем наличие)
 -- ============================================================
-INSERT INTO "Clients" ("FullName", "Phone") VALUES
-  ('Иванов Сергей Петрович', '+79001234567'),
-  ('Петрова Анна Викторовна', '+79002345678'),
-  ('Смирнов Алексей Олегович', '+79003456789'),
-  ('Кузнецова Марина Игоревна', '+79004567890');
+INSERT INTO "Positions" ("PositionId", "Name") VALUES
+  (1, 'Шиномонтажник'),
+  (2, 'Балансировщик'),
+  (3, 'Мастер-приёмщик'),
+  (4, 'Старший механик'),
+  (5, 'Помощник мастера')
+ON CONFLICT ("PositionId") DO NOTHING;
+
+INSERT INTO "StaffPositions" ("StaffPositionId", "Name") VALUES
+  (1, 'Администратор')
+ON CONFLICT ("StaffPositionId") DO NOTHING;
+
+INSERT INTO "CarClasses" ("CarClassId", "Name", "BaseTariff", "SortOrder") VALUES
+  (1, 'Эконом', 0, 1),
+  (2, 'Стандарт', 200, 2),
+  (3, 'Комфорт', 400, 3),
+  (4, 'Бизнес', 600, 4),
+  (5, 'Премиум', 1000, 5)
+ON CONFLICT ("CarClassId") DO NOTHING;
 
 -- ============================================================
--- 2. Автомобили
+-- Очистка данных (удаляем в порядке FK-зависимостей)
+-- ============================================================
+DELETE FROM "ServiceTariffs";
+DELETE FROM "WorkTimeLogs";
+DELETE FROM "CompletedWorks";
+DELETE FROM "SpeedBonuses";
+DELETE FROM "OrderComplexities";
+DELETE FROM "OrderConsumables";
+DELETE FROM "CompletedJobsPayouts";
+DELETE FROM "PostActiveSessions";
+DELETE FROM "MasterUsers";
+DELETE FROM "CustomerReviews";
+DELETE FROM "Tires";
+DELETE FROM "Orders";
+DELETE FROM "Cars";
+DELETE FROM "Masters";
+DELETE FROM "Clients";
+DELETE FROM "Services";
+DELETE FROM "CustomerUsers";
+
+-- Сброс identity-последовательностей
+ALTER TABLE "Services" ALTER COLUMN "ServiceCode" RESTART WITH 1;
+ALTER TABLE "Masters" ALTER COLUMN "MasterId" RESTART WITH 1;
+ALTER TABLE "Clients" ALTER COLUMN "ClientId" RESTART WITH 1;
+ALTER TABLE "Cars" ALTER COLUMN "CarId" RESTART WITH 1;
+ALTER TABLE "Tires" ALTER COLUMN "TireId" RESTART WITH 1;
+ALTER TABLE "Orders" ALTER COLUMN "OrderNumber" RESTART WITH 1;
+ALTER TABLE "CompletedWorks" ALTER COLUMN "WorkId" RESTART WITH 1;
+
+-- ============================================================
+-- 1. Услуги
+-- ============================================================
+INSERT INTO "Services" ("ServiceCode", "ServiceName", "ServiceCost") VALUES
+  (1, 'Сезонная смена колёс (4 колеса)', 2500.00),
+  (2, 'Комплексный шиномонтаж (4 колеса)', 3200.00),
+  (3, 'Балансировка колеса', 500.00),
+  (4, 'Ремонт прокола жгутом', 600.00),
+  (5, 'Ремонт прокола грибком', 900.00),
+  (6, 'Правка литого диска', 2200.00),
+  (7, 'Проверка давления в шинах', 150.00),
+  (8, 'Сезонное хранение комплекта', 3500.00);
+
+-- ============================================================
+-- 2. Мастера
+-- ============================================================
+INSERT INTO "Masters" ("FullName", "PositionId", "Rank", "HourlyRate") VALUES
+  ('Иванов Григорий Сергеевич', 4, 6, 1200.00),  -- Старший механик
+  ('Ковалёв Дмитрий Андреевич', 1, 5, 950.00),  -- Шиномонтажник
+  ('Фёдоров Павел Николаевич', 1, 4, 850.00);  -- Шиномонтажник
+
+-- ============================================================
+-- 3. Клиенты
+-- ============================================================
+INSERT INTO "Clients" ("FullName", "Phone", "Email") VALUES
+  ('Иванов Сергей Петрович', '+79001234567', NULL),
+  ('Петрова Анна Викторовна', '+79002345678', NULL),
+  ('Смирнов Алексей Олегович', '+79003456789', NULL),
+  ('Кузнецова Марина Игоревна', '+79004567890', NULL);
+
+-- ============================================================
+-- 4. Автомобили
 -- ============================================================
 INSERT INTO "Cars" (
   "ClientId",
@@ -43,27 +107,6 @@ INSERT INTO "Cars" (
   (2, 'Hyundai', 'Solaris', 2019, 'Е789КХ196', 'Z94K241CBKR765432', NULL, NULL),
   (3, 'Kia', 'Sportage', 2021, 'Т234НА196', 'KNAPM81ABM7123456', NULL, NULL),
   (4, 'Volkswagen', 'Polo', 2018, 'С567УМ196', 'XW8ZZZ61ZJG098765', NULL, NULL);
-
--- ============================================================
--- 3. Мастера
--- ============================================================
-INSERT INTO "Masters" ("FullName", "Position", "Rank", "HourlyRate") VALUES
-  ('Орлов Илья Сергеевич', 'Старший мастер', 6, 1200.00),
-  ('Ковалёв Дмитрий Андреевич', 'Мастер шиномонтажа', 5, 950.00),
-  ('Фёдоров Павел Николаевич', 'Мастер шиномонтажа', 4, 850.00);
-
--- ============================================================
--- 4. Услуги
--- ============================================================
-INSERT INTO "Services" ("ServiceName", "ServiceCost") VALUES
-  ('Сезонная смена колёс (4 колеса)', 2500.00),
-  ('Комплексный шиномонтаж (4 колеса)', 3200.00),
-  ('Балансировка колеса', 500.00),
-  ('Ремонт прокола жгутом', 600.00),
-  ('Ремонт прокола грибком', 900.00),
-  ('Правка литого диска', 2200.00),
-  ('Проверка давления в шинах', 150.00),
-  ('Сезонное хранение комплекта', 3500.00);
 
 -- ============================================================
 -- 5. Шины
