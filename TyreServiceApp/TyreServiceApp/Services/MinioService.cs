@@ -1,93 +1,102 @@
-using Minio;
-using Minio.DataModel.Args;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.Runtime;
 
 namespace TyreServiceApp.Services;
 
 public class MinioService : IMinioService
 {
-    private readonly IMinioClient? _minio;
+    private readonly IAmazonS3? _s3;
     private readonly string _bucket;
-    private readonly string _endpoint;
     private readonly bool _enabled;
-    private readonly bool _useSsl;
+    private readonly string _serviceUrl;
 
     public MinioService(IConfiguration configuration)
     {
-        _endpoint = configuration["Minio:Endpoint"] ?? string.Empty;
+        _serviceUrl = configuration["Minio:ServiceURL"] ?? string.Empty;
         var accessKey = configuration["Minio:AccessKey"] ?? string.Empty;
         var secretKey = configuration["Minio:SecretKey"] ?? string.Empty;
         _bucket = configuration["Minio:Bucket"] ?? string.Empty;
-        _useSsl = configuration.GetValue<bool?>("Minio:UseSSL") ?? false;
         var region = configuration["Minio:Region"] ?? string.Empty;
-        _enabled = !string.IsNullOrWhiteSpace(_endpoint)
+
+        _enabled = !string.IsNullOrWhiteSpace(_serviceUrl)
             && !string.IsNullOrWhiteSpace(accessKey)
             && !string.IsNullOrWhiteSpace(secretKey)
             && !string.IsNullOrWhiteSpace(_bucket);
 
         if (_enabled)
         {
-            var client = new MinioClient()
-                .WithEndpoint(_endpoint)
-                .WithCredentials(accessKey, secretKey)
-                .WithSSL(_useSsl);
+            var config = new AmazonS3Config
+            {
+                ServiceURL = _serviceUrl,
+                ForcePathStyle = true,
+                AuthenticationRegion = region
+            };
 
-            if (!string.IsNullOrWhiteSpace(region))
-                client = client.WithRegion(region);
-
-            _minio = client.Build();
+            var credentials = new BasicAWSCredentials(accessKey, secretKey);
+            _s3 = new AmazonS3Client(credentials, config);
         }
     }
 
     public async Task<string> UploadAsync(IFormFile file, int clientId, string prefix = "cars")
     {
-        if (!_enabled || _minio == null || file.Length == 0)
+        if (!_enabled || _s3 == null || file.Length == 0)
             return string.Empty;
 
         var ext = Path.GetExtension(file.FileName);
-        var objectName = $"{prefix}/{clientId}/{Guid.NewGuid()}{ext}";
+        var key = $"{prefix}/{clientId}/{Guid.NewGuid()}{ext}";
 
         await using var stream = file.OpenReadStream();
 
-        var args = new PutObjectArgs()
-            .WithBucket(_bucket)
-            .WithObject(objectName)
-            .WithStreamData(stream)
-            .WithObjectSize(stream.Length)
-            .WithContentType(file.ContentType);
+        var request = new PutObjectRequest
+        {
+            BucketName = _bucket,
+            Key = key,
+            InputStream = stream,
+            ContentType = file.ContentType ?? "application/octet-stream",
+            AutoCloseStream = true
+        };
 
-        await _minio.PutObjectAsync(args);
-
-        return objectName;
+        await _s3.PutObjectAsync(request);
+        return key;
     }
 
     public async Task DeleteAsync(string objectName)
     {
-        if (!_enabled || _minio == null || string.IsNullOrEmpty(objectName)) return;
+        if (!_enabled || _s3 == null || string.IsNullOrEmpty(objectName)) return;
 
-        var args = new RemoveObjectArgs()
-            .WithBucket(_bucket)
-            .WithObject(objectName);
+        var request = new DeleteObjectRequest
+        {
+            BucketName = _bucket,
+            Key = objectName
+        };
 
-        await _minio.RemoveObjectAsync(args);
+        await _s3.DeleteObjectAsync(request);
     }
 
-    public async Task<string> GetFileUrlAsync(string objectName)
+    public Task<string> GetFileUrlAsync(string objectName)
     {
-        if (!_enabled || _minio == null || string.IsNullOrEmpty(objectName)) return "";
+        if (!_enabled || _s3 == null || string.IsNullOrEmpty(objectName))
+            return Task.FromResult(string.Empty);
 
         try
         {
-            var args = new PresignedGetObjectArgs()
-                .WithBucket(_bucket)
-                .WithObject(objectName)
-                .WithExpiry(60 * 60 * 24 * 7);
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = _bucket,
+                Key = objectName,
+                Expires = DateTime.UtcNow.AddDays(7),
+                Protocol = Protocol.HTTPS
+            };
 
-            return await _minio.PresignedGetObjectAsync(args);
+            var url = _s3.GetPreSignedURL(request);
+            return Task.FromResult(url);
         }
         catch
         {
-            var scheme = _useSsl ? "https" : "http";
-            return $"{scheme}://{_endpoint}/{_bucket}/{objectName}";
+            var baseUrl = _serviceUrl.TrimEnd('/');
+            return Task.FromResult($"{baseUrl}/{_bucket}/{objectName}");
         }
     }
 }
