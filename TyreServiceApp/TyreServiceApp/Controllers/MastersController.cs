@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Areas.Worker.Models;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Controllers
 {
@@ -119,7 +120,7 @@ namespace TyreServiceApp.Controllers
                         Login = login,
                         PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                         MasterId = master.MasterId,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = PermTime.Now
                     };
                     _context.Add(masterUser);
                     await _context.SaveChangesAsync();
@@ -203,7 +204,7 @@ namespace TyreServiceApp.Controllers
                             Login = login,
                             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                             MasterId = id,
-                            CreatedAt = DateTime.UtcNow
+                        CreatedAt = PermTime.Now
                         };
                         _context.Add(masterUser);
                         await _context.SaveChangesAsync();

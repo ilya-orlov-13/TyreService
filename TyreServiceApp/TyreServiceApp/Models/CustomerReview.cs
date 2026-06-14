@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TyreServiceApp.Utils;
 using System.ComponentModel.DataAnnotations.Schema;
 using TyreServiceApp.Areas.Customer.Models;
 
@@ -31,7 +32,7 @@ public class CustomerReview
     [ForeignKey(nameof(OrderNumber))]
     public Order? Order { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = PermTime.Now;
 
     public DateTime? UpdatedAt { get; set; }
 }

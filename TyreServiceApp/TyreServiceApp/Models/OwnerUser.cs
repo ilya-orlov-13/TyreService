@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Models
 {
@@ -22,6 +23,6 @@ namespace TyreServiceApp.Models
         [StringLength(100)]
         public string? FullName { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = PermTime.Now;
     }
 }

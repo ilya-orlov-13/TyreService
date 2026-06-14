@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Owner.Controllers
 {
@@ -54,7 +55,7 @@ namespace TyreServiceApp.Areas.Owner.Controllers
             if (ModelState.IsValid)
             {
                 adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password);
-                adminUser.CreatedAt = DateTime.UtcNow;
+                adminUser.CreatedAt = PermTime.Now;
                 _context.Add(adminUser);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

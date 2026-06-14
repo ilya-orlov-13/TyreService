@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Models
 {
@@ -28,6 +29,6 @@ namespace TyreServiceApp.Models
         [ForeignKey(nameof(StaffPositionId))]
         public virtual StaffPosition? StaffPosition { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = PermTime.Now;
     }
 }

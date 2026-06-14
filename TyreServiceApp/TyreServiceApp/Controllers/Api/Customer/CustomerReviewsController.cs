@@ -5,6 +5,7 @@ using TyreServiceApp.Areas.Customer.Models;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
 using TyreServiceApp.Models.Api;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Controllers.Api.Customer;
 
@@ -118,7 +119,7 @@ public class CustomerReviewsController : ControllerBase
             existing.Rating = request.Rating;
             existing.Text = text;
             existing.CarModel = string.IsNullOrWhiteSpace(request.CarModel) ? null : request.CarModel.Trim();
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = PermTime.Now;
             review = existing;
         }
         else
@@ -130,7 +131,7 @@ public class CustomerReviewsController : ControllerBase
                 Text = text,
                 CarModel = string.IsNullOrWhiteSpace(request.CarModel) ? null : request.CarModel.Trim(),
                 OrderNumber = request.OrderNumber,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = PermTime.Now
             };
             _db.CustomerReviews.Add(review);
         }

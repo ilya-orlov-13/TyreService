@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Worker.Models
 {
@@ -26,6 +27,6 @@ namespace TyreServiceApp.Areas.Worker.Models
         [ForeignKey("MasterId")]
         public virtual Master? Master { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = PermTime.Now;
     }
 }

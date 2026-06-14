@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Customer.Models
 {
@@ -24,6 +25,6 @@ namespace TyreServiceApp.Areas.Customer.Models
         [ForeignKey("ClientId")]
         public virtual Client? Client { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = PermTime.Now;
     }
 }
