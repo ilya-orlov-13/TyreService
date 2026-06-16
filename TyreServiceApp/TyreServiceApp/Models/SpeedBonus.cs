@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Models
 {
@@ -27,7 +28,7 @@ namespace TyreServiceApp.Models
         public decimal BonusAmount { get; set; }
 
         [Column(TypeName = "timestamp without time zone")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = PermTime.Now;
 
         [ForeignKey("MasterId")]
         public virtual Master? Master { get; set; }

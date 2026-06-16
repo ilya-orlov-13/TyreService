@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Models
 {
@@ -230,7 +231,7 @@ namespace TyreServiceApp.Models
         /// </remarks>
         [NotMapped]
         [Display(Name = "Новый автомобиль")]
-        public bool IsNew => ManufactureYear >= DateTime.Now.Year - 5;
+        public bool IsNew => ManufactureYear >= PermTime.Now.Year - 5;
 
         /// <summary>
         /// Получает возраст автомобиля в годах.
@@ -245,6 +246,6 @@ namespace TyreServiceApp.Models
         /// </remarks>
         [NotMapped]
         [Display(Name = "Возраст автомобиля")]
-        public int Age => DateTime.Now.Year - ManufactureYear;
+        public int Age => PermTime.Now.Year - ManufactureYear;
     }
 }

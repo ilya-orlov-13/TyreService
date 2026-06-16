@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Models
 {
@@ -16,7 +17,7 @@ namespace TyreServiceApp.Models
         public int MasterId { get; set; }
 
         [Column(TypeName = "timestamp without time zone")]
-        public DateTime StartedAt { get; set; } = DateTime.Now;
+        public DateTime StartedAt { get; set; } = PermTime.Now;
 
         [Column(TypeName = "timestamp without time zone")]
         public DateTime? EndedAt { get; set; }
