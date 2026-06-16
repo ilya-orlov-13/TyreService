@@ -27,7 +27,7 @@ public record CarDto(
 public record OrderDto(
     int OrderNumber,
     DateTime OrderDate,
-    DateTime? ScheduledAt,
+    string? ScheduledAt,
     string Status,
     string PaymentStatus,
     decimal? ClientTotal,

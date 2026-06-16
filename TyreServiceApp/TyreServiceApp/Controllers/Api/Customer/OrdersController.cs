@@ -95,7 +95,7 @@ public class CustomerOrdersController : ControllerBase
 
         if (request.ScheduledAt.HasValue)
         {
-            var slotStart = request.ScheduledAt.Value;
+            var slotStart = PermTime.FromUtc(request.ScheduledAt.Value);
             var slotEnd = slotStart.AddMinutes(30);
 
             var postCount = await _db.Posts.CountAsync(p => !p.IsLocked);
@@ -116,7 +116,9 @@ public class CustomerOrdersController : ControllerBase
             CarId = request.CarId,
             TireId = request.TireId,
             OrderDate = PermTime.Now,
-            ScheduledAt = request.ScheduledAt
+            ScheduledAt = request.ScheduledAt.HasValue
+                ? PermTime.FromUtc(request.ScheduledAt.Value)
+                : null
         };
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
@@ -193,7 +195,9 @@ public class CustomerOrdersController : ControllerBase
         if (order.Status != "Новый")
             return BadRequest(ApiResponse<OrderDto>.Fail("Редактирование возможно только для новых заказов"));
 
-        order.ScheduledAt = request.ScheduledAt;
+        order.ScheduledAt = request.ScheduledAt.HasValue
+            ? PermTime.FromUtc(request.ScheduledAt.Value)
+            : null;
 
         if (order.CompletedWorks?.Count > 0)
         {
@@ -295,7 +299,7 @@ public class CustomerOrdersController : ControllerBase
         return new OrderDto(
             order.OrderNumber,
             order.OrderDate,
-            order.ScheduledAt,
+            order.ScheduledAt?.ToString("O"),
             order.Status,
             order.PaymentDate.HasValue ? "Оплачено" : "Не оплачено",
             order.ClientTotal,

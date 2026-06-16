@@ -2,7 +2,7 @@ namespace TyreServiceApp.Utils;
 
 public static class PermTime
 {
-    private static readonly TimeZoneInfo PermZone =
+    public static readonly TimeZoneInfo PermZone =
         TryGetZone("Asia/Yekaterinburg")
         ?? TryGetZone("Ekaterinburg Standard Time")
         ?? TimeZoneInfo.Local;
@@ -18,4 +18,13 @@ public static class PermTime
 
     public static DateTime Today =>
         Now.Date;
+
+    /// <summary>
+    /// Converts a UTC DateTime to Perm timezone.
+    /// If the DateTime is Unspecified or Local, returns it unchanged.
+    /// </summary>
+    public static DateTime FromUtc(DateTime dt) =>
+        dt.Kind == DateTimeKind.Utc
+            ? TimeZoneInfo.ConvertTimeFromUtc(dt, PermZone)
+            : dt;
 }

@@ -213,7 +213,9 @@ namespace TyreServiceApp.Controllers.Api
                 CarId = request.CarId,
                 TireId = request.TireId,
                 MasterId = request.MasterId,
-                ScheduledAt = request.ScheduledAt,
+                ScheduledAt = request.ScheduledAt.HasValue
+                    ? PermTime.FromUtc(request.ScheduledAt.Value)
+                    : null,
                 Status = "Новый",
                 DiscountPercent = request.DiscountPercent,
                 DiscountType = request.DiscountType

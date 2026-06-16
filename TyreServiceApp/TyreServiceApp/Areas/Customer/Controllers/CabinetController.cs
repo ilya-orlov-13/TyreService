@@ -144,7 +144,9 @@ namespace TyreServiceApp.Areas.Customer.Controllers
             {
                 CarId = carId,
                 OrderDate = PermTime.Now,
-                ScheduledAt = scheduledAt
+                ScheduledAt = scheduledAt.HasValue
+                    ? PermTime.FromUtc(scheduledAt.Value)
+                    : null
             };
             _db.Orders.Add(order);
             await _db.SaveChangesAsync();
@@ -235,7 +237,9 @@ namespace TyreServiceApp.Areas.Customer.Controllers
             if (order == null) return NotFound();
             if (order.Status != "Новый") return BadRequest("Редактирование возможно только для новых заказов");
 
-            order.ScheduledAt = scheduledAt;
+            order.ScheduledAt = scheduledAt.HasValue
+                ? PermTime.FromUtc(scheduledAt.Value)
+                : null;
 
             if (order.CompletedWorks != null)
             {
