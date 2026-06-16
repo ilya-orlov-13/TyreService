@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Services
 {
@@ -157,7 +158,7 @@ namespace TyreServiceApp.Services
                     OrderNumber = orderNumber,
                     MasterId = mid,
                     Amount = Math.Round(masterShares[mid], 2),
-                    CreatedAt = DateTime.Now
+                    CreatedAt = PermTime.Now
                 });
             }
 
@@ -279,7 +280,7 @@ namespace TyreServiceApp.Services
                             WorkId = 0,
                             TimeSavedMin = totalSavedMin,
                             BonusAmount = bonusAmount,
-                            CreatedAt = DateTime.Now
+                            CreatedAt = PermTime.Now
                         };
                         _context.SpeedBonuses.Add(monthlyBonus);
                         bonuses.Add(monthlyBonus);

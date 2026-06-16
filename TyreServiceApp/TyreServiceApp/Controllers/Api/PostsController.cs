@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Controllers.Api
 {
@@ -95,7 +96,7 @@ namespace TyreServiceApp.Controllers.Api
             {
                 PostId = id,
                 MasterId = masterId,
-                StartedAt = DateTime.Now
+                StartedAt = PermTime.Now
             };
 
             _context.PostActiveSessions.Add(session);
@@ -133,7 +134,7 @@ namespace TyreServiceApp.Controllers.Api
             {
                 PostId = id,
                 MasterId = masterId,
-                StartedAt = DateTime.Now
+                StartedAt = PermTime.Now
             };
 
             _context.PostActiveSessions.Add(session);
@@ -209,7 +210,7 @@ namespace TyreServiceApp.Controllers.Api
             if (session == null)
                 return BadRequest(new { success = false, error = "У вас нет активной сессии на этом посту" });
 
-            session.EndedAt = DateTime.Now;
+            session.EndedAt = PermTime.Now;
 
             var otherActiveSessions = await _context.PostActiveSessions
                 .AnyAsync(s => s.PostId == id && s.SessionId != session.SessionId && s.EndedAt == null);

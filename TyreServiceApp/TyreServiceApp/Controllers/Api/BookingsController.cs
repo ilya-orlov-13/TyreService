@@ -7,6 +7,7 @@ using TyreServiceApp.Data;
 using TyreServiceApp.Hubs;
 using TyreServiceApp.Models;
 using TyreServiceApp.Services;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Controllers.Api
 {
@@ -51,7 +52,7 @@ namespace TyreServiceApp.Controllers.Api
                 order.MasterId = masterId;
 
             order.Status = "В работе";
-            order.WorkStartTime = DateTime.Now;
+            order.WorkStartTime = PermTime.Now;
             await _context.SaveChangesAsync();
 
             return Ok(new { success = true });
@@ -98,7 +99,7 @@ namespace TyreServiceApp.Controllers.Api
 
             if (order.WorkStartTime.HasValue)
             {
-                var elapsed = (int)(DateTime.Now - order.WorkStartTime.Value).TotalMinutes;
+                var elapsed = (int)(PermTime.Now - order.WorkStartTime.Value).TotalMinutes;
                 if (elapsed < 1) elapsed = 1;
                 order.TotalWorkMinutes += elapsed;
                 order.WorkStartTime = null;

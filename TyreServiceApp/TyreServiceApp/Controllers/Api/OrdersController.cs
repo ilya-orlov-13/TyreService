@@ -5,6 +5,7 @@ using TyreServiceApp.Data;
 using TyreServiceApp.Models;
 using TyreServiceApp.Models.Api;
 using TyreServiceApp.Services;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Controllers.Api
 {
@@ -208,7 +209,7 @@ namespace TyreServiceApp.Controllers.Api
 
             var order = new Order
             {
-                OrderDate = request.OrderDate ?? DateTime.Now,
+                OrderDate = request.OrderDate ?? PermTime.Now,
                 CarId = request.CarId,
                 TireId = request.TireId,
                 MasterId = request.MasterId,
@@ -433,18 +434,18 @@ namespace TyreServiceApp.Controllers.Api
             {
                 WorkId = workId,
                 MasterId = masterId,
-                StartTime = DateTime.Now,
+                StartTime = PermTime.Now,
                 DurationMinutes = 0
             });
 
-            cw.StartedAt = DateTime.Now;
+            cw.StartedAt = PermTime.Now;
 
             var order = await _context.Orders.FindAsync(id);
             if (order != null && order.Status == "Новый")
             {
                 order.Status = "В работе";
                 if (!order.WorkStartTime.HasValue)
-                    order.WorkStartTime = DateTime.Now;
+                    order.WorkStartTime = PermTime.Now;
             }
 
             await _context.SaveChangesAsync();
@@ -470,14 +471,14 @@ namespace TyreServiceApp.Controllers.Api
             if (activeLog == null)
                 return BadRequest(new { success = false, error = "Нет активного таймера" });
 
-            var elapsed = (int)(DateTime.Now - activeLog.StartTime).TotalMinutes;
+            var elapsed = (int)(PermTime.Now - activeLog.StartTime).TotalMinutes;
             if (elapsed < 1) elapsed = 1;
-            activeLog.EndTime = DateTime.Now;
+            activeLog.EndTime = PermTime.Now;
             activeLog.DurationMinutes = elapsed;
 
             if (cw.StartedAt.HasValue)
             {
-                var cwElapsed = (int)(DateTime.Now - cw.StartedAt.Value).TotalMinutes;
+                var cwElapsed = (int)(PermTime.Now - cw.StartedAt.Value).TotalMinutes;
                 if (cwElapsed < 1) cwElapsed = 1;
                 cw.CompletionTimeMin += cwElapsed;
                 cw.StartedAt = null;
@@ -579,7 +580,7 @@ namespace TyreServiceApp.Controllers.Api
         [HttpGet("available-slots")]
         public async Task<IActionResult> GetAvailableSlots([FromQuery] DateTime? date)
         {
-            var targetDate = date?.Date ?? DateTime.Today;
+            var targetDate = date?.Date ?? PermTime.Today;
             var earlyMinutes = await _calc.GetAvailableEarlyMinutes(targetDate);
 
             var slots = new List<object>();
@@ -639,7 +640,7 @@ namespace TyreServiceApp.Controllers.Api
 
             if (order.WorkStartTime.HasValue)
             {
-                var elapsed = (int)(DateTime.Now - order.WorkStartTime.Value).TotalMinutes;
+                var elapsed = (int)(PermTime.Now - order.WorkStartTime.Value).TotalMinutes;
                 if (elapsed < 1) elapsed = 1;
                 order.TotalWorkMinutes += elapsed;
                 order.WorkStartTime = null;

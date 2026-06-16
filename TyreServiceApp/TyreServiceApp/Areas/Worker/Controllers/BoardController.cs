@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Worker.Controllers
 {
@@ -100,7 +101,7 @@ namespace TyreServiceApp.Areas.Worker.Controllers
                     order.MasterId = masterId;
 
                 order.Status = "В работе";
-                order.WorkStartTime = DateTime.Now;
+                order.WorkStartTime = PermTime.Now;
                 await _context.SaveChangesAsync();
             }
 
@@ -123,7 +124,7 @@ namespace TyreServiceApp.Areas.Worker.Controllers
                 return Json(new { success = false, error = "Нельзя оплатить заказ без назначенного мастера" });
 
             if (status == "Оплачено" && !order.PaymentDate.HasValue)
-                order.PaymentDate = DateTime.Now;
+                order.PaymentDate = PermTime.Now;
             else if (status != "Оплачено" && order.PaymentDate.HasValue)
                 order.PaymentDate = null;
 
@@ -147,13 +148,13 @@ namespace TyreServiceApp.Areas.Worker.Controllers
             // Timer: start when entering "В работе", stop on any leave
             if (status == "В работе" && prevStatus != "В работе")
             {
-                order.WorkStartTime = DateTime.Now;
+                order.WorkStartTime = PermTime.Now;
             }
             else if (prevStatus == "В работе" && status != "В работе")
             {
                 if (order.WorkStartTime.HasValue)
                 {
-                    var elapsed = (int)(DateTime.Now - order.WorkStartTime.Value).TotalMinutes;
+                    var elapsed = (int)(PermTime.Now - order.WorkStartTime.Value).TotalMinutes;
                     if (elapsed < 1) elapsed = 1;
                     order.TotalWorkMinutes += elapsed;
 

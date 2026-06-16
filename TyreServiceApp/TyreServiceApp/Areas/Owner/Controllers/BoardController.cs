@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Owner.Controllers
 {
@@ -45,7 +46,7 @@ namespace TyreServiceApp.Areas.Owner.Controllers
                 return Json(new { success = false, error = "Нельзя оплатить заказ без назначенного мастера" });
 
             if (status == "Оплачено" && !order.PaymentDate.HasValue)
-                order.PaymentDate = DateTime.Now;
+                order.PaymentDate = PermTime.Now;
             else if (status != "Оплачено" && order.PaymentDate.HasValue)
                 order.PaymentDate = null;
 
@@ -62,13 +63,13 @@ namespace TyreServiceApp.Areas.Owner.Controllers
 
             if (status == "В работе" && prevStatus != "В работе")
             {
-                order.WorkStartTime = DateTime.Now;
+                order.WorkStartTime = PermTime.Now;
             }
             else if (prevStatus == "В работе" && status != "В работе")
             {
                 if (order.WorkStartTime.HasValue)
                 {
-                    var elapsed = (int)(DateTime.Now - order.WorkStartTime.Value).TotalMinutes;
+                    var elapsed = (int)(PermTime.Now - order.WorkStartTime.Value).TotalMinutes;
                     if (elapsed < 1) elapsed = 1;
                     order.TotalWorkMinutes += elapsed;
 

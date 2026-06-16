@@ -10,6 +10,7 @@ using Npgsql;
 using Tesseract;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Customer.Controllers
 {
@@ -142,7 +143,7 @@ namespace TyreServiceApp.Areas.Customer.Controllers
             var order = new Order
             {
                 CarId = carId,
-                OrderDate = DateTime.Now,
+                OrderDate = PermTime.Now,
                 ScheduledAt = scheduledAt
             };
             _db.Orders.Add(order);
