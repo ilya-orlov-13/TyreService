@@ -26,6 +26,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "Keys")));
 
 builder.Services.AddApplicationDatabase(builder.Configuration);
+builder.Services.AddHttpClient();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<ICalculationService, CalculationService>();
 builder.Services.AddScoped<IDistributionService, DistributionService>();
