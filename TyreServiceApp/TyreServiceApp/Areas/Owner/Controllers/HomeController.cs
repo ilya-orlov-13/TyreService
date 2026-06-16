@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
 using TyreServiceApp.Services;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Owner.Controllers
 {
@@ -61,7 +62,7 @@ namespace TyreServiceApp.Areas.Owner.Controllers
                 .Include(o => o.Master)
                 .OrderByDescending(o => o.OrderDate).Take(5).ToList();
 
-            var today = DateTime.Today;
+            var today = PermTime.Today;
             var monthStart = new DateTime(today.Year, today.Month, 1);
 
             ViewBag.DiscountStats = new
@@ -110,7 +111,7 @@ namespace TyreServiceApp.Areas.Owner.Controllers
         [HttpGet]
         public async Task<IActionResult> Distribution(DateTime? date)
         {
-            var targetDate = date?.Date ?? DateTime.Today;
+            var targetDate = date?.Date ?? PermTime.Today;
             var dist = await _calc.CalculateMonthlySpeedBonuses(targetDate.Year, targetDate.Month);
 
             ViewBag.TargetDate = targetDate;

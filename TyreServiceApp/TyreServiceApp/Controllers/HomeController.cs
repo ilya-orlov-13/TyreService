@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Models;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Controllers;
 
@@ -49,7 +50,7 @@ public class HomeController : Controller
             .Where(o => !ordersWithCompletedWorks.Contains(o.OrderNumber)).Count();
         ViewBag.CompletedOrdersCount = ordersWithCompletedWorks.Count;
         ViewBag.TodayOrdersCount = _context.Orders
-            .Where(o => o.OrderDate.Date == DateTime.Today).Count();
+            .Where(o => o.OrderDate.Date == PermTime.Today).Count();
         ViewBag.UnpaidOrdersCount = _context.Orders
             .Where(o => o.PaymentDate == null).Count();
         ViewBag.OrdersWithMastersCount = _context.Orders

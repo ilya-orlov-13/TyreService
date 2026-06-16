@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TyreServiceApp.Data;
 using TyreServiceApp.Services;
+using TyreServiceApp.Utils;
 
 namespace TyreServiceApp.Areas.Owner.Controllers
 {
@@ -21,8 +22,8 @@ namespace TyreServiceApp.Areas.Owner.Controllers
 
         public async Task<IActionResult> Revenue(DateTime? dateFrom, DateTime? dateTo)
         {
-            dateFrom ??= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            dateTo ??= DateTime.Today;
+            dateFrom ??= new DateTime(PermTime.Today.Year, PermTime.Today.Month, 1);
+            dateTo ??= PermTime.Today;
 
             var orders = await _context.Orders
                 .Include(o => o.Car).ThenInclude(c => c.Client)
