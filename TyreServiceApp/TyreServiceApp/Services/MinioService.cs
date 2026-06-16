@@ -11,9 +11,11 @@ public class MinioService : IMinioService
     private readonly string _bucket;
     private readonly bool _enabled;
     private readonly string _serviceUrl;
+    private readonly ILogger<MinioService> _logger;
 
-    public MinioService(IConfiguration configuration)
+    public MinioService(IConfiguration configuration, ILogger<MinioService> logger)
     {
+        _logger = logger;
         _serviceUrl = configuration["Minio:ServiceURL"] ?? string.Empty;
         var accessKey = configuration["Minio:AccessKey"] ?? string.Empty;
         var secretKey = configuration["Minio:SecretKey"] ?? string.Empty;
@@ -27,22 +29,52 @@ public class MinioService : IMinioService
 
         if (_enabled)
         {
-            var config = new AmazonS3Config
+            try
             {
-                ServiceURL = _serviceUrl,
-                ForcePathStyle = true,
-                AuthenticationRegion = region
-            };
+                var config = new AmazonS3Config
+                {
+                    ServiceURL = _serviceUrl,
+                    ForcePathStyle = true,
+                    AuthenticationRegion = region
+                };
 
-            var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            _s3 = new AmazonS3Client(credentials, config);
+                var credentials = new BasicAWSCredentials(accessKey, secretKey);
+                _s3 = new AmazonS3Client(credentials, config);
+
+                _logger.LogInformation(
+                    "S3 client initialised: ServiceURL={ServiceUrl}, Bucket={Bucket}, Region={Region}",
+                    _serviceUrl, _bucket, region);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to initialise S3 client");
+                _s3 = null;
+            }
+        }
+        else
+        {
+            _logger.LogWarning(
+                "S3 disabled — missing configuration (ServiceURL={Url}, AccessKey={Ak}, SecretKey={Sk}, Bucket={B})",
+                !string.IsNullOrWhiteSpace(_serviceUrl),
+                !string.IsNullOrWhiteSpace(accessKey),
+                !string.IsNullOrWhiteSpace(secretKey),
+                !string.IsNullOrWhiteSpace(_bucket));
         }
     }
 
     public async Task<string> UploadAsync(IFormFile file, int clientId, string prefix = "cars")
     {
-        if (!_enabled || _s3 == null || file.Length == 0)
+        if (!_enabled || _s3 == null)
+        {
+            _logger.LogWarning("S3 upload skipped — service disabled or not initialised");
             return string.Empty;
+        }
+
+        if (file.Length == 0)
+        {
+            _logger.LogWarning("S3 upload skipped — empty file");
+            return string.Empty;
+        }
 
         var ext = Path.GetExtension(file.FileName);
         var key = $"{prefix}/{clientId}/{Guid.NewGuid()}{ext}";
@@ -61,18 +93,24 @@ public class MinioService : IMinioService
             };
 
             await _s3.PutObjectAsync(request);
+            _logger.LogInformation("S3 upload succeeded: Bucket={Bucket}, Key={Key}, Size={Size}",
+                _bucket, key, file.Length);
             return key;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[S3] Upload failed: {ex.Message}");
-            return string.Empty;
+            _logger.LogError(ex, "S3 upload failed: Bucket={Bucket}, Key={Key}", _bucket, key);
+            throw;
         }
     }
 
     public async Task DeleteAsync(string objectName)
     {
-        if (!_enabled || _s3 == null || string.IsNullOrEmpty(objectName)) return;
+        if (!_enabled || _s3 == null || string.IsNullOrEmpty(objectName))
+        {
+            _logger.LogWarning("S3 delete skipped — service disabled or empty key");
+            return;
+        }
 
         try
         {
@@ -83,10 +121,11 @@ public class MinioService : IMinioService
             };
 
             await _s3.DeleteObjectAsync(request);
+            _logger.LogInformation("S3 delete succeeded: Key={Key}", objectName);
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[S3] Delete failed: {ex.Message}");
+            _logger.LogError(ex, "S3 delete failed: Key={Key}", objectName);
         }
     }
 
@@ -108,10 +147,29 @@ public class MinioService : IMinioService
             var url = _s3.GetPreSignedURL(request);
             return Task.FromResult(url);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "S3 pre-signed URL failed for Key={Key}, falling back to public URL", objectName);
             var baseUrl = _serviceUrl.TrimEnd('/');
             return Task.FromResult($"{baseUrl}/{_bucket}/{objectName}");
+        }
+    }
+
+    public async Task<bool> HealthCheckAsync()
+    {
+        if (!_enabled || _s3 == null)
+            return false;
+
+        try
+        {
+            var response = await _s3.ListBucketsAsync();
+            _logger.LogInformation("S3 health check passed — {Count} buckets available", response.Buckets.Count);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "S3 health check failed");
+            return false;
         }
     }
 }

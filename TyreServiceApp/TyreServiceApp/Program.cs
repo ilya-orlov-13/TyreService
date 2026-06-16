@@ -87,8 +87,17 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var bootstrapIdentity = scope.ServiceProvider.GetRequiredService<BootstrapIdentityService>();
+    var sp = scope.ServiceProvider;
+    var bootstrapIdentity = sp.GetRequiredService<BootstrapIdentityService>();
     await bootstrapIdentity.EnsureBootstrapUsersAsync();
+
+    var minio = sp.GetRequiredService<IMinioService>();
+    var logger = sp.GetRequiredService<ILogger<Program>>();
+    var s3ok = await minio.HealthCheckAsync();
+    if (s3ok)
+        logger.LogInformation("S3 health check — OK");
+    else
+        logger.LogWarning("S3 health check — FAILED (bucket or credentials may be misconfigured)");
 }
 
 if (!app.Environment.IsDevelopment())
