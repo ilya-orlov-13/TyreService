@@ -83,8 +83,17 @@ public class CustomerCarsController : ControllerBase
         {
             foreach (var photo in photos.Where(p => p.Length > 0))
             {
-                var path = await _minio.UploadAsync(photo, clientId);
-                photoPaths.Add(path);
+                try
+                {
+                    var path = await _minio.UploadAsync(photo, clientId);
+                    if (string.IsNullOrEmpty(path))
+                        return StatusCode(500, ApiResponse<CarDto>.Fail("Не удалось загрузить фото: S3 недоступен"));
+                    photoPaths.Add(path);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ApiResponse<CarDto>.Fail($"Ошибка загрузки фото: {ex.Message}"));
+                }
             }
         }
 
@@ -162,8 +171,17 @@ public class CustomerCarsController : ControllerBase
         {
             foreach (var photo in photos.Where(p => p.Length > 0))
             {
-                var path = await _minio.UploadAsync(photo, clientId);
-                photoPaths.Add(path);
+                try
+                {
+                    var path = await _minio.UploadAsync(photo, clientId);
+                    if (string.IsNullOrEmpty(path))
+                        return StatusCode(500, ApiResponse<CarDto>.Fail("Не удалось загрузить фото: S3 недоступен"));
+                    photoPaths.Add(path);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ApiResponse<CarDto>.Fail($"Ошибка загрузки фото: {ex.Message}"));
+                }
             }
         }
 
