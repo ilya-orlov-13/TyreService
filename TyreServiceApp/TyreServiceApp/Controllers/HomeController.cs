@@ -212,20 +212,25 @@ public class HomeController : Controller
                 label = "Вчера";
                 break;
             case "week":
-                var diff = ((int)today.DayOfWeek + 6) % 7;
+                var diff = (int)today.DayOfWeek;
                 start = today.AddDays(-diff);
-                endExclusive = today.AddDays(1);
+                endExclusive = start.AddDays(7);
                 label = "Эта неделя";
+                break;
+            case "month":
+                start = new DateTime(today.Year, today.Month, 1);
+                endExclusive = start.AddMonths(1);
+                label = "Этот месяц";
                 break;
             case "quarter":
                 var quarterMonth = ((today.Month - 1) / 3) * 3 + 1;
                 start = new DateTime(today.Year, quarterMonth, 1);
-                endExclusive = today.AddDays(1);
+                endExclusive = start.AddMonths(3);
                 label = "Этот квартал";
                 break;
             case "year":
                 start = new DateTime(today.Year, 1, 1);
-                endExclusive = today.AddDays(1);
+                endExclusive = start.AddYears(1);
                 label = "Этот год";
                 break;
             case "custom":
@@ -238,7 +243,7 @@ public class HomeController : Controller
             default:
                 key = "month";
                 start = new DateTime(today.Year, today.Month, 1);
-                endExclusive = today.AddDays(1);
+                endExclusive = start.AddMonths(1);
                 label = "Этот месяц";
                 break;
         }
