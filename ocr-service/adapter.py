@@ -69,14 +69,17 @@ def ocr_scan(req: OcrRequest):
     }
 
     url = UNLIMITED_OCR_URL.rstrip("/") + "/v1/chat/completions"
-    log.info(f"Calling {url} (token={'set' if HF_TOKEN else 'MISSING'})")
+    log.info(f"Calling {url} (token={'set' if HF_TOKEN else 'MISSING'}, http_proxy={os.environ.get('HTTP_PROXY', 'none')}, https_proxy={os.environ.get('HTTPS_PROXY', 'none')})")
     headers = {"ngrok-skip-browser-warning": "true"}
     if HF_TOKEN:
         headers["Authorization"] = f"Bearer {HF_TOKEN}"
     # Bypass any system proxy for OCR requests
-    proxies = {"http": None, "https": None}
+    os.environ.pop("HTTP_PROXY", None)
+    os.environ.pop("HTTPS_PROXY", None)
+    os.environ.pop("http_proxy", None)
+    os.environ.pop("https_proxy", None)
     try:
-        resp = requests.post(url, json=payload, timeout=1200, headers=headers, proxies=proxies)
+        resp = requests.post(url, json=payload, timeout=1200, headers=headers)
     except requests.RequestException as e:
         log.error(f"Connection error: {e}")
         raise HTTPException(status_code=502, detail=f"Error contacting Unlimited-OCR: {e}")
