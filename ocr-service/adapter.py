@@ -111,7 +111,9 @@ def ocr_scan(req: OcrRequest):
             except Exception:
                 text = ""
     else:
-        raise HTTPException(status_code=502, detail=f"Unlimited-OCR returned {resp.status_code}")
+        body = resp.text[:1000]
+        log.error(f"Unlimited-OCR returned {resp.status_code}: {body}")
+        raise HTTPException(status_code=502, detail=f"Unlimited-OCR returned {resp.status_code}: {body[:200]}")
 
     if text:
         log.info(f"OCR text ({len(text)} chars): {text[:500]}")
