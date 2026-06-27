@@ -65,7 +65,6 @@ def ocr_scan(req: OcrRequest):
         ],
         "temperature": 0,
         "skip_special_tokens": False,
-        "stream": True,
         "images_config": {"image_mode": IMAGE_MODE},
     }
 
@@ -77,7 +76,7 @@ def ocr_scan(req: OcrRequest):
     # Bypass any system proxy for OCR requests
     proxies = {"http": None, "https": None}
     try:
-        resp = requests.post(url, json=payload, stream=True, timeout=1200, headers=headers, proxies=proxies)
+        resp = requests.post(url, json=payload, timeout=1200, headers=headers, proxies=proxies)
     except requests.RequestException as e:
         log.error(f"Connection error: {e}")
         raise HTTPException(status_code=502, detail=f"Error contacting Unlimited-OCR: {e}")
