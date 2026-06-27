@@ -97,25 +97,21 @@ namespace TyreServiceApp.Areas.Owner.Controllers
                     .Sum(o => (o.LaborCost ?? 0) * o.DiscountPercent / 100m),
             };
 
-            var todayOrders = await _context.Orders
-                .Where(o => o.OrderDate.Date == today)
-                .ToListAsync();
-
-            ViewBag.TodayOrdersCount = todayOrders.Count;
-            ViewBag.TodayRevenue = todayOrders.Sum(o => o.ClientTotal ?? 0);
+            ViewBag.TodayOrdersCount = periodOrders.Count;
+            ViewBag.TodayRevenue = periodOrders.Sum(o => o.ClientTotal ?? 0);
 
             var todayProfit = 0m;
-            foreach (var o in todayOrders)
+            foreach (var o in periodOrders)
             {
                 var row = await _calc.CalculateOwnerRevenue(o.OrderNumber);
                 todayProfit += row.NetProfit;
             }
             ViewBag.TodayProfit = Math.Round(todayProfit, 2);
 
-            var completedToday = todayOrders.Count(o => o.Status == "Готов" || o.Status == "Оплачено");
+            var completedToday = periodOrders.Count(o => o.Status == "Готов" || o.Status == "Оплачено");
             ViewBag.CompletedToday = completedToday;
 
-            var ordersWithTotal = todayOrders.Where(o => o.ClientTotal > 0).ToList();
+            var ordersWithTotal = periodOrders.Where(o => o.ClientTotal > 0).ToList();
             var avgCheck = ordersWithTotal.Any() ? ordersWithTotal.Average(o => o.ClientTotal ?? 0) : 0;
             ViewBag.AverageCheck = Math.Round(avgCheck, 2);
 
