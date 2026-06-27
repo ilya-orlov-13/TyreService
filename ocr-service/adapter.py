@@ -70,7 +70,7 @@ def ocr_scan(req: OcrRequest):
     }
 
     url = UNLIMITED_OCR_URL.rstrip("/") + "/v1/chat/completions"
-    log.info(f"Calling {url}")
+    log.info(f"Calling {url} (token={'set' if HF_TOKEN else 'MISSING'})")
     headers = {"ngrok-skip-browser-warning": "true"}
     if HF_TOKEN:
         headers["Authorization"] = f"Bearer {HF_TOKEN}"
