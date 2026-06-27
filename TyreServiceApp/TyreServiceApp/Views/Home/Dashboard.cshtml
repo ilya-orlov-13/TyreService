@@ -1,12 +1,594 @@
-﻿@section Styles {
+@section Styles {
     <link rel="stylesheet" href="~/css/pages/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .stat-3d-wrapper, .stat-3d-content { overflow: visible; }
+
+        .period-picker {
+            position: relative;
+            isolation: isolate;
+            flex: 1 1 clamp(360px, 42vw, 520px);
+            width: min(100%, 520px);
+            min-width: 360px;
+        }
+
+        .period-picker.is-calendar-open .period-range-modern {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-4px);
+        }
+
+        .period-picker-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .period-range-modern {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: clamp(360px, 42vw, 520px);
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.12);
+            border-radius: 999px;
+            box-shadow: none;
+            cursor: pointer;
+            transition: transform 180ms ease, border-color 180ms ease;
+            appearance: none;
+            text-align: left;
+            width: 100%;
+        }
+
+        .period-range-modern:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0,0,0,0.25);
+            box-shadow: none;
+        }
+
+        .period-range-modern:focus-visible {
+            outline: none;
+            border-color: #000000;
+            box-shadow: none;
+        }
+
+        .period-icon-badge {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        .period-copy {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .period-copy-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+        }
+
+        .period-range-modern .range-display {
+            font-weight: 700;
+            font-size: 15px;
+            color: #000000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .period-chevron {
+            color: #94a3b8;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .flatpickr-calendar.dashboard-period-calendar {
+            z-index: 1056;
+            width: 382px;
+            max-width: calc(100vw - 24px);
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.12);
+            box-shadow: none;
+            border-radius: 32px;
+            font-family: inherit;
+            animation: fp-pop 160ms cubic-bezier(.2,.9,.2,1) both;
+            box-sizing: border-box;
+        }
+
+        .flatpickr-calendar.dashboard-period-calendar::before,
+        .flatpickr-calendar.dashboard-period-calendar::after {
+            display: none;
+        }
+
+        @@keyframes fp-pop {
+            from { opacity: 0; transform: translateY(8px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @@keyframes fp-pop-out {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(8px) scale(0.99); }
+        }
+
+        .dashboard-period-calendar .flatpickr-months {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 56px;
+            margin-bottom: 12px;
+            background: transparent;
+            border-bottom: none;
+            overflow: visible;
+        }
+
+        .dashboard-period-calendar .flatpickr-month {
+            height: auto;
+            color: #000000;
+        }
+
+        .dashboard-period-calendar .flatpickr-current-month {
+            display: none;
+        }
+
+        .dashboard-period-calendar .flatpickr-prev-month,
+        .dashboard-period-calendar .flatpickr-next-month {
+            top: 0;
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: #f8fafc;
+            color: #475569;
+            fill: #475569;
+            transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+        }
+
+        .dashboard-period-calendar .flatpickr-prev-month {
+            left: 0;
+        }
+
+        .dashboard-period-calendar .flatpickr-next-month {
+            right: 0;
+        }
+
+        .dashboard-period-calendar .flatpickr-prev-month:hover,
+        .dashboard-period-calendar .flatpickr-next-month:hover,
+        .dashboard-period-calendar .flatpickr-prev-month:focus,
+        .dashboard-period-calendar .flatpickr-next-month:focus {
+            background: #f1f5f9;
+            border-color: rgba(0,0,0,0.15);
+            transform: scale(1.03);
+            color: #000000;
+            fill: #000000;
+        }
+
+        .dashboard-period-calendar .flatpickr-prev-month svg,
+        .dashboard-period-calendar .flatpickr-next-month svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+            color: currentColor;
+            stroke: currentColor;
+        }
+
+        .calendar-selectors {
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 0 64px;
+            margin: 0;
+            box-sizing: border-box;
+            grid-template-columns: repeat(2, auto);
+        }
+
+        .calendar-dropdown {
+            position: relative;
+            min-width: 0;
+        }
+
+        .calendar-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+            width: 100%;
+            height: 42px;
+            padding: 0 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background-color: #f8fafc;
+            color: #000000;
+            font-weight: 700;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 160ms ease, background-color 160ms ease;
+        }
+
+        .calendar-dropdown-trigger:hover,
+        .calendar-dropdown-trigger:focus-visible,
+        .calendar-dropdown.open .calendar-dropdown-trigger {
+            border-color: rgba(0,0,0,0.2);
+            background-color: #f1f5f9;
+        }
+
+        .calendar-dropdown-label {
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            flex: 1;
+            text-align: center;
+        }
+
+        .calendar-dropdown-chevron {
+            flex-shrink: 0;
+            color: #64748b;
+            font-size: 12px;
+            transition: transform 160ms ease;
+        }
+
+        .calendar-dropdown.open .calendar-dropdown-chevron {
+            transform: rotate(180deg);
+        }
+
+        .calendar-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            padding: 8px;
+            border-radius: 18px;
+            border: 1px solid rgba(0,0,0,0.12);
+            background: #ffffff;
+            box-shadow: none;
+            max-height: 248px;
+            overflow-y: auto;
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+            pointer-events: none;
+            transition: opacity 160ms ease, transform 160ms ease;
+        }
+
+        .calendar-dropdown.open .calendar-dropdown-menu {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .calendar-dropdown-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .calendar-dropdown-menu::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 999px;
+        }
+
+        .calendar-dropdown-option {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            min-height: 38px;
+            padding: 8px 14px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 140ms ease, color 140ms ease;
+        }
+
+        .calendar-dropdown-option:hover,
+        .calendar-dropdown-option:focus-visible {
+            background: #f1f5f9;
+            color: #000000;
+            outline: none;
+        }
+
+        .calendar-dropdown-option.active {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .calendar-dropdown.month-dropdown {
+            min-width: 110px;
+            z-index: 20;
+        }
+
+        .calendar-dropdown.year-dropdown {
+            min-width: 95px;
+            z-index: 10;
+        }
+
+        .calendar-dropdown.year-dropdown .calendar-dropdown-menu {
+            left: auto;
+            right: 0;
+            min-width: 98px;
+        }
+
+        .dashboard-period-calendar .flatpickr-weekdays {
+            margin-bottom: 8px;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard-period-calendar .flatpickr-rContainer,
+        .dashboard-period-calendar .flatpickr-innerContainer,
+        .dashboard-period-calendar .flatpickr-weekdays,
+        .dashboard-period-calendar .flatpickr-weekdaycontainer,
+        .dashboard-period-calendar .flatpickr-days,
+        .dashboard-period-calendar .dayContainer {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            overflow: visible !important;
+        }
+
+        .dashboard-period-calendar .flatpickr-days {
+            display: flex;
+            justify-content: center;
+            overflow: visible !important;
+        }
+
+        .dashboard-period-calendar .flatpickr-rContainer,
+        .dashboard-period-calendar .flatpickr-innerContainer {
+            display: block;
+            overflow: visible !important;
+        }
+
+        .dashboard-period-calendar .flatpickr-weekdaycontainer {
+            display: grid;
+            grid-template-columns: repeat(7, 42px);
+            gap: 8px;
+            justify-content: center;
+            justify-items: center;
+        }
+
+        .dashboard-period-calendar span.flatpickr-weekday {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: 42px;
+            max-width: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        .dashboard-period-calendar .dayContainer {
+            display: grid;
+            grid-template-columns: repeat(7, 42px);
+            gap: 8px;
+            justify-content: center;
+            justify-items: center;
+            overflow: visible !important;
+        }
+
+        .dashboard-period-calendar .flatpickr-day {
+            max-width: 42px;
+            width: 42px;
+            height: 42px;
+            margin: 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            color: #000000;
+            background: transparent;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .dashboard-period-calendar .flatpickr-day.prevMonthDay,
+        .dashboard-period-calendar .flatpickr-day.nextMonthDay,
+        .dashboard-period-calendar .flatpickr-day.flatpickr-disabled {
+            color: #cbd5e1;
+            background: transparent;
+        }
+
+        .dashboard-period-calendar .flatpickr-day:hover {
+            background: #f1f5f9;
+            border-color: rgba(0,0,0,0.05);
+        }
+
+        .dashboard-period-calendar .flatpickr-day.today {
+            border-color: #000000;
+            color: #000000;
+            background: #f1f5f9;
+        }
+
+        .dashboard-period-calendar .flatpickr-day.inRange {
+            box-shadow: none !important;
+            background: #f1f5f9;
+            border-color: transparent;
+            border-radius: 50%;
+            color: #000000;
+        }
+
+        .dashboard-period-calendar .flatpickr-day.startRange,
+        .dashboard-period-calendar .flatpickr-day.endRange,
+        .dashboard-period-calendar .flatpickr-day.selected {
+            background: #000000 !important;
+            color: #ffffff !important;
+            border-color: #000000 !important;
+            border-radius: 50% !important;
+            box-shadow: none !important;
+        }
+
+        .dashboard-period-calendar .flatpickr-day.startRange:hover,
+        .dashboard-period-calendar .flatpickr-day.endRange:hover,
+        .dashboard-period-calendar .flatpickr-day.selected:hover {
+            background: #333333 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-group .btn-sm {
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            border-radius: 999px !important;
+            margin-right: 4px;
+            transition: all 160ms ease;
+            box-shadow: none !important;
+        }
+
+        .btn-group .btn-outline-dark {
+            border-color: rgba(0,0,0,0.12);
+            color: #475569;
+            background: #ffffff;
+        }
+
+        .btn-group .btn-outline-dark:hover {
+            border-color: rgba(0,0,0,0.25);
+            background: #f8fafc;
+            color: #000000;
+        }
+
+        .btn-group .btn-dark {
+            background: #000000;
+            border-color: #000000;
+            color: #ffffff;
+        }
+
+        .btn-group .btn-dark:hover {
+            background: #333333;
+            border-color: #333333;
+        }
+
+        @@media (max-width: 767.98px) {
+            .period-picker {
+                flex-basis: 100%;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .period-range-modern {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .calendar-selectors {
+                width: 100%;
+                gap: 8px;
+                padding: 0 54px;
+                grid-template-columns: repeat(2, auto);
+                justify-content: center;
+            }
+
+            .calendar-dropdown-trigger {
+                padding-left: 12px;
+                padding-right: 12px;
+                font-size: 13px;
+            }
+
+            .dashboard-period-calendar .flatpickr-weekdaycontainer {
+                grid-template-columns: repeat(7, 42px);
+                justify-content: center;
+                justify-items: center;
+            }
+
+            .dashboard-period-calendar .dayContainer {
+                grid-template-columns: repeat(7, 42px);
+                justify-content: center;
+                justify-items: center;
+            }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            .flatpickr-calendar { animation: none; }
+            .period-range-modern,
+            .period-range-modern:hover,
+            .dashboard-period-calendar .flatpickr-prev-month:hover,
+            .dashboard-period-calendar .flatpickr-next-month:hover {
+                transition: none;
+                transform: none;
+            }
+        }
+    </style>
 }
 
 @{
     ViewData["Title"] = "Главная";
+    var selectedPeriod = ViewBag.SelectedPeriod as string ?? "month";
+    DateTime periodStart = ViewBag.PeriodStart is DateTime ps ? ps : DateTime.Today;
+    DateTime periodEnd = ViewBag.PeriodEnd is DateTime pe ? pe : periodStart;
+    var periodLabel = ViewBag.PeriodLabel as string ?? "Этот месяц";
 }
 
 <div class="main-content">
+<div class="stat-3d-wrapper mb-4">
+    <div class="stat-3d-content p-3 p-md-4">
+        <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 align-items-xl-center">
+            <div>
+                <div class="text-muted small text-uppercase fw-semibold">Период статистики</div>
+                <div class="fw-bold fs-5">@periodLabel</div>
+            </div>
+
+            <div class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center">
+                <div class="btn-group flex-wrap" role="group" aria-label="Выбор периода статистики">
+                    <a class="btn btn-sm @(selectedPeriod == "today" ? "btn-dark" : "btn-outline-dark")" href="@Url.Action("Dashboard", "Home", new { period = "today" })">Сегодня</a>
+                    <a class="btn btn-sm @(selectedPeriod == "yesterday" ? "btn-dark" : "btn-outline-dark")" href="@Url.Action("Dashboard", "Home", new { period = "yesterday" })">Вчера</a>
+                    <a class="btn btn-sm @(selectedPeriod == "week" ? "btn-dark" : "btn-outline-dark")" href="@Url.Action("Dashboard", "Home", new { period = "week" })">Неделя</a>
+                    <a class="btn btn-sm @(selectedPeriod == "month" ? "btn-dark" : "btn-outline-dark")" href="@Url.Action("Dashboard", "Home", new { period = "month" })">Месяц</a>
+                    <a class="btn btn-sm @(selectedPeriod == "quarter" ? "btn-dark" : "btn-outline-dark")" href="@Url.Action("Dashboard", "Home", new { period = "quarter" })">Квартал</a>
+                    <a class="btn btn-sm @(selectedPeriod == "year" ? "btn-dark" : "btn-outline-dark")" href="@Url.Action("Dashboard", "Home", new { period = "year" })">Год</a>
+                </div>
+
+                <form method="get" action="@Url.Action("Dashboard", "Home")" class="period-picker" id="periodCustomForm">
+                    <input type="hidden" name="period" value="custom" />
+                    <input type="hidden" name="dateFrom" value="@periodStart.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="dateTo" value="@periodEnd.ToString("yyyy-MM-dd")" />
+                    <input type="text" id="rangePickerInput" class="period-picker-input" tabindex="-1" aria-hidden="true" />
+
+                    <button type="button" class="period-range-modern" id="rangePickerTrigger" aria-label="Выбрать период">
+                        <span class="period-icon-badge" aria-hidden="true">
+                            <i class="bi bi-calendar3"></i>
+                        </span>
+                        <span class="period-copy">
+                            <span class="period-copy-label">Период</span>
+                            <span class="range-display" id="rangeDisplay">
+                                @periodStart.ToString("dd.MM.yyyy") — @periodEnd.ToString("dd.MM.yyyy")
+                            </span>
+                        </span>
+                        <i class="bi bi-chevron-down period-chevron" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4 mb-4 dashboard-top-grid">
     <!-- Карточка клиентов -->
     <div class="col-md-6 col-lg-3">
@@ -645,6 +1227,232 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    <script>
+        (function () {
+            const form = document.getElementById('periodCustomForm');
+            if (!form) return;
+
+            const fromInput = form.querySelector('input[name="dateFrom"]');
+            const toInput = form.querySelector('input[name="dateTo"]');
+            const pickerInput = document.getElementById('rangePickerInput');
+            const trigger = document.getElementById('rangePickerTrigger');
+            const display = document.getElementById('rangeDisplay');
+            if (!fromInput || !toInput || !pickerInput || !trigger || !display) return;
+
+            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            const formatDisplay = (date) => window.flatpickr.formatDate(date, 'd.m.Y');
+
+            const submit = () => {
+                form.requestSubmit?.();
+                if (!form.requestSubmit) form.submit();
+            };
+
+            const syncDisplay = (selectedDates) => {
+                if (!selectedDates || selectedDates.length === 0) return;
+
+                const startDate = selectedDates[0];
+                const endDate = selectedDates[1] ?? selectedDates[0];
+                display.textContent = `${formatDisplay(startDate)} — ${formatDisplay(endDate)}`;
+            };
+
+            const buildHeaderSelectors = (instance) => {
+                const monthsContainer = instance.calendarContainer.querySelector('.flatpickr-months');
+                if (!monthsContainer) return;
+
+                let selectors = monthsContainer.querySelector('.calendar-selectors');
+                if (!selectors) {
+                    selectors = document.createElement('div');
+                    selectors.className = 'calendar-selectors';
+
+                    const createDropdown = (dropdownClass) => {
+                        const dropdown = document.createElement('div');
+                        dropdown.className = `calendar-dropdown ${dropdownClass}`;
+
+                        const triggerButton = document.createElement('button');
+                        triggerButton.type = 'button';
+                        triggerButton.className = 'calendar-dropdown-trigger';
+
+                        const label = document.createElement('span');
+                        label.className = 'calendar-dropdown-label';
+
+                        const chevron = document.createElement('i');
+                        chevron.className = 'bi bi-chevron-down calendar-dropdown-chevron';
+                        chevron.setAttribute('aria-hidden', 'true');
+
+                        const menu = document.createElement('div');
+                        menu.className = 'calendar-dropdown-menu';
+
+                        triggerButton.appendChild(label);
+                        triggerButton.appendChild(chevron);
+                        dropdown.appendChild(triggerButton);
+                        dropdown.appendChild(menu);
+
+                        return { dropdown, triggerButton, label, menu };
+                    };
+
+                    const monthDropdown = createDropdown('month-dropdown');
+                    const yearDropdown = createDropdown('year-dropdown');
+
+                    selectors.appendChild(monthDropdown.dropdown);
+                    selectors.appendChild(yearDropdown.dropdown);
+                    monthsContainer.appendChild(selectors);
+                }
+
+                const closeDropdowns = (exceptDropdown) => {
+                    selectors.querySelectorAll('.calendar-dropdown.open').forEach((dropdown) => {
+                        if (dropdown !== exceptDropdown) {
+                            dropdown.classList.remove('open');
+                        }
+                    });
+                };
+
+                const currentYear = instance.currentYear;
+                const yearFrom = currentYear - 7;
+                const yearTo = currentYear + 7;
+
+                const monthDropdown = selectors.querySelector('.month-dropdown');
+                const yearDropdown = selectors.querySelector('.year-dropdown');
+                if (!monthDropdown || !yearDropdown) return;
+
+                const monthLabel = monthDropdown.querySelector('.calendar-dropdown-label');
+                const monthMenu = monthDropdown.querySelector('.calendar-dropdown-menu');
+                const yearLabel = yearDropdown.querySelector('.calendar-dropdown-label');
+                const yearMenu = yearDropdown.querySelector('.calendar-dropdown-menu');
+                if (!monthLabel || !monthMenu || !yearLabel || !yearMenu) return;
+
+                monthLabel.textContent = monthNames[instance.currentMonth];
+                monthMenu.innerHTML = '';
+                monthNames.forEach((monthName, index) => {
+                    const isSelected = index === instance.currentMonth;
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className = `calendar-dropdown-option${isSelected ? ' active' : ''}`;
+                    option.textContent = monthName;
+                    option.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        instance.changeMonth(index, false);
+                        monthDropdown.classList.remove('open');
+                        buildHeaderSelectors(instance);
+                    });
+                    monthMenu.appendChild(option);
+                });
+
+                yearLabel.textContent = currentYear.toString();
+                yearMenu.innerHTML = '';
+                for (let year = yearFrom; year <= yearTo; year++) {
+                    const isSelected = year === currentYear;
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className = `calendar-dropdown-option${isSelected ? ' active' : ''}`;
+                    option.textContent = year.toString();
+                    option.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        instance.changeYear(year);
+                        yearDropdown.classList.remove('open');
+                        buildHeaderSelectors(instance);
+                    });
+                    yearMenu.appendChild(option);
+                }
+
+                if (!selectors.dataset.dropdownBound) {
+                    [monthDropdown, yearDropdown].forEach((dropdown) => {
+                        const triggerButton = dropdown.querySelector('.calendar-dropdown-trigger');
+                        if (!triggerButton) return;
+
+                        triggerButton.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const willOpen = !dropdown.classList.contains('open');
+                            closeDropdowns(dropdown);
+                            dropdown.classList.toggle('open', willOpen);
+                        });
+                    });
+
+                    document.addEventListener('click', (event) => {
+                        if (!instance.calendarContainer.contains(event.target)) {
+                            closeDropdowns();
+                        }
+                    });
+
+                    instance.calendarContainer.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                            closeDropdowns();
+                        }
+                    });
+
+                    selectors.dataset.dropdownBound = 'true';
+                }
+            };
+
+            const fp = window.flatpickr(pickerInput, {
+                mode: 'range',
+                dateFormat: 'Y-m-d',
+                defaultDate: [fromInput.value, toInput.value],
+                locale: window.flatpickr.l10ns.ru,
+                allowInput: false,
+                disableMobile: true,
+                clickOpens: false,
+                monthSelectorType: 'static',
+                showMonths: 1,
+                animate: true,
+                onChange: (selectedDates, dateStr, instance) => {
+                    syncDisplay(selectedDates);
+
+                    if (selectedDates.length === 2) {
+                        fromInput.value = instance.formatDate(selectedDates[0], 'Y-m-d');
+                        toInput.value = instance.formatDate(selectedDates[1], 'Y-m-d');
+                        submit();
+                    }
+                },
+                onReady: (selectedDates, dateStr, instance) => {
+                    instance.calendarContainer.classList.add('dashboard-period-calendar');
+                    syncDisplay(selectedDates);
+                    buildHeaderSelectors(instance);
+
+                    const originalClose = instance.close;
+                    instance.close = function(animate = true) {
+                        if (!animate || !instance.isOpen) {
+                            return originalClose.call(instance);
+                        }
+
+                        const calendar = instance.calendarContainer;
+                        calendar.style.animation = 'fp-pop-out 160ms cubic-bezier(.2,.9,.2,1) both';
+
+                        setTimeout(() => {
+                            calendar.style.animation = '';
+                            originalClose.call(instance);
+                        }, 160);
+                    };
+                },
+                onOpen: (selectedDates, dateStr, instance) => {
+                    form.classList.add('is-calendar-open');
+                    buildHeaderSelectors(instance);
+                    instance.calendarContainer.style.animation = 'fp-pop 160ms cubic-bezier(.2,.9,.2,1) both';
+                },
+                onClose: () => {
+                    form.classList.remove('is-calendar-open');
+                },
+                onMonthChange: (selectedDates, dateStr, instance) => {
+                    buildHeaderSelectors(instance);
+                },
+                onYearChange: (selectedDates, dateStr, instance) => {
+                    buildHeaderSelectors(instance);
+                }
+            });
+
+            trigger.addEventListener('click', () => fp.open());
+            trigger.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    fp.open();
+                }
+            });
+        })();
+    </script>
     <script>
         const ArrowTooltipPlugin = {
             id: 'arrowTooltip',
@@ -816,7 +1624,5 @@
 </script>
 
 }
-
-
 
 
