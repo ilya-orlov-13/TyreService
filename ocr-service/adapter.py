@@ -118,7 +118,9 @@ def ocr_scan(req: OcrRequest):
         raise HTTPException(status_code=502, detail=f"Unlimited-OCR returned {resp.status_code}: {body[:200]}")
 
     if text:
-        log.info(f"OCR text ({len(text)} chars): {text[:500]}")
+        log.info(f"OCR text ({len(text)} chars): saved to ocr_debug.txt")
+        with open(r"D:\projects\TyreService\ocr-service\ocr_debug.txt", "w", encoding="utf-8") as f:
+            f.write(text)
     else:
         log.warning("OCR returned empty text")
     return {"text": text}

@@ -106,8 +106,8 @@ def chat_completions(body: dict = Body(...)):
         return {"choices": [{"message": {"content": "Error: no valid image found in request"}, "index": 0}]}
     pil_images = images_to_pil(images_bytes)
     config = images_config
-    base_size = 320
-    image_size = 320 if config.get("image_mode") == "base" else 256
+    base_size = 640
+    image_size = 640 if config.get("image_mode") == "base" else 448
     crop_mode = config.get("image_mode") != "base"
 
     image_path = "/tmp/ocr_input.png"
