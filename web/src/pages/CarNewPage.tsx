@@ -18,9 +18,12 @@ export default function CarNewPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrDocPreview, setOcrDocPreview] = useState<string | null>(null);
+  const [ocrDone, setOcrDone] = useState(false);
 
   const handleOcr = async (file: File) => {
     setOcrLoading(true);
+    setOcrDone(false);
     try {
       const formData = new FormData();
       formData.append('photo', file);
@@ -31,11 +34,21 @@ export default function CarNewPage() {
       if (data.year) setManufactureYear(parseInt(data.year));
       if (data.licensePlate) setLicensePlate(formatLicensePlate(data.licensePlate));
       if (data.vin) setVin(data.vin);
+      setOcrDone(true);
     } catch {
       // OCR may fail silently
     } finally {
       setOcrLoading(false);
     }
+  };
+
+  const handleOcrDocUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    if (ocrDocPreview) URL.revokeObjectURL(ocrDocPreview);
+    setOcrDocPreview(URL.createObjectURL(file));
+    handleOcr(file);
   };
 
   const handlePhotoAdd = (e: ChangeEvent<HTMLInputElement>) => {
@@ -44,9 +57,6 @@ export default function CarNewPage() {
     const newPhotos = [...photos, ...files];
     setPhotos(newPhotos);
     setPreviews(newPhotos.map((f) => URL.createObjectURL(f)));
-    if (files.length > 0 && !brand && !vin) {
-      handleOcr(files[0]);
-    }
   };
 
   const removePhoto = (index: number) => {
@@ -90,27 +100,46 @@ export default function CarNewPage() {
       <form onSubmit={handleSubmit} className="card p-6 space-y-4">
         {error && <div className="bg-elevated text-base text-sm rounded-md p-3">{error}</div>}
 
-        <div>
-          <label className="field-label mb-2 block">Фотографии</label>
-          <div className="grid grid-cols-3 gap-2 mb-2">
-            {previews.map((p, i) => (
-              <div key={i} className="relative">
-                <img src={p} alt="" className="w-full h-24 object-cover rounded-lg" />
-                <button type="button" onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 bg-base text-canvas w-5 h-5 rounded-full text-xs">&#10005;</button>
+        {/* OCR Document Upload */}
+        <div className="border-2 border-dashed border-border rounded-lg p-4">
+          <label className="field-label mb-1">Распознавание СТС</label>
+          <p className="text-sm text-faint mb-3">Загрузите фото свидетельства о регистрации ТС для автозаполнения полей</p>
+
+          {ocrDocPreview ? (
+            <div className="relative mb-2">
+              <img src={ocrDocPreview} alt="" className="w-full h-32 object-contain rounded-lg" />
+              {ocrLoading && (
+                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center rounded-lg overflow-hidden">
+                  <style>{`@keyframes scanLine{0%,100%{top:0}50%{top:100%}}@keyframes shimmerBar{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
+                  <div className="absolute left-0 right-0 h-0.5 bg-blue-400 shadow-[0_0_10px_#60a5fa] z-10" style={{animation:'scanLine 2.5s ease-in-out infinite'}} />
+                  <div className="relative z-20 text-center px-4">
+                    <div className="w-10 h-10 border-[3px] border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-white text-sm font-medium">Идёт распознавание...</p>
+                    <p className="text-blue-200 text-xs mt-1">Обычно 3–4 минуты</p>
+                    <div className="w-44 h-1 bg-white/20 rounded-full mt-3 mx-auto overflow-hidden">
+                      <div className="h-full w-1/2 bg-blue-400 rounded-full" style={{animation:'shimmerBar 1.4s ease-in-out infinite'}} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              {ocrDone && !ocrLoading && (
+                <div className="absolute top-1 right-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded">Распознано</div>
+              )}
+            </div>
+          ) : (
+            <label className="flex items-center justify-center h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-border-strong transition-colors">
+              <div className="text-center">
+                <Upload size={24} className="mx-auto mb-1 text-faint" />
+                <span className="text-sm text-faint">Нажмите для загрузки</span>
               </div>
-            ))}
-            {previews.length < 5 && (
-              <label className="flex items-center justify-center h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-border-strong transition-colors">
-                {ocrLoading ? (
-                  <div className="animate-spin w-5 h-5 border-2 border-base border-t-transparent rounded-full" />
-                ) : (
-                  <Upload size={20} className="text-faint" />
-                )}
-                <input type="file" accept="image/*" multiple onChange={handlePhotoAdd} className="hidden" />
-              </label>
-            )}
-          </div>
-          <p className="t-mono-sm">Первое фото будет просканировано для распознавания данных</p>
+              <input type="file" accept="image/*" onChange={handleOcrDocUpload} className="hidden" />
+            </label>
+          )}
+          {ocrDocPreview && (
+            <button type="button" onClick={() => { setOcrDocPreview(null); setOcrDone(false); }} className="text-sm text-faint hover:text-base mt-1">
+              Удалить
+            </button>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -133,7 +162,7 @@ export default function CarNewPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <div className="field">
             <label className="field-label">Год выпуска</label>
-            <input type="number" value={manufactureYear} onChange={(e) => setManufactureYear(parseInt(e.target.value))} min={1990} max={2030} className="input" required />
+            <input type="number" value={manufactureYear} onChange={(e) => setManufactureYear(parseInt(e.target.value) || new Date().getFullYear())} min={1990} max={2030} className="input" />
           </div>
           <div className="field">
             <label className="field-label">Госномер</label>
@@ -142,8 +171,26 @@ export default function CarNewPage() {
         </div>
 
         <div className="field">
-          <label className="field-label">VIN</label>
-          <input type="text" value={vin} onChange={(e) => setVin(e.target.value.toUpperCase())} placeholder="17 символов" maxLength={17} className="input font-mono" required />
+          <label className="field-label">VIN <span className="text-faint font-normal">(необязательно)</span></label>
+          <input type="text" value={vin} onChange={(e) => setVin(e.target.value.toUpperCase())} placeholder="17 символов" maxLength={17} className="input font-mono" />
+        </div>
+
+        <div>
+          <label className="field-label mb-2 block">Фотографии автомобиля</label>
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            {previews.map((p, i) => (
+              <div key={i} className="relative">
+                <img src={p} alt="" className="w-full h-24 object-cover rounded-lg" />
+                <button type="button" onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 bg-base text-canvas w-5 h-5 rounded-full text-xs">&#10005;</button>
+              </div>
+            ))}
+            {previews.length < 5 && (
+              <label className="flex items-center justify-center h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-border-strong transition-colors">
+                <Upload size={20} className="text-faint" />
+                <input type="file" accept="image/*" multiple onChange={handlePhotoAdd} className="hidden" />
+              </label>
+            )}
+          </div>
         </div>
 
         <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center">
