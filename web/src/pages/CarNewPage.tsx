@@ -5,6 +5,7 @@ import { Upload, ArrowLeft } from 'lucide-react';
 import type { OcrResult } from '../types';
 import { formatLicensePlate } from '../utils/phoneMask';
 import { BRANDS, getModelSuggestions } from '../utils/carData';
+import '@lottiefiles/dotlottie-wc';
 
 export default function CarNewPage() {
   const navigate = useNavigate();
@@ -109,17 +110,10 @@ export default function CarNewPage() {
             <div className="relative mb-2">
               <img src={ocrDocPreview} alt="" className="w-full h-32 object-contain rounded-lg" />
               {ocrLoading && (
-                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center rounded-lg overflow-hidden">
-                  <style>{`@keyframes scanLine{0%,100%{top:0}50%{top:100%}}@keyframes shimmerBar{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
-                  <div className="absolute left-0 right-0 h-0.5 bg-blue-400 shadow-[0_0_10px_#60a5fa] z-10" style={{animation:'scanLine 2.5s ease-in-out infinite'}} />
-                  <div className="relative z-20 text-center px-4">
-                    <div className="w-10 h-10 border-[3px] border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                    <p className="text-white text-sm font-medium">Идёт распознавание...</p>
-                    <p className="text-blue-200 text-xs mt-1">Обычно 3–4 минуты</p>
-                    <div className="w-44 h-1 bg-white/20 rounded-full mt-3 mx-auto overflow-hidden">
-                      <div className="h-full w-1/2 bg-blue-400 rounded-full" style={{animation:'shimmerBar 1.4s ease-in-out infinite'}} />
-                    </div>
-                  </div>
+                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center rounded-lg">
+                  <dotlottie-wc src="/Document-OCR-Scan.lottie" autoplay loop style={{width:120,height:120}} />
+                  <p className="text-white text-sm font-medium mt-2">Идёт распознавание...</p>
+                  <p className="text-blue-200 text-xs mt-1">Обычно 3–4 минуты</p>
                 </div>
               )}
               {ocrDone && !ocrLoading && (
